@@ -1,7 +1,7 @@
 [project]
 name = "blockology-gvi"
 version = "0.1.0"
-description = "VLM-driven blockology pipeline for measuring pedestrian-perspective green view (GVI) and visual enclosure (VEI) from Street View imagery, cross-validated against real building geometry."
+description = "VLM-driven blockology pipeline for measuring pedestrian-perspective green view (GVI) and visual enclosure (VEI) from Street View imagery."
 readme = "README.md"
 authors = [
     { email = "atelier.j.l@gmail.com" }
@@ -9,22 +9,16 @@ authors = [
 requires-python = ">=3.12"
 dependencies = [
     "accelerate>=1.14.0",
-    "beautifulsoup4>=4.15.0",
-    "bitsandbytes>=0.50.0",
     "contextily>=1.7.1",
     "geopandas>=1.1.4",
-    "jupyter>=1.1.1",
     "matplotlib>=3.11.1",
-    "notebook>=7.6.1",
     "numpy>=2.5.2",
     "opencv-python-headless>=4.11.0",
-    "openai>=2.53.0",
     "osmnx>=2.1.1",
     "pandas>=3.0.5",
     "pillow>=12.3.0",
     "pyogrio>=0.13.0",
     "requests>=2.34.2",
-    "scikit-learn>=1.9.0",
     "scipy>=1.18.0",
     "shapely>=2.1.2",
     "torch>=2.13.0",

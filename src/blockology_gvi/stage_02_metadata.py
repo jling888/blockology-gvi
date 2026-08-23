@@ -12,14 +12,26 @@ import pandas as pd
 import requests
 from tqdm.auto import tqdm
 
+from blockology_gvi.stage_01_nodes import GRID_SPACING_M
+
 METADATA_URL = "https://maps.googleapis.com/maps/api/streetview/metadata"
 
 
 def _fetch_pano_metadata(lat: float, lon: float, gmaps_key: str) -> dict:
-    """One Street View metadata lookup, normalized to a flat dict."""
+    """One Street View metadata lookup, normalized to a flat dict.
+
+    - source="outdoor" steers away from indoor trekker coverage, since
+      stage_03 fetches by pano_id with no source filter of its own -- this
+      is the only point in the pipeline where indoor panos can be excluded.
+    - radius=GRID_SPACING_M caps the search to this node's own ~20 m cell.
+      A node snapping to a pano from beyond that radius would be reporting
+      another cell's imagery as its own; better to come back ZERO_RESULTS
+      and get dropped than silently misattribute the GVI/VEI reading.
+    """
     try:
         js = requests.get(METADATA_URL, params={
-            "location": f"{lat},{lon}", "source": "outdoor", "key": gmaps_key,
+            "location": f"{lat},{lon}", "source": "outdoor",
+            "radius": GRID_SPACING_M, "key": gmaps_key,
         }, timeout=15).json()
     except Exception as e:
         js = {"status": "ERROR", "error": str(e)}
@@ -60,7 +72,8 @@ def _raise_no_usable_nodes(meta: pd.DataFrame) -> None:
     raise RuntimeError("No usable nodes -- fix the above before continuing.")
 
 
-def probe_metadata(nodes: gpd.GeoDataFrame, gmaps_key: str, out: Path) -> pd.DataFrame:
+def probe_metadata(nodes: gpd.GeoDataFrame, gmaps_key: str, out: Path,
+                    force: bool = False) -> pd.DataFrame:
     """Free metadata probe for coverage and capture date.
 
     Resumable: a node whose last probe came back "OK" is trusted and
@@ -69,6 +82,10 @@ def probe_metadata(nodes: gpd.GeoDataFrame, gmaps_key: str, out: Path) -> pd.Dat
     transient failure -- e.g. a billing/API change that hadn't finished
     propagating yet.
 
+    `force=True` ignores metadata.csv entirely and re-probes every node,
+    overwriting it -- e.g. after changing `radius`/`source`, where a prior
+    "OK" was against different search parameters and shouldn't be trusted.
+
     "usable" nodes are those matching the single most common capture date
     among this area's coverage -- restricting to one capture drive buys
     temporal coherence across nodes, and the largest one needs the fewest
@@ -76,7 +93,7 @@ def probe_metadata(nodes: gpd.GeoDataFrame, gmaps_key: str, out: Path) -> pd.Dat
     """
     ckpt = out / "metadata.csv"
 
-    meta_rows, todo = _split_done_todo(ckpt, nodes)
+    meta_rows, todo = ([], nodes) if force else _split_done_todo(ckpt, nodes)
     for _, r in tqdm(todo.iterrows(), total=len(todo), desc="metadata", mininterval=2.0):
         meta_rows.append({"node_id": r.node_id, **_fetch_pano_metadata(r.lat, r.lon, gmaps_key)})
 
@@ -110,9 +127,6 @@ def probe_metadata(nodes: gpd.GeoDataFrame, gmaps_key: str, out: Path) -> pd.Dat
     print("\nall available captures (for the sample-flow paragraph):")
     print(pd.crosstab(meta.loc[ok, "year"], meta.loc[ok, "month"]).to_string())
 
-    # STOP HERE if nothing is usable. Without this guard every later stage
-    # still reports success while looping over an empty list, which is how
-    # you end up with green checkmarks and no output files.
     if meta.usable.sum() == 0:
         _raise_no_usable_nodes(meta)
 

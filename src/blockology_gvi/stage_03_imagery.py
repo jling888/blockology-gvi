@@ -1,127 +1,164 @@
-"""Stage 3 -- Street View imagery for every usable node.
+"""Stage 3 -- Street View raw image download.
 
-Four frames per node at fov=90 on the cardinal headings. Four 90-degree
-frames tile the full circle exactly: no gaps, no overlap, and the solid
-angle each covers is known in closed form. That matters more than it looks,
-because Stage 4 integrates over an angular window rather than over whole
-images -- with the circle tiled, any field of view can be measured later
-from the same imagery, including the 180-degree forward view a pedestrian
-actually has. Buying only the forward view would fix the FOV at purchase
-time and make every later question a re-purchase.
+Billed Google Street View Static API call. Fetches by pano_id, not lat/lon,
+so every shot at a node comes from the same panorama; coordinates can snap
+to a different pano per heading, which would corrupt the GVI sum.
 
-Requests are keyed by `pano_id`, not by lat/lon. Coordinates re-resolve to
-whatever panorama is nearest today, so a re-run after Google's next capture
-would silently mix two dates into one node; a pano id returns the same
-photograph or nothing.
+Google Street View Static API params used here:
+- heading: compass direction the camera faces, 0-360 (0/360=N, 90=E,
+180=S). Left unspecified, Google aims it at the input location from
+the nearest pano; we set it explicitly so every shot is reproducible.
+- fov (default 90): horizontal field of view in degrees, max 120 (API hard cap).
+Acts as zoom on a fixed-size viewport: smaller fov = more zoomed in.
+- pitch (default 0): camera's up/down angle relative to the Street
+View vehicle, not always level. Positive angles up (90 = straight up),
+negative angles down (-90 = straight down); PITCH stays 0 here.
 
-THIS STAGE SPENDS MONEY. Every other stage reads what is already on disk.
-It asks before starting unless assume_yes is set, and it resumes rather than
-re-downloading, so an interrupted run costs nothing the second time.
+Heading scheme: full 360-degree coverage, 6 shots per node at exactly
+60-degree spacing (OFFSETS), one raw shot per offset -- no stitching.
+Spacing equals FOV, so each shot's angular footprint exactly abuts its
+neighbors: zero overlap (no pixel double-counted toward GVI) and zero gap
+(no pixel missed).
+
+Offsets are grid-relative, not absolute compass headings. GRID_BEARING
+rotates them per node so offset 0 always faces along the street (the
+direction of travel) and offset 180 faces back the way you came, regardless
+of the street's own compass bearing -- Manhattan avenues run ~29 degrees off
+true north, cross streets ~119. Summed across all 6 shots, total angular
+coverage would be the same at any starting rotation, but which real-world
+view each individual offset corresponds to would not be: without this
+correction, "offset 0" would mean a different, typology-dependent slice of
+the scene at every node. Anchoring offset 0 to the direction of travel is
+what makes the shots line up with a walking pedestrian's own field of
+view -- forward, behind, and to each side -- rather than an arbitrary,
+incomparable slice of the compass.
+
+Why fov=60, not wider. Street View images are a rectilinear projection: a
+real-world angle theta off a shot's own center lands at a pixel position
+proportional to tan(theta), so content stretches toward the edges, faster
+than theta grows, as the shot's own half-angle widens. A narrower fov keeps
+that stretch smaller and gives more pixels per degree of scene for
+segmentation. GVI/VEI are computed as a flat pixel-count ratio (see
+stage_05_metrics.py, and METHODOLOGY.md for why no geometric correction is
+applied), so this stretch isn't corrected after the fact -- fov=60 is the
+actual mitigation, not a starting point a later stage arithmetically
+cancels out.
 """
 
+import sys
 from pathlib import Path
 
+import hashlib
 import pandas as pd
 import requests
 from tqdm.auto import tqdm
 
-STREETVIEW_URL = "https://maps.googleapis.com/maps/api/streetview"
+SV_URL = "https://maps.googleapis.com/maps/api/streetview"
 
-HEADINGS = (0, 90, 180, 270)     # tiles the circle at fov=90
-FOV = 90
-PITCH = 0                        # horizon-centred; a pedestrian's eyeline
-IMAGE_SIZE = 640                 # the largest size the free tier serves
-COST_PER_REQUEST = 0.007         # list price, for the estimate only
+GRID_BEARING = {"avenue": 29, "mid_block": 119}
 
+OFFSETS = [0, 60, 120, 180, 240, 300]  # grid-relative; 60-degree spacing == FOV -> zero overlap, zero gap
 
-def _frame_path(imagery_dir: Path, node_id: str, heading: int) -> Path:
-    return imagery_dir / f"{node_id}_{heading:03d}.jpg"
+FOV = 60
+PITCH = 0
+IMG_SIZE = "640x640"  # Street View Static API images can be returned in any size up to 640 x 640 pixels.
 
 
-def _confirm(n_requests: int, assume_yes: bool) -> None:
-    """State the cost and stop, unless the caller has already agreed."""
-    cost = n_requests * COST_PER_REQUEST
-    print(f"\n{n_requests} requests to the Street View Static API "
-          f"(${cost:.2f} at list price)")
-    if assume_yes:
-        return
-    if input("proceed? [y/N] ").strip().lower() not in ("y", "yes"):
-        raise SystemExit("cancelled -- nothing downloaded")
-
-
-def _split_done_todo(meta: pd.DataFrame,
-                     imagery_dir: Path) -> tuple[list[dict], pd.DataFrame]:
-    """Rows already on disk, and the nodes still missing at least one frame."""
-    done, todo_ids = [], []
-    for node_id in meta.node_id:
-        have = [(h, _frame_path(imagery_dir, node_id, h)) for h in HEADINGS]
-        if all(p.exists() for _, p in have):
-            done += [{"node_id": node_id, "heading": h, "path": str(p)}
-                     for h, p in have]
-        else:
-            todo_ids.append(node_id)
-    if done:
-        print(f"resuming: {len(done) // len(HEADINGS)} nodes already complete, "
-              f"{len(todo_ids)} to download")
-    return done, meta[meta.node_id.isin(todo_ids)]
-
-
-def download_imagery(meta: pd.DataFrame,
-                     gmaps_key: str,
-                     imagery_dir: Path,
-                     assume_yes: bool = False) -> pd.DataFrame:
-    """Fetch four frames per usable node; write and return the manifest.
-
-    `meta` is Stage 2's output. Only rows it marked usable are fetched, so
-    the temporal-coherence rule set there decides what this stage pays for.
+def _pano_tag(pano_id: str) -> str:
+    """Short, filename-safe tag derived from pano_id -- changes iff the
+    panorama does, which is what makes the file path content-derived.
     """
-    usable = meta[meta.usable.astype(bool)]
-    if usable.empty:
-        raise AssertionError(
-            "no usable nodes in metadata.csv -- Stage 2 marks a node usable "
-            "only when its capture date matches the study's; check that "
-            "stage's output before paying for imagery."
-        )
-    print(f"{len(usable)} usable nodes of {len(meta)} probed")
+    return hashlib.sha1(pano_id.encode()).hexdigest()[:8]
 
-    done, todo = _split_done_todo(usable, imagery_dir)
-    manifest = list(done)
 
-    if todo.empty:
-        print("every frame already on disk -- nothing to download")
+def _fetch_streetview(pano_id: str, heading: int, img_size: str, fov: int,
+                       pitch: int, gmaps_key: str) -> bytes | None:
+    """One Street View Static image, or None on any failure (network error,
+    non-200, or a suspiciously small body -- Google's grey "no imagery"
+    placeholder is a valid 200 response but far under 5 KB).
+    """
+    try:
+        resp = requests.get(SV_URL, params={
+            "pano": pano_id, "size": img_size, "heading": heading,
+            "fov": fov, "pitch": pitch, "key": gmaps_key,
+        }, timeout=30)
+    except Exception:
+        return None
+    if resp.status_code != 200 or len(resp.content) < 5000:
+        return None
+    return resp.content
+
+
+def _path_for(out: Path, r, offset: int, heading: int) -> Path:
+    # typology + absolute heading are redundant with offset + street_bearing
+    # (both recoverable from the manifest), but baked into the filename so
+    # a folder of images can be skimmed by eye -- street type and compass
+    # direction -- without opening raw_manifest.csv.
+    return out / f"{r.node_id}_{r.typology}_{offset:03d}_{heading:03d}_{r.pano_tag}.jpg"
+
+
+def download_imagery(meta: pd.DataFrame, gmaps_key: str, out: Path,
+                      offsets: list[int] = OFFSETS,
+                      img_size: str = IMG_SIZE, fov: int = FOV,
+                      pitch: int = PITCH, auto_confirm: bool = False) -> pd.DataFrame:
+    """Download raw Street View shots by pano_id -- one per (node, offset).
+    No stitching or compositing downstream; each shot stands alone.
+
+    Images land under out/raw/; the manifest is written to out/ itself, so a
+    listing of `out` separates "one CSV to read" from "a folder of JPEGs to
+    browse" instead of interleaving thousands of files with it.
+    """
+    raw_dir = out / "raw"
+    raw_dir.mkdir(parents=True, exist_ok=True)
+    usable = meta[meta.usable].copy()
+    usable["pano_tag"] = usable.pano_id.map(_pano_tag)
+    usable["street_bearing"] = usable.typology.map(GRID_BEARING)
+
+    jobs = [(r, offset, round(r.street_bearing + offset) % 360)
+            for _, r in usable.iterrows() for offset in offsets]
+
+    # Existing JPEGs are always skipped below, so this counts only what
+    # would actually be billed -- an interrupted download resumes at the
+    # individual shot level instead of re-billing whatever already
+    # landed on disk.
+    to_fetch = sum(1 for r, offset, heading in jobs if not _path_for(raw_dir, r, offset, heading).exists())
+    if to_fetch == 0:
+        print("all raw imagery already on disk -- nothing to download")
     else:
-        _confirm(len(todo) * len(HEADINGS), assume_yes)
-        failed = 0
-        for row in tqdm(list(todo.itertuples()), desc="imagery", mininterval=2.0):
-            for heading in HEADINGS:
-                path = _frame_path(imagery_dir, row.node_id, heading)
-                if path.exists():
-                    manifest.append({"node_id": row.node_id, "heading": heading,
-                                     "path": str(path)})
-                    continue
-                try:
-                    resp = requests.get(STREETVIEW_URL, params={
-                        "pano": row.pano_id,
-                        "size": f"{IMAGE_SIZE}x{IMAGE_SIZE}",
-                        "heading": heading, "fov": FOV, "pitch": PITCH,
-                        "key": gmaps_key,
-                    }, timeout=30)
-                    resp.raise_for_status()
-                    path.write_bytes(resp.content)
-                except Exception:
-                    failed += 1
-                    continue
-                manifest.append({"node_id": row.node_id, "heading": heading,
-                                 "path": str(path)})
-        if failed:
-            print(f"{failed} frame(s) failed; re-run to retry just those")
+        # This is a BILLED Google Maps API call
+        if auto_confirm:  # --yes flag: skip the prompt for unattended runs
+            print("--yes passed: proceeding without confirmation.")
+        elif not sys.stdin.isatty():
+            raise RuntimeError(
+                "Refusing to make a paid API call in a non-interactive session "
+                "without confirmation. Re-run with --yes, or run interactively."
+            )
+        elif input("Proceed? [y/N] ").strip().lower() not in ("y", "yes"):
+            raise RuntimeError("Cancelled by user before a paid API call.")
 
-    df = pd.DataFrame(manifest).sort_values(["node_id", "heading"])
-    out_path = imagery_dir / "manifest.csv"
-    df.to_csv(out_path, index=False)
-    n_nodes = df.node_id.nunique()
-    print(f"\n{len(df)} frames across {n_nodes} nodes -> {out_path}")
-    if n_nodes < len(usable):
-        print(f"  {len(usable) - n_nodes} usable node(s) have no complete set "
-              "of four frames and are not in the manifest")
-    return df
+    manifest = []
+    failures = 0
+
+    for i, (r, offset, heading) in enumerate(tqdm(jobs, desc="imagery", mininterval=2.0)):
+        fp = _path_for(raw_dir, r, offset, heading)
+        if not fp.exists():
+            content = _fetch_streetview(r.pano_id, heading, img_size, fov, pitch, gmaps_key)
+            if content is None:
+                failures += 1
+                continue
+            fp.write_bytes(content)
+        manifest.append({"node_id": r.node_id, "pano_id": r.pano_id, "pano_tag": r.pano_tag,
+                          "typology": r.typology, "offset": offset, "heading": heading,
+                          "path": str(fp)})
+
+        # Checkpoint every ~50 nodes' worth of shots so a disconnect never loses the index.
+        if i % (50 * len(offsets)) == 0 and manifest:
+            pd.DataFrame(manifest).to_csv(out / "raw_manifest.csv", index=False)
+
+    manifest_df = pd.DataFrame(manifest)
+    manifest_df.to_csv(out / "raw_manifest.csv", index=False)
+    print(f"{len(manifest_df)} raw images across {manifest_df.node_id.nunique()} nodes")
+    print(f"failed requests: {failures}")
+    print("on disk:", len(list(raw_dir.glob("*.jpg"))), "jpg files")
+    assert len(manifest_df) > 0, "No imagery downloaded -- check the metadata probe output."
+    return manifest_df

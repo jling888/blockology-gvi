@@ -2,7 +2,7 @@
 
 Stages pass state via checkpoint files in the output dir, not a shared object
 (see _read_checkpoint()). `imagery` and `validation` cost real money and ask for
-confirmation unless --yes / assume_yes=True.
+confirmation unless --yes / auto_confirm=True.
 """
 
 import os
@@ -15,7 +15,7 @@ import geopandas as gpd
 import pandas as pd
 import torch
 
-STAGE_NAMES = ["nodes", "metadata", "imagery", "segmentation"]
+STAGE_NAMES = ["nodes", "metadata", "imagery", "segmentation", "metrics"]
 
 
 # --------------------------------------------------------------- helpers
@@ -51,27 +51,40 @@ def _create_dir(path: Path) -> Path:
     return path
 
 
-def _check_cuda() -> tuple[str, int]:
-    """Verify a CUDA device is visible and pick a segmentation batch size."""
+def _check_device() -> tuple[str, int]:
+    """Pick a compute device -- CUDA, then Apple Silicon MPS -- and a
+    segmentation batch size."""
     print("python  ", sys.version.split()[0], "|", platform.system())
     print("torch   ", torch.__version__)
 
-    if not torch.cuda.is_available():
+    if torch.cuda.is_available():
+        device = "cuda"
+        vram_gb = torch.cuda.get_device_properties(0).total_memory / 2**30
+        print("gpu     ", torch.cuda.get_device_name(0), f"({vram_gb:.1f} GiB)")
+        # Main VRAM lever for segmentation -- halve it if run_segmentation() OOMs.
+        batch = 16 if vram_gb >= 32 else 8 if vram_gb >= 14 else 4 if vram_gb >= 10 else 2
+    elif torch.backends.mps.is_available():
+        device = "mps"
+        if hasattr(torch.mps, "recommended_max_memory"):
+            # Metal's advisory ceiling for this process, not a hard VRAM size
+            # (unified memory is shared with the OS/other apps) -- same tiers
+            # as the CUDA branch, just a softer number feeding them.
+            vram_gb = torch.mps.recommended_max_memory() / 2**30
+            print("gpu     ", "Apple MPS", f"({vram_gb:.1f} GiB recommended)")
+            batch = 16 if vram_gb >= 32 else 8 if vram_gb >= 14 else 4 if vram_gb >= 10 else 2
+        else:
+            print("gpu     ", "Apple MPS (unified memory, no memory query on this torch version)")
+            batch = 4  # Fixed conservative default, lower by hand if run_segmentation() OOMs
+    else:
         raise SystemExit(
-            "No CUDA device visible.\n"
-            "  - check nvidia-smi works from a terminal\n"
-            "  - reinstall torch from the cu121 index, not plain PyPI\n"
-            "  - confirm this environment is the CUDA one, not system python"
+            "No CUDA or MPS device visible.\n"
+            "  - CUDA: check nvidia-smi works from a terminal; reinstall torch from the cu121 index\n"
+            "  - Apple Silicon: needs torch>=2.0 and macOS>=12.3\n"
+            "  - confirm this environment is the right one, not system python"
         )
 
-    vram_gb = torch.cuda.get_device_properties(0).total_memory / 2**30
-    print("gpu     ", torch.cuda.get_device_name(0), f"({vram_gb:.1f} GiB)")
-
-    # Main VRAM lever for segmentation -- halve it if run_segmentation() OOMs.
-    batch = 16 if vram_gb >= 32 else 8 if vram_gb >= 14 else 4 if vram_gb >= 10 else 2
     print("batch   ", batch, "(auto-selected)")
-
-    return "cuda", batch
+    return device, batch
 
 
 def _read_checkpoint(path: Path, stage_hint: str, reader: Callable[[Path], "pd.DataFrame | gpd.GeoDataFrame"]):
@@ -124,7 +137,7 @@ def _stage_nodes(out: Path, grid_path: Path) -> None:
     nodes_stage.plot_nodes(nodes, nodes_dir)
 
 
-def _stage_metadata(out: Path) -> None:
+def _stage_metadata(out: Path, force: bool) -> None:
     from . import stage_02_metadata as metadata
 
     nodes_path = out / "nodes" / "nodes.gpkg"
@@ -132,10 +145,10 @@ def _stage_metadata(out: Path) -> None:
 
     nodes = _read_checkpoint(nodes_path, "nodes", gpd.read_file)
     _create_dir(metadata_dir)
-    metadata.probe_metadata(nodes, _get_gmaps_key(required=True), metadata_dir)
+    metadata.probe_metadata(nodes, _get_gmaps_key(required=True), metadata_dir, force=force)
 
 
-def _stage_imagery(out: Path, assume_yes: bool) -> None:
+def _stage_imagery(out: Path, auto_confirm: bool) -> None:
     from . import stage_03_imagery as imagery
 
     meta_path = out / "metadata" / "metadata.csv"
@@ -144,23 +157,45 @@ def _stage_imagery(out: Path, assume_yes: bool) -> None:
     meta = _read_checkpoint(meta_path, "metadata", pd.read_csv)
     _create_dir(imagery_dir)
     imagery.download_imagery(meta, _get_gmaps_key(required=True), imagery_dir,
-                                       assume_yes=assume_yes)
+                                       auto_confirm=auto_confirm)
 
 
-def _stage_segmentation(out: Path) -> None:
+def _stage_segmentation(out: Path, force: bool) -> None:
     from . import stage_04_segmentation as segmentation
 
-    manifest_path = out / "imagery" / "manifest.csv"
-    segmentation_dir = out / "segmentation"
+    manifest_path = out / "imagery" / "raw_manifest.csv"
+    seg_dir = out / "segmentation"
 
     manifest = _read_checkpoint(manifest_path, "imagery", pd.read_csv)
-    device, batch = _check_cuda()
-    seg_proc, seg_model, class_ids = segmentation.load_segmenter(device)
-    _create_dir(segmentation_dir)
-    seg_df = segmentation.run_segmentation(manifest, seg_proc, seg_model, class_ids,
-                                                      device, batch, segmentation_dir)
-    segmentation.release_segmenter(seg_model)  # VRAM is needed for Stage 5
-    segmentation.run_open_vocab_supplement(seg_df, manifest.path.tolist(), device, segmentation_dir)
+    device, _ = _check_device()
+    cs_proc, cs_model = segmentation.load_segmenter(device)
+    _create_dir(seg_dir)
+    segmentation.run_segmentation(manifest, cs_proc, cs_model, device, seg_dir, force=force)
+    segmentation.release_segmenter(cs_model, device)
+
+
+def _stage_metrics(out: Path) -> None:
+    """Aggregate stage_04's per-image pixel counts to per-node GVI/VEI --
+    one logical stage ("compute the final result"), split into a few
+    functions with their own checkpoint file (metrics/metrics.csv) so a
+    resumed run never redoes work already on disk. See stage_05_metrics.py.
+    """
+    from . import stage_05_metrics as metrics_stage
+
+    pixel_counts_path = out / "segmentation" / "pixel_counts.csv"
+    nodes_path = out / "nodes" / "nodes.gpkg"
+    metrics_dir = out / "metrics"
+
+    pixel_counts = _read_checkpoint(pixel_counts_path, "segmentation", pd.read_csv)
+    nodes = _read_checkpoint(nodes_path, "nodes", gpd.read_file)
+    _create_dir(metrics_dir)
+    # compute_node_metrics/run_typology_contrast always fully recompute from
+    # pixel_counts_path (no row-level checkpoint of their own to force
+    # past), so this stage has nothing for `force` to override.
+    metrics = metrics_stage.compute_node_metrics(pixel_counts, nodes, metrics_dir)
+    metrics_stage.run_typology_contrast(metrics)
+    metrics_stage.plot_metrics_map(metrics, metrics_dir)
+    metrics_stage.plot_metrics_distributions(metrics, metrics_dir)
 
 
 # --------------------------------------------------------------------- entry point
@@ -168,13 +203,23 @@ def _stage_segmentation(out: Path) -> None:
 def run_stages(names: list[str] | None = None, *,
                out_dir: Path,
                grid_path: Path,
-               assume_yes: bool = False,
+               auto_confirm: bool = False,
+               force: bool = False,
                ) -> None:
     """Run the given stages in order (default: all).
 
     `grid_path` is an already-filtered street network (edges, not points);
     see example/murray_hill.py for how to build one -- this package doesn't
     fetch OSM data or decide which streets count, just samples/labels nodes.
+
+    `force` ignores a stage's own checkpoint and re-runs it from scratch --
+    only stages where that's actually safe (free, or explicitly re-confirmed
+    before billing) opt in; each `_stage_*` function decides for itself
+    whether/how to use it. Currently: `metadata` and `segmentation`
+    (not `metrics`, which always fully recomputes anyway -- nothing there to
+    force past). Deliberately NOT `imagery`, since that's billed -- forcing
+    it would silently re-download and re-bill images already on disk;
+    `nodes` doesn't have a resumable checkpoint to force either.
     """
     full_run = names is None
     names = names or STAGE_NAMES
@@ -183,18 +228,19 @@ def run_stages(names: list[str] | None = None, *,
     print("output directory:", out)
 
     if full_run:
-        # Fail fast: confirm the GPU is usable and the maps key exists
-        # before spending any money or GPU time on later stages.
-        _check_cuda()
+        # Fail fast: confirm a compute device is usable and the maps key
+        # exists before spending any money or GPU time on later stages.
+        _check_device()
         _get_gmaps_key(required=True)
 
     # Each lambda closes over the locals above directly -- no separate
     # builder function needed just to hand them off.
     stages = {
         "nodes": lambda: _stage_nodes(out, grid_path),
-        "metadata": lambda: _stage_metadata(out),
-        "imagery": lambda: _stage_imagery(out, assume_yes),
-        "segmentation": lambda: _stage_segmentation(out),
+        "metadata": lambda: _stage_metadata(out, force),
+        "imagery": lambda: _stage_imagery(out, auto_confirm),
+        "segmentation": lambda: _stage_segmentation(out, force),
+        "metrics": lambda: _stage_metrics(out),
     }
 
     for name in names:

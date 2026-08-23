@@ -1,0 +1,25 @@
+# Secrets -- never commit
+.env
+
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# Outputs (see DEFAULT_OUT)
+out/
+
+# osmnx HTTP cache
+cache/
+
+# macOS
+.DS_Store
+
+# stray working document, not part of the pipeline
+morphology and urban blocks study 8.21.2026.docx

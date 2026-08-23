@@ -28,6 +28,10 @@ def _build_arg_parser() -> argparse.ArgumentParser:
                         "skips the 'nodes' stage entirely.")
     p.add_argument("--yes", "-y", action="store_true",
                    help="skip confirmation prompts before paid API calls")
+    p.add_argument("--force", action="store_true",
+                   help="ignore a stage's checkpoint and re-run it from scratch, "
+                        "for whichever stage(s) support it (currently: metadata, "
+                        "segmentation -- not imagery, since that's billed)")
     p.add_argument("--stage", action="append", choices=STAGE_NAMES, metavar="STAGE",
                    help=f"run only this stage (repeatable). choices: {', '.join(STAGE_NAMES)}")
     p.add_argument("--from-stage", choices=STAGE_NAMES, metavar="STAGE",
@@ -59,4 +63,5 @@ def main(argv: list[str] | None = None) -> None:
         raise SystemExit("--grid is required to run the 'nodes' stage -- generate one "
                           "first (see example/, e.g. example/murray_hill.py)")
 
-    run_stages(names, out_dir=args.out, grid_path=args.grid, assume_yes=args.yes)
+    run_stages(names, out_dir=args.out, grid_path=args.grid, auto_confirm=args.yes,
+               force=args.force)

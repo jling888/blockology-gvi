@@ -1,8 +1,13 @@
 # blockology-gvi
 
-Currently implements the first 4 stages: `nodes`, `metadata`, `imagery`,
-`segmentation`. Metric computation, VLM scoring, and validation are not
-built yet.
+Pipeline that samples points along a street network, pulls Google Street
+View imagery, segments it with a vision-language model (CLIPSeg,
+text-prompted -- vegetation/sky/building/scaffolding plus a streetscape
+supplement), and computes a Green View Index (GVI) and Visual Enclosure
+Index (VEI) per point as a flat pixel-count ratio.
+
+Design rationale, literature review, and open questions: see
+[METHODOLOGY.md](METHODOLOGY.md).
 
 ## Setup
 
@@ -16,85 +21,62 @@ Create a `.env` file next to `pyproject.toml`:
 GMAPS_KEY=your_key_here
 ```
 
+## Pipeline stages
+
+| Stage | Does | Produces |
+|---|---|---|
+| `nodes` | samples points every 20m along the grid's edges, labels avenue/mid_block | `out/nodes/nodes.gpkg` |
+| `metadata` | free Street View coverage/capture-date check | `out/metadata/metadata.csv` |
+| `imagery` | **billed** -- downloads 6 headings x 60deg FOV per node | `out/imagery/raw_manifest.csv` |
+| `segmentation` | CLIPSeg, text-prompted -- vegetation/sky/building/scaffolding plus a streetscape supplement (fences, planters, awnings, benches, signage, sidewalk, road, vehicles, people) | `out/segmentation/pixel_counts.csv` |
+| `metrics` | aggregates per-image pixel counts to per-node GVI/VEI + avenue-vs-mid-block contrast | `out/metrics/metrics.csv` |
+
+Every stage checkpoints to its output file and skips work already done, so
+an interrupted run resumes rather than restarting.
+
 ## Run
 
-### 1. Grid generation
+Grid generation is study-specific and lives outside the package (`example/`)
+-- run that first:
 
 ```
 uv run python example/murray_hill.py
 ```
 
-- **Does:** study-specific, lives outside the package (`example/`). Fetches
-  Murray Hill's boundary, filters to avenues + the numbered cross streets.
-- **Produces:** `out/grid.gpkg`
-
-### 2. `nodes` (`stage_01_nodes.py`)
+Then run the full pipeline:
 
 ```
-uv run blockology-gvi --grid blockology-gvi/example --stage nodes
+uv run blockology-gvi --grid path/to/grid.gpkg
 ```
 
-- **Does:** samples points every 20 m along the grid's edges, snapped so
-  real intersections aren't double-counted; each labeled `avenue`/`mid_block`
-  by OSM name.
-- **Produces:** `out/nodes/nodes.gpkg`, `out/nodes/figure_nodes.png`
-  (sanity-check plot)
-
-### 3. `metadata` (`stage_02_metadata.py`)
+Or one stage at a time:
 
 ```
+uv run blockology-gvi --grid path/to/grid.gpkg --stage nodes
 uv run blockology-gvi --stage metadata
-```
-
-- **Does:** checks Google's free Street View metadata endpoint per point
-  (coverage + capture date); marks usable the nodes matching the single
-  most common capture date (temporal coherence).
-- **Produces:** `out/metadata/metadata.csv`
-
-### 4. `imagery` (`stage_03_imagery.py`)
-
-```
-uv run blockology-gvi --stage imagery
-```
-
-- **Does:** downloads four frames per usable node at `fov=90` on the cardinal
-  headings, which tile the full circle exactly -- no gaps, no overlap, and a
-  known solid angle per frame. Stage 5 can then measure any field of view
-  from the same imagery, including the 180 degree forward view, rather than
-  fixing the FOV at purchase time. Requests are keyed by `pano_id` so a
-  re-run cannot silently mix capture dates.
-- **Produces:** `out/imagery/<node_id>_<heading>.jpg`, `out/imagery/manifest.csv`
-- **Costs money.** Asks before starting unless `--yes`. Resumes rather than
-  re-downloading, so an interrupted run costs nothing the second time.
-
-### 5. `segmentation` (`stage_04_segmentation.py`)
-
-```
+uv run blockology-gvi --stage imagery   # billed -- asks for confirmation unless --yes
 uv run blockology-gvi --stage segmentation
+uv run blockology-gvi --stage metrics
 ```
-
-- **Does:** segments every frame with Mask2Former (ADE20K) and accumulates
-  the result into a 14 x 360 azimuthal array per node -- twelve class groups,
-  vegetation split at the horizon into eye-level and canopy, and a row of
-  total column weight. Bins are absolute compass bearings, so any angular
-  window is a slice of the same array. The degree-to-column mapping is
-  gnomonic rather than linear, and columns are weighted by solid angle;
-  ignoring either misplaces class boundaries by roughly 4 degrees and
-  over-counts the frame edges.
-- **Produces:** `out/segmentation/profiles.npz` (arrays plus their row names),
-  `out/segmentation/shares.csv` (each group's share of the circle)
-- **Notes:** ADE20K has no class for arcade, bollard, hedge, shrub, planter,
-  pergola, balcony or gate. Terms depending on those are proxied or absent,
-  and the class table in the module says which.
 
 ## Flags
 
 | Flag | Effect |
 |---|---|
 | `--grid PATH` | required whenever `nodes` runs |
-| `--stage NAME` | run just one stage |
-| `--list-stages` | show the stages in order |
-| `--out DIR` | override output dir (default `out/`) |
+| `--out DIR` | output directory (default `out/`) |
+| `--stage NAME` | run just one stage (repeatable) |
+| `--from-stage NAME` | run this stage through the end, instead of every stage |
+| `--list-stages` | show the stages in order and exit |
+| `--yes` / `-y` | skip confirmation prompts before paid API calls |
+| `--force` | ignore a stage's checkpoint and re-run from scratch (where supported) |
 
-Both stages checkpoint to their output file and skip work already done, so
-an interrupted run resumes rather than restarting.
+## Segmentation classes
+
+`stage_04_segmentation.py` prompts CLIPSeg for every class
+this study cares about -- see that module for the exact prompts. `veg`
+(split into `veg_eye`/`veg_canopy` at the horizon), `sky`, `bldg`, and
+`scaffold` get a saved mask + overlay for visual QA and feed GVI/VEI
+directly; the rest (`hard_barrier`, `soft_buffer`, `shelter`, `rest`,
+`articulation`, `sidewalk`, `road`, `vehicle`, `person`) are counts-only,
+reported as a `<class>_frac` share of the view in `metrics.csv`.
