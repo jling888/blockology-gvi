@@ -1,21 +1,23 @@
-"""Stage 5 -- aggregate stage_04's per-image pixel counts to per-node
+"""Aggregate the segmentation stage's per-image pixel counts to per-node
 GVI/VEI, and a view-share for every other class it detected.
 
-stage_04_segmentation.py's CLIPSeg pass already produces
-one row per image with px_total, px_veg, px_sky, px_bldg, px_scaffold, and
-a px_<class> column for everything else it was prompted for -- one VLM
-pass, nothing left to merge across models here. This stage's only job is
+The segmentation stage (CAT-Seg, via segmentation/cat-seg/run_inference.py --
+either subprocess backend, see segmentation.py) already produces one row
+per image with px_total, px_veg, px_sky, px_bldg, px_scaffold, and a
+px_<class> column for every other CLASS_KEYS entry -- one model pass,
+nothing left to merge across models here. This stage's only job is
 grouping those six-heading rows into one row per node and turning counts
 into the ratios the study reports: GVI/VEI for the headline result, a
 `<class>_frac` share of the full view for everything else.
 
 Scaffolding is reported separately (`px_scaffold`/`scaffold_frac`), not
-folded into `bldg` -- CLIPSeg's scaffold prompts can fire on the same real
-pixels that also read as "a building facade" behind the scaffolding, so
-summing them would double an already-ambiguous signal. See
-typology_contrast()'s scaffolding-sensitivity check for how it's used.
+folded into `bldg` -- a pixel is exclusively one class (CAT-Seg picks a
+single winner per pixel via argmax), but scaffolding visually occludes the
+facade behind it, so folding scaffold into bldg would misrepresent what's
+actually visible there. See typology_contrast()'s scaffolding-sensitivity
+check for how it's used.
 
-Plain pixel counting, no geometric weighting -- see METHODOLOGY.md.
+Plain pixel counting, no geometric weighting.
 
     GVI = sum(px_veg) / sum(px_total) * 100%          (over 6 headings)
     VEI = sum(px_bldg) / sum(px_sky + px_bldg)         (over 6 headings)
@@ -28,14 +30,13 @@ import numpy as np
 import pandas as pd
 from scipy.stats import mannwhitneyu
 
-N_HEADINGS = 6  # == len(stage_03_imagery.OFFSETS)
+N_HEADINGS = 6  # == len(imagery.OFFSETS)
 
 
 def compute_node_metrics(seg_df: pd.DataFrame, nodes: gpd.GeoDataFrame, out: Path) -> gpd.GeoDataFrame:
     """Aggregate a node's six headings into GVI/VEI, plus a `<class>_frac`
-    share of the full view for every other px_<class> column
-    stage_04_segmentation.py recorded (sidewalk, vehicles,
-    benches, ...).
+    share of the full view for every other px_<class> column the
+    segmentation stage recorded (sidewalk, vehicles, benches, ...).
     """
     # Only nodes with every heading enter the analysis; a partial sum biases
     # the denominator.
@@ -118,7 +119,7 @@ def plot_metrics_map(metrics: gpd.GeoDataFrame, out: Path) -> None:
     for ax, col, cmap in [(axes[0], "GVI", "YlGn"), (axes[1], "VEI", "BuPu")]:
         sc = ax.scatter(metrics_3857.geometry.x, metrics_3857.geometry.y,
                          c=metrics_3857[col], cmap=cmap, s=14, zorder=3)
-        # Same basemap source as stage_01_nodes.py's plot_nodes -- see its
+        # Same basemap source as nodes.py's plot_nodes -- see its
         # comment for why CartoDB, not tile.openstreetmap.org directly.
         ctx.add_basemap(ax, crs=metrics_3857.crs, source=ctx.providers.CartoDB.Voyager, zorder=1)
         ax.set_aspect("equal")

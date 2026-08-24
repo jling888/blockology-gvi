@@ -112,10 +112,9 @@ def sample_nodes_from_grid(out: Path, grid_path: Path,
     driveway = gpd.read_file(grid_path)
     nodes = sample_nodes_from_edges(driveway, out, avenue_pattern=avenue_pattern)
 
-    # 2 final images/node (along-street composites, one per direction), but
-    # 6 billed Street View calls/node -- each composite is stitched from 3
-    # raw shots (fov 90, heading front/front-45/front+45). See stage_03_imagery.
-    print(f"\n{len(nodes)} sampling nodes -> {len(nodes) * 2} images "
+    # 6 raw Street View shots/node, one per 60-degree offset (fov 60, no
+    # stitching). See imagery.py.
+    print(f"\n{len(nodes)} sampling nodes -> {len(nodes) * 6} images "
           f"(est. ${len(nodes) * 6 * 0.007:.2f})")
     print()
     print(nodes.typology.value_counts().to_string())

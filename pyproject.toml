@@ -8,7 +8,6 @@ authors = [
 ]
 requires-python = ">=3.12"
 dependencies = [
-    "accelerate>=1.14.0",
     "contextily>=1.7.1",
     "geopandas>=1.1.4",
     "matplotlib>=3.11.1",
@@ -22,19 +21,32 @@ dependencies = [
     "scipy>=1.18.0",
     "shapely>=2.1.2",
     "torch>=2.13.0",
-    "torchvision>=0.28.0",
     "tqdm>=4.70.0",
-    "transformers>=5.15.0",
 ]
 
-[project.scripts]
-blockology-gvi = "blockology_gvi:main"
+[tool.uv]
+package = false
 
-[build-system]
-requires = ["uv_build>=0.12.3,<0.13.0"]
-build-backend = "uv_build"
+[tool.pytest.ini_options]
+pythonpath = ["."]
 
 [dependency-groups]
 dev = [
     "pytest>=9.1.1",
 ]
+colab = [
+    "google-colab-cli>=0.6.0",
+    # google-colab-cli's PyPI wheel doesn't pin jupyter-kernel-client, so a
+    # plain install resolves PyPI's datalayer/jupyter-kernel-client (renamed
+    # its KernelClient class to JupyterKernelClient in a later release)
+    # instead of googlecolab's own fork (same import name, kept the old
+    # KernelClient API google-colab-cli's code actually calls) --
+    # AttributeError: 'jupyter_kernel_client' has no attribute
+    # 'KernelClient' otherwise. Listed directly (not just pulled in
+    # transitively by google-colab-cli) because uv only applies
+    # [tool.uv.sources] overrides to direct project dependencies.
+    "jupyter-kernel-client",
+]
+
+[tool.uv.sources]
+jupyter-kernel-client = { git = "https://github.com/googlecolab/jupyter-kernel-client.git" }

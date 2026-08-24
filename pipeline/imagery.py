@@ -39,8 +39,8 @@ proportional to tan(theta), so content stretches toward the edges, faster
 than theta grows, as the shot's own half-angle widens. A narrower fov keeps
 that stretch smaller and gives more pixels per degree of scene for
 segmentation. GVI/VEI are computed as a flat pixel-count ratio (see
-stage_05_metrics.py, and METHODOLOGY.md for why no geometric correction is
-applied), so this stretch isn't corrected after the fact -- fov=60 is the
+metrics.py for why no geometric correction is applied), so this stretch
+isn't corrected after the fact -- fov=60 is the
 actual mitigation, not a starting point a later stage arithmetically
 cancels out.
 """

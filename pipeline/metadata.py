@@ -12,7 +12,7 @@ import pandas as pd
 import requests
 from tqdm.auto import tqdm
 
-from blockology_gvi.stage_01_nodes import GRID_SPACING_M
+from pipeline.nodes import GRID_SPACING_M
 
 METADATA_URL = "https://maps.googleapis.com/maps/api/streetview/metadata"
 
@@ -21,7 +21,7 @@ def _fetch_pano_metadata(lat: float, lon: float, gmaps_key: str) -> dict:
     """One Street View metadata lookup, normalized to a flat dict.
 
     - source="outdoor" steers away from indoor trekker coverage, since
-      stage_03 fetches by pano_id with no source filter of its own -- this
+      imagery fetches by pano_id with no source filter of its own -- this
       is the only point in the pipeline where indoor panos can be excluded.
     - radius=GRID_SPACING_M caps the search to this node's own ~20 m cell.
       A node snapping to a pano from beyond that radius would be reporting
@@ -62,12 +62,11 @@ def _raise_no_usable_nodes(meta: pd.DataFrame) -> None:
     """Diagnose why probe_metadata found no panorama coverage, then raise."""
     print("\n" + "!" * 66)
     if (meta.status == "REQUEST_DENIED").any():
-        print("REQUEST_DENIED -> Street View Static API is not enabled on this")
-        print("key, or the project has no billing account attached.")
-        print("Fix at console.cloud.google.com > APIs & Services > Library.")
+        print("REQUEST_DENIED -> Street View Static API not enabled on this key, "
+              "or no billing account. Fix at console.cloud.google.com > APIs & Services > Library.")
     elif (meta.status == "ZERO_RESULTS").all():
-        print("ZERO_RESULTS everywhere -> the study area is almost certainly wrong.")
-        print("Check nodes/nodes.gpkg / nodes/figure_nodes.png against the real map.")
+        print("ZERO_RESULTS everywhere -> the study area is almost certainly wrong. "
+              "Check nodes/nodes.gpkg / nodes/figure_nodes.png against the real map.")
     print("!" * 66)
     raise RuntimeError("No usable nodes -- fix the above before continuing.")
 
@@ -110,7 +109,7 @@ def probe_metadata(nodes: gpd.GeoDataFrame, gmaps_key: str, out: Path,
     ok = meta.status.eq("OK")
     recommended = meta.loc[ok, "pano_date"].value_counts().idxmax() if ok.any() else None
     meta["usable"] = ok & meta.pano_date.eq(recommended)
-    # typology (avenue/mid_block) drives stage_03_imagery's camera-aiming
+    # typology (avenue/mid_block) drives imagery.py's camera-aiming
     # heuristic, and only exists when nodes were sampled with avenue_pattern
     # -- merge whatever columns are actually there.
     merge_cols = ["node_id", "osm_name"] + (["typology"] if "typology" in nodes.columns else [])
@@ -120,7 +119,7 @@ def probe_metadata(nodes: gpd.GeoDataFrame, gmaps_key: str, out: Path,
 
     print(meta.status.value_counts().to_string())
     print(f"\nrecommended capture {recommended}: {meta.usable.sum()} / {len(meta)} nodes")
-    print(f"cost: ${meta.usable.sum() * 8 * 0.007:.2f}")
+    print(f"cost: ${meta.usable.sum() * 6 * 0.007:.2f}")
     if "typology" in meta.columns:
         print("\ntypology split of the analytic sample:")
         print(meta[meta.usable].groupby("typology").size().to_string())

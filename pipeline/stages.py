@@ -6,16 +6,20 @@ confirmation unless --yes / auto_confirm=True.
 """
 
 import os
-import platform
-import sys
 from pathlib import Path
 from typing import Callable
 
 import geopandas as gpd
 import pandas as pd
-import torch
 
 STAGE_NAMES = ["nodes", "metadata", "imagery", "segmentation", "metrics"]
+STAGE_DESCRIPTIONS = {
+    "nodes": "sample points every 20m along the grid's edges, label avenue/mid_block",
+    "metadata": "free Street View coverage/capture-date check",
+    "imagery": "billed -- download 6 headings x 60deg FOV per node",
+    "segmentation": "CAT-Seg pixel classification (local GPU or Colab, see --seg-backend)",
+    "metrics": "aggregate per-image pixel counts to per-node GVI/VEI + typology contrast",
+}
 
 
 # --------------------------------------------------------------- helpers
@@ -51,42 +55,6 @@ def _create_dir(path: Path) -> Path:
     return path
 
 
-def _check_device() -> tuple[str, int]:
-    """Pick a compute device -- CUDA, then Apple Silicon MPS -- and a
-    segmentation batch size."""
-    print("python  ", sys.version.split()[0], "|", platform.system())
-    print("torch   ", torch.__version__)
-
-    if torch.cuda.is_available():
-        device = "cuda"
-        vram_gb = torch.cuda.get_device_properties(0).total_memory / 2**30
-        print("gpu     ", torch.cuda.get_device_name(0), f"({vram_gb:.1f} GiB)")
-        # Main VRAM lever for segmentation -- halve it if run_segmentation() OOMs.
-        batch = 16 if vram_gb >= 32 else 8 if vram_gb >= 14 else 4 if vram_gb >= 10 else 2
-    elif torch.backends.mps.is_available():
-        device = "mps"
-        if hasattr(torch.mps, "recommended_max_memory"):
-            # Metal's advisory ceiling for this process, not a hard VRAM size
-            # (unified memory is shared with the OS/other apps) -- same tiers
-            # as the CUDA branch, just a softer number feeding them.
-            vram_gb = torch.mps.recommended_max_memory() / 2**30
-            print("gpu     ", "Apple MPS", f"({vram_gb:.1f} GiB recommended)")
-            batch = 16 if vram_gb >= 32 else 8 if vram_gb >= 14 else 4 if vram_gb >= 10 else 2
-        else:
-            print("gpu     ", "Apple MPS (unified memory, no memory query on this torch version)")
-            batch = 4  # Fixed conservative default, lower by hand if run_segmentation() OOMs
-    else:
-        raise SystemExit(
-            "No CUDA or MPS device visible.\n"
-            "  - CUDA: check nvidia-smi works from a terminal; reinstall torch from the cu121 index\n"
-            "  - Apple Silicon: needs torch>=2.0 and macOS>=12.3\n"
-            "  - confirm this environment is the right one, not system python"
-        )
-
-    print("batch   ", batch, "(auto-selected)")
-    return device, batch
-
-
 def _read_checkpoint(path: Path, stage_hint: str, reader: Callable[[Path], "pd.DataFrame | gpd.GeoDataFrame"]):
     """Read a checkpoint file a prior stage left in `out`, or raise a clear
     "run that stage first" error. `reader` is e.g. `pd.read_csv`/`gpd.read_file`.
@@ -109,7 +77,7 @@ def _node_locations(nodes: gpd.GeoDataFrame) -> dict[str, tuple[float, float]]:
 # --------------------------------------------------------------------- stages
 
 def _stage_nodes(out: Path, grid_path: Path) -> None:
-    from . import stage_01_nodes as nodes_stage
+    from . import nodes as nodes_stage
 
     nodes_dir = out / "nodes"
     meta_path = out / "metadata" / "metadata.csv"
@@ -138,7 +106,7 @@ def _stage_nodes(out: Path, grid_path: Path) -> None:
 
 
 def _stage_metadata(out: Path, force: bool) -> None:
-    from . import stage_02_metadata as metadata
+    from . import metadata
 
     nodes_path = out / "nodes" / "nodes.gpkg"
     metadata_dir = out / "metadata"
@@ -149,7 +117,7 @@ def _stage_metadata(out: Path, force: bool) -> None:
 
 
 def _stage_imagery(out: Path, auto_confirm: bool) -> None:
-    from . import stage_03_imagery as imagery
+    from . import imagery
 
     meta_path = out / "metadata" / "metadata.csv"
     imagery_dir = out / "imagery"
@@ -160,27 +128,33 @@ def _stage_imagery(out: Path, auto_confirm: bool) -> None:
                                        auto_confirm=auto_confirm)
 
 
-def _stage_segmentation(out: Path, force: bool) -> None:
-    from . import stage_04_segmentation as segmentation
+def _stage_segmentation(out: Path, force: bool, seg_backend: str, seg_checkpoint_dir: Path | None,
+                        drive_images_dir: str | None, drive_checkpoint_dir: str | None,
+                        drive_out_dir: str | None) -> None:
+    from . import segmentation
 
     manifest_path = out / "imagery" / "raw_manifest.csv"
+    images_dir = out / "imagery" / "raw"
     seg_dir = out / "segmentation"
 
-    manifest = _read_checkpoint(manifest_path, "imagery", pd.read_csv)
-    device, _ = _check_device()
-    cs_proc, cs_model = segmentation.load_segmenter(device)
+    _read_checkpoint(manifest_path, "imagery", pd.read_csv)
     _create_dir(seg_dir)
-    segmentation.run_segmentation(manifest, cs_proc, cs_model, device, seg_dir, force=force)
-    segmentation.release_segmenter(cs_model, device)
+
+    if seg_backend == "colab":
+        segmentation.run_colab(seg_dir, drive_images_dir, drive_checkpoint_dir, drive_out_dir)
+    else:
+        checkpoint_dir = _create_dir(seg_checkpoint_dir or seg_dir / "checkpoint")
+        segmentation.run_local(images_dir, manifest_path, seg_dir, checkpoint_dir, force=force)
 
 
 def _stage_metrics(out: Path) -> None:
-    """Aggregate stage_04's per-image pixel counts to per-node GVI/VEI --
-    one logical stage ("compute the final result"), split into a few
-    functions with their own checkpoint file (metrics/metrics.csv) so a
-    resumed run never redoes work already on disk. See stage_05_metrics.py.
+    """Aggregate the segmentation stage's per-image pixel counts to
+    per-node GVI/VEI -- one logical stage ("compute the final result"),
+    split into a few functions with their own checkpoint file
+    (metrics/metrics.csv) so a resumed run never redoes work already on
+    disk. See metrics.py.
     """
-    from . import stage_05_metrics as metrics_stage
+    from . import metrics as metrics_stage
 
     pixel_counts_path = out / "segmentation" / "pixel_counts.csv"
     nodes_path = out / "nodes" / "nodes.gpkg"
@@ -205,6 +179,11 @@ def run_stages(names: list[str] | None = None, *,
                grid_path: Path,
                auto_confirm: bool = False,
                force: bool = False,
+               seg_backend: str = "local",
+               seg_checkpoint_dir: Path | None = None,
+               drive_images_dir: str | None = None,
+               drive_checkpoint_dir: str | None = None,
+               drive_out_dir: str | None = None,
                ) -> None:
     """Run the given stages in order (default: all).
 
@@ -220,6 +199,9 @@ def run_stages(names: list[str] | None = None, *,
     force past). Deliberately NOT `imagery`, since that's billed -- forcing
     it would silently re-download and re-bill images already on disk;
     `nodes` doesn't have a resumable checkpoint to force either.
+
+    `seg_backend`/`seg_checkpoint_dir`/`drive_*_dir` only matter for the
+    `segmentation` stage -- see segmentation.py.
     """
     full_run = names is None
     names = names or STAGE_NAMES
@@ -228,9 +210,8 @@ def run_stages(names: list[str] | None = None, *,
     print("output directory:", out)
 
     if full_run:
-        # Fail fast: confirm a compute device is usable and the maps key
-        # exists before spending any money or GPU time on later stages.
-        _check_device()
+        # Fail fast: confirm the maps key exists before spending any money
+        # on later stages.
         _get_gmaps_key(required=True)
 
     # Each lambda closes over the locals above directly -- no separate
@@ -239,7 +220,9 @@ def run_stages(names: list[str] | None = None, *,
         "nodes": lambda: _stage_nodes(out, grid_path),
         "metadata": lambda: _stage_metadata(out, force),
         "imagery": lambda: _stage_imagery(out, auto_confirm),
-        "segmentation": lambda: _stage_segmentation(out, force),
+        "segmentation": lambda: _stage_segmentation(
+            out, force, seg_backend, seg_checkpoint_dir,
+            drive_images_dir, drive_checkpoint_dir, drive_out_dir),
         "metrics": lambda: _stage_metrics(out),
     }
 

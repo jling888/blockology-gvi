@@ -5,7 +5,7 @@ drivable streets, and filters by this study's keep_pattern.
 
 Run standalone ahead of the rest of the pipeline:
 
-    python example/murray_hill.py --out out/nodes
+    python example/murray_hill.py --out output/nodes
 
 Then point the CLI at the resulting grid.gpkg.
 """
@@ -123,7 +123,7 @@ def plot_grid(grid: gpd.GeoDataFrame, out: Path) -> None:
     """Plot the filtered grid edges over a real OSM basemap -- a quick visual
     sanity check on which streets survived keep_pattern/exclude_pattern,
     before sampling nodes along them. Same basemap/style as
-    stage_01_nodes.plot_nodes so the two figures read as one series.
+    nodes.plot_nodes so the two figures read as one series.
     """
     import contextily as ctx
     import matplotlib.pyplot as plt
@@ -153,7 +153,7 @@ def generate_grid(out: Path, border_path: Path = BORDER_PATH,
     """This study's grid: fetch OSM ways in the boundary, restrict to
     drivable streets, and filter to `keep_pattern` minus `exclude_pattern`.
     All "which streets count" decisions live here. Writes grid.gpkg.
-    stage_01_nodes.sample_nodes_from_grid reads it and does the actual point
+    nodes.sample_nodes_from_grid reads it and does the actual point
     sampling. Returns driveway_edges.
     """
     driveway = fetch_and_export_streets(out, border_path)
@@ -172,8 +172,8 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(
         description="Generate the Murray Hill study's sampling grid (grid.gpkg).")
-    parser.add_argument("--out", type=Path, default=Path(__file__).resolve().parent / "out",
-                         help="output directory for grid.gpkg (default: example/out)")
+    parser.add_argument("--out", type=Path, default=Path(__file__).resolve().parent / "output",
+                         help="output directory for grid.gpkg (default: example/output)")
     parser.add_argument("--border", type=Path, default=BORDER_PATH,
                          help="path to the study-area boundary polygon "
                               "(default: example/murray_hill_polygon.geojson)")
