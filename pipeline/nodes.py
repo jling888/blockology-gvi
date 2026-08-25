@@ -1,126 +1,47 @@
-"""Stage 1 -- node sampling.
+"""Load a user-supplied nodes.gpkg and adapt it to this
+pipeline's internal schema.
 
-This stage is generic, city-agnostic
-geometry: given whatever edges it's handed, it walks each one every
-`spacing` metres, dedupes, optionally typology-labels, and plots the result
-as a sanity check before any imagery is downloaded.
+Node extraction/sampling happens outside this package now -- the caller
+points at an already-sampled `nodes.gpkg` (see --nodes) and this stage
+adapts its columns, dedupes, and plots the result before any imagery is
+downloaded.
 """
 
 from pathlib import Path
 
 import geopandas as gpd
 import numpy as np
-import pandas as pd
-from shapely.ops import linemerge
 
-AVENUE_PATTERN = r"Ave"  # any avenue by OSM name
-GRID_SPACING_M = 20  # sampling interval along street centrelines
-DEDUPE_RADIUS_M = 10  # merge nodes closer than this (intersections)
+# Source columns (see e.g. data/nodes.gpkg): one row per
+# (location, direction). `original_id` is the shared key across a
+# location's direction rows -- deduped to one row per node below.
+RAW_COLUMNS = ["original_id", "lat", "lng", "street_category"]
+
+AVENUE_PATTERN = r"ave"  # matches "avenue" and "Ave" alike, case-insensitive
 
 
-def _merge_street_lines(group: gpd.GeoDataFrame) -> list:
-    """One street's edges merged into continuous line(s). OSM splits a
-    physical street into many short edges -- at every intersection, but
-    also wherever a tag changes (lanes, speed, a highway=primary/residential
-    switch mid-block, ...) -- so merging same-name edges first avoids
-    restarting the walk (a sawtooth of short and long gaps) at every one of
-    those splits.
+def load_nodes(nodes_path: Path) -> gpd.GeoDataFrame:
+    """Read a nodes.gpkg produced upstream of this pipeline and adapt it to
+    the columns the rest of the pipeline expects: node_id, lat, lng,
+    osm_name, typology, geometry -- one row per physical location.
     """
-    lines = [g for g in group.geometry if g is not None and not g.is_empty]
-    if not lines:
-        return []
-    merged = linemerge(lines)
-    return [merged] if merged.geom_type == "LineString" else list(merged.geoms)
-
-
-def _sample_line_points(name, parts: list, spacing: float) -> list[dict]:
-    """Walk each merged line part every `spacing` metres, emitting one point
-    record per step.
-    """
-    samples = []
-    for line in parts:
-        if line.length < 1:
-            continue
-        n = int(line.length // spacing)
-        for i in range(n + 1):
-            d = min(i * spacing, line.length)
-            samples.append({
-                "geometry": line.interpolate(d),
-                "osm_name": name,
-            })
-    return samples
-
-
-def _dedupe_by_grid_cell(nodes: gpd.GeoDataFrame, radius: float) -> gpd.GeoDataFrame:
-    """Snap to a `radius`-metre grid and keep one point per cell -- this is
-    what collapses the near-duplicate points that two different streets
-    each drop close to where they actually cross.
-    """
-    gx = (nodes.geometry.x / radius).round().astype(int)
-    gy = (nodes.geometry.y / radius).round().astype(int)
-    nodes = nodes[~pd.DataFrame({"gx": gx, "gy": gy}).duplicated().values]
-    return nodes.reset_index(drop=True)
-
-
-def sample_nodes_from_edges(edges: gpd.GeoDataFrame, out: Path,
-                             avenue_pattern: str | None = None,
-                             spacing: float = GRID_SPACING_M,
-                             dedupe_radius: float = DEDUPE_RADIUS_M) -> gpd.GeoDataFrame:
-    """Densify `edges` to a `spacing`-metre point grid, deduplicate, and
-    label typology. Fully generic and unfiltered: `edges` just needs
-    `nm`/`geometry` columns, already whatever subset the caller wants
-    sampled -- see example/murray_hill.py's generate_grid() for where that
-    filtering happens.
-    """
-    samples = []
-    for name, group in edges.groupby("nm", dropna=False):
-        parts = _merge_street_lines(group)
-        samples.extend(_sample_line_points(name, parts, spacing))
-
-    # An empty `samples` list has no inferable geometry column -- e.g. a
-    # boundary with zero matching ways -- so gpd.GeoDataFrame(samples, ...)
-    # would raise instead of just producing zero nodes.
-    nodes = gpd.GeoDataFrame(samples, geometry="geometry", crs=edges.crs) if samples \
-        else gpd.GeoDataFrame({"geometry": [], "osm_name": []}, crs=edges.crs)
-    nodes = _dedupe_by_grid_cell(nodes, dedupe_radius)
-    nodes["node_id"] = [f"n{i:05d}" for i in range(len(nodes))]
-
-    if avenue_pattern is not None:
-        nodes["typology"] = np.where(
-            nodes.osm_name.str.contains(avenue_pattern, case=False, na=False),
-            "avenue", "mid_block",
+    if not nodes_path.exists():
+        raise FileNotFoundError(
+            f"{nodes_path} not found -- point --nodes at your already-sampled "
+            f"nodes.gpkg (required columns: {', '.join(RAW_COLUMNS)})."
         )
+    raw = gpd.read_file(nodes_path)
+    missing = [c for c in RAW_COLUMNS if c not in raw.columns]
+    if missing:
+        raise ValueError(f"{nodes_path} is missing required column(s): {', '.join(missing)}")
 
-    nodes_wgs = nodes.to_crs(4326)
-    nodes["lat"] = nodes_wgs.geometry.y
-    nodes["lon"] = nodes_wgs.geometry.x
-
-    nodes.to_file(out / "nodes.gpkg", driver="GPKG")
-    return nodes
-
-
-def sample_nodes_from_grid(out: Path, grid_path: Path,
-                            avenue_pattern: str | None = AVENUE_PATTERN) -> gpd.GeoDataFrame:
-    """Sample nodes at 20 m intervals over an already-generated grid.
-
-    Purely mechanical: reads `grid_path` (driveway edges, already filtered
-    to whatever streets this study wants -- see example/murray_hill.py's
-    generate_grid()) and densifies/deduplicates/typology-labels it. No
-    border, no OSM fetch, no filtering here -- that's all upstream, in
-    generate_grid().
-    """
-    driveway = gpd.read_file(grid_path)
-    nodes = sample_nodes_from_edges(driveway, out, avenue_pattern=avenue_pattern)
-
-    # 6 raw Street View shots/node, one per 60-degree offset (fov 60, no
-    # stitching). See imagery.py.
-    print(f"\n{len(nodes)} sampling nodes -> {len(nodes) * 6} images "
-          f"(est. ${len(nodes) * 6 * 0.007:.2f})")
-    print()
-    print(nodes.typology.value_counts().to_string())
-    print()
-    print(nodes.osm_name.value_counts().to_string())
-    return nodes
+    nodes = raw.drop_duplicates("original_id").reset_index(drop=True)
+    nodes = nodes.rename(columns={"original_id": "node_id", "street_category": "osm_name"})
+    nodes["typology"] = np.where(
+        nodes.osm_name.str.contains(AVENUE_PATTERN, case=False, na=False),
+        "avenue", "mid_block",
+    )
+    return nodes[["node_id", "lat", "lng", "osm_name", "typology", "geometry"]]
 
 
 def plot_nodes(nodes: gpd.GeoDataFrame, out: Path) -> None:
@@ -134,15 +55,6 @@ def plot_nodes(nodes: gpd.GeoDataFrame, out: Path) -> None:
     nodes_3857 = nodes.to_crs(3857)
     fig, ax = plt.subplots(figsize=(8, 10))
 
-    boundary_path = out / "boundary.gpkg"
-    if boundary_path.exists():
-        gpd.read_file(boundary_path).to_crs(3857).boundary.plot(
-            ax=ax, color="#333333", linewidth=1.2, linestyle="--", zorder=2)
-
-    # Default color cycle, not a hand-picked palette -- deterministic
-    # groupby order + a fresh axes per figure means "avenue" and
-    # "mid_block" still land on the same two colors here and in
-    # plot_summary_figures's scatter, with no shared color table needed.
     for t, s in nodes_3857.groupby("typology"):
         ax.scatter(s.geometry.x, s.geometry.y, s=10, alpha=0.85, label=t, zorder=3)
 

@@ -9,6 +9,8 @@ pixel-count ratio.
 
 ## Setup
 
+Requires Python >=3.12.
+
 ```
 uv sync
 ```
@@ -23,7 +25,7 @@ GMAPS_KEY=your_key_here
 
 | Stage | Does | Produces |
 |---|---|---|
-| `nodes` | samples points every 20m along the grid's edges, labels avenue/mid_block | `output/nodes/nodes.gpkg` |
+| `nodes` | loads + adapts the nodes.gpkg at `--nodes` | `output/nodes/nodes.gpkg` |
 | `metadata` | free Street View coverage/capture-date check | `output/metadata/metadata.csv` |
 | `imagery` | **billed** -- downloads 6 headings x 60deg FOV per node | `output/imagery/raw_manifest.csv` |
 | `segmentation` | CAT-Seg (local GPU or Colab, see `--seg-backend`) -- exhaustive per-pixel classes: vegetation/sky/building/scaffolding plus a streetscape supplement (fences, planters, awnings, benches, signage, sidewalk, road, vehicles, people) | `output/segmentation/pixel_counts.csv` |
@@ -34,34 +36,40 @@ an interrupted run resumes rather than restarting.
 
 ## Run
 
-Grid generation is study-specific and lives outside the package (`example/`)
--- run that first:
+To run this pipeline, you need `data/nodes.gpkg` in place (or `--nodes path/to/nodes.gpkg`).
+
+Run the full pipeline:
 
 ```
-uv run python example/murray_hill.py
-```
-
-Then run the full pipeline:
-
-```
-uv run python cli.py --grid path/to/grid.gpkg
+uv run python cli.py
 ```
 
 Or one stage at a time:
 
 ```
-uv run python cli.py --grid path/to/grid.gpkg --stage nodes
+uv run python cli.py --stage nodes
 uv run python cli.py --stage metadata
 uv run python cli.py --stage imagery   # billed -- asks for confirmation unless --yes
 uv run python cli.py --stage segmentation   # local GPU by default, see --seg-backend
 uv run python cli.py --stage metrics
 ```
 
+## Nodes
+
+Required columns in the input `.gpkg` (the `nodes` stage renames some of these on load):
+
+| Column | Meaning | Renamed to |
+|---|---|---|
+| `original_id` | Shared key for a location's rows; deduplicated to one row per location. | `node_id` |
+| `lat` / `lng` | WGS84 coordinates, carried through unchanged. | — |
+| `street_category` | Street name. If it contains "avenue" or "Ave" (case-insensitive substring), `typology` is inferred as `avenue`; otherwise `mid_block`. | `osm_name` |
+| `geometry` | Point geometry. Implicit — every `.gpkg` feature layer has one, so it isn't part of the explicit column check. | — |
+
 ## Flags
 
 | Flag | Effect |
 |---|---|
-| `--grid PATH` | required whenever `nodes` runs |
+| `--nodes PATH` | path to an already-sampled nodes.gpkg (default `data/nodes.gpkg`) |
 | `--out DIR` | output directory (default `output/`) |
 | `--stage NAME` | run just one stage (repeatable) |
 | `--from-stage NAME` | run this stage through the end, instead of every stage |

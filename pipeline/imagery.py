@@ -1,4 +1,4 @@
-"""Stage 3 -- Street View raw image download.
+"""Street View raw image download.
 
 Billed Google Street View Static API call. Fetches by pano_id, not lat/lon,
 so every shot at a node comes from the same panorama; coordinates can snap

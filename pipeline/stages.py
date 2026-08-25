@@ -14,7 +14,7 @@ import pandas as pd
 
 STAGE_NAMES = ["nodes", "metadata", "imagery", "segmentation", "metrics"]
 STAGE_DESCRIPTIONS = {
-    "nodes": "sample points every 20m along the grid's edges, label avenue/mid_block",
+    "nodes": "load + adapt the user-supplied nodes.gpkg from the data directory",
     "metadata": "free Street View coverage/capture-date check",
     "imagery": "billed -- download 6 headings x 60deg FOV per node",
     "segmentation": "CAT-Seg pixel classification (local GPU or Colab, see --seg-backend)",
@@ -66,31 +66,31 @@ def _read_checkpoint(path: Path, stage_hint: str, reader: Callable[[Path], "pd.D
 
 
 def _node_locations(nodes: gpd.GeoDataFrame) -> dict[str, tuple[float, float]]:
-    """node_id -> (lat, lon), rounded. node_id alone isn't a stable content
+    """node_id -> (lat, lng), rounded. node_id alone isn't a stable content
     identity -- it's positional (n00000, n00001, ...), so a different
     sampling geometry can reuse the same ID for a different real-world
     location.
     """
-    return dict(zip(nodes.node_id, zip(nodes.lat.round(6), nodes.lon.round(6))))
+    return dict(zip(nodes.node_id, zip(nodes.lat.round(6), nodes.lng.round(6))))
 
 
 # --------------------------------------------------------------------- stages
 
-def _stage_nodes(out: Path, grid_path: Path) -> None:
+def _stage_nodes(out: Path, nodes_path: Path) -> None:
     from . import nodes as nodes_stage
 
     nodes_dir = out / "nodes"
     meta_path = out / "metadata" / "metadata.csv"
-    nodes_path = nodes_dir / "nodes.gpkg"
+    ckpt_path = nodes_dir / "nodes.gpkg"
 
     _create_dir(nodes_dir)
 
-    prior_locations = _node_locations(gpd.read_file(nodes_path)) if nodes_path.exists() else {}
+    prior_locations = _node_locations(gpd.read_file(ckpt_path)) if ckpt_path.exists() else {}
 
-    nodes = nodes_stage.sample_nodes_from_grid(nodes_dir, grid_path)
+    nodes = nodes_stage.load_nodes(nodes_path)
     new_locations = _node_locations(nodes)
 
-    # loc is (lat, lon) rounded to 6 decimals.
+    # loc is (lat, lng) rounded to 6 decimals.
     stale_ids = {nid for nid, loc in prior_locations.items() if new_locations.get(nid) != loc}
     if stale_ids:
         # node_id is positional, not stable -- drop stale rows so metadata
@@ -102,6 +102,7 @@ def _stage_nodes(out: Path, grid_path: Path) -> None:
         print(f"{len(stale_ids)} node ID(s) moved -- will be re-probed for fresh imagery; "
               f"other nodes untouched.")
 
+    nodes.to_file(ckpt_path, driver="GPKG")
     nodes_stage.plot_nodes(nodes, nodes_dir)
 
 
@@ -176,7 +177,7 @@ def _stage_metrics(out: Path) -> None:
 
 def run_stages(names: list[str] | None = None, *,
                out_dir: Path,
-               grid_path: Path,
+               nodes_path: Path,
                auto_confirm: bool = False,
                force: bool = False,
                seg_backend: str = "local",
@@ -187,9 +188,10 @@ def run_stages(names: list[str] | None = None, *,
                ) -> None:
     """Run the given stages in order (default: all).
 
-    `grid_path` is an already-filtered street network (edges, not points);
-    see example/murray_hill.py for how to build one -- this package doesn't
-    fetch OSM data or decide which streets count, just samples/labels nodes.
+    `nodes_path` is the path to an already-sampled `nodes.gpkg` (required
+    columns: pipeline.nodes.RAW_COLUMNS) -- this package doesn't fetch OSM
+    data, sample points, or decide which streets count; that all happens
+    upstream, outside this pipeline.
 
     `force` ignores a stage's own checkpoint and re-runs it from scratch --
     only stages where that's actually safe (free, or explicitly re-confirmed
@@ -217,7 +219,7 @@ def run_stages(names: list[str] | None = None, *,
     # Each lambda closes over the locals above directly -- no separate
     # builder function needed just to hand them off.
     stages = {
-        "nodes": lambda: _stage_nodes(out, grid_path),
+        "nodes": lambda: _stage_nodes(out, nodes_path),
         "metadata": lambda: _stage_metadata(out, force),
         "imagery": lambda: _stage_imagery(out, auto_confirm),
         "segmentation": lambda: _stage_segmentation(

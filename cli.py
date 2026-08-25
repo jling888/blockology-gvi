@@ -1,10 +1,9 @@
 """Command-line entry point. Parses args and calls into pipeline.stages.run_stages()
 -- see pipeline/stages.py for the actual pipeline.
 
-Grid generation lives outside the pipeline entirely (see example/ --
-e.g. example/murray_hill.py) since which streets belong in a study's
-sample is a per-study call, not a generic one. Run that first to produce
-grid.gpkg, then point --grid at the result.
+Node sampling happens outside this package entirely -- point --nodes at an
+already-sampled nodes.gpkg (required columns: see pipeline/nodes.py's
+RAW_COLUMNS).
 """
 
 import argparse
@@ -13,6 +12,7 @@ from pathlib import Path
 from pipeline.stages import STAGE_DESCRIPTIONS, STAGE_NAMES, run_stages
 
 DEFAULT_OUTPUT = Path("output")
+DEFAULT_NODES_PATH = Path("data/nodes.gpkg")
 
 
 def _epilog() -> str:
@@ -45,11 +45,9 @@ def _build_arg_parser() -> argparse.ArgumentParser:
     p.add_argument("--out", type=Path, default=DEFAULT_OUTPUT,
                    help="output directory (default: output)")
 
-    p.add_argument("--grid", type=Path,
-                   help="path to an already-generated grid.gpkg -- see example/ "
-                        "(e.g. example/murray_hill.py) for how to build one from a "
-                        "hand-drawn boundary. Required unless --stage/--from-stage "
-                        "skips the 'nodes' stage entirely.")
+    p.add_argument("--nodes", type=Path, default=DEFAULT_NODES_PATH,
+                   help="path to an already-sampled nodes.gpkg "
+                        f"(default: {DEFAULT_NODES_PATH})")
     p.add_argument("--yes", "-y", action="store_true",
                    help="skip confirmation prompts before paid API calls")
     p.add_argument("--force", action="store_true",
@@ -101,11 +99,7 @@ def main(argv: list[str] | None = None) -> None:
     else:
         names = None  # every stage
 
-    if (names is None or "nodes" in names) and args.grid is None:
-        raise SystemExit("--grid is required to run the 'nodes' stage -- generate one "
-                          "first (see example/, e.g. example/murray_hill.py)")
-
-    run_stages(names, out_dir=args.out, grid_path=args.grid, auto_confirm=args.yes,
+    run_stages(names, out_dir=args.out, nodes_path=args.nodes, auto_confirm=args.yes,
                force=args.force, seg_backend=args.seg_backend,
                seg_checkpoint_dir=args.seg_checkpoint_dir,
                drive_images_dir=args.drive_images_dir,

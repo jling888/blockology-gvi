@@ -54,7 +54,7 @@ def compute_node_metrics(seg_df: pd.DataFrame, nodes: gpd.GeoDataFrame, out: Pat
             continue
         agg[col[len("px_"):] + "_frac"] = agg[col] / agg.px_total
 
-    metrics = (nodes[["node_id", "lat", "lon", "osm_name", "typology", "geometry"]]
+    metrics = (nodes[["node_id", "lat", "lng", "osm_name", "typology", "geometry"]]
                .merge(agg, on="node_id"))
     metrics = gpd.GeoDataFrame(metrics, geometry="geometry", crs=nodes.crs)
 
