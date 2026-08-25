@@ -82,19 +82,6 @@ Required columns in the input `.gpkg` (the `nodes` stage renames some of these o
 
 ## Segmentation classes
 
-The `segmentation` stage runs `segmentation/cat-seg/run_inference.py`'s CAT-Seg
-model against the `CLASS_TERMS` vocabulary defined there -- see that module
-for the exact terms. Classification is exhaustive and mutually exclusive
-(argmax -- one winning class per pixel), not independent per-class
-thresholds. `veg` (split into `veg_eye`/`veg_canopy` at the horizon),
-`sky`, `bldg`, and `scaffold` feed GVI/VEI directly; every other class
-(sidewalk, curb, crosswalk, fences, planters, awnings, benches, vehicles,
-people, ...) is counts-only, reported as a `<class>_frac` share of the
-view in `metrics.csv`.
-
-By default (`--seg-backend local`) this runs on this machine and needs a
-local GPU -- detectron2 and the CAT-Seg checkpoint get installed/downloaded
-on first use. `--seg-backend colab` instead runs it on a Google Colab GPU
-session, but **requires the images (and, for node_id-linked metrics,
-`output/imagery/raw_manifest.csv`) to already be manually uploaded to Google
-Drive** before running -- see `segmentation/cat-seg/README.md` for the exact steps.
+| Model | How it works | Notes | Link |
+|---|---|---|---|
+| [CAT-Seg](https://github.com/KU-CVLAB/CAT-Seg) (ViT-L/14) | Open-vocabulary. Scores every pixel against the whole vocabulary in one pass | Trained on COCO, probably the reason why GSV images segmentation is difficult to it. | [`segmentation/cat-seg/README.md`](segmentation/cat-seg/README.md) |

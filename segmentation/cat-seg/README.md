@@ -90,7 +90,7 @@ The metrics stage expects segmentation results at `output/segmentation`. Running
 
 ### Classification
 
-- Exhaustive and mutually exclusive (argmax — one class per pixel), matching CAT-Seg's own reference code.
+- CAT-Seg scores every pixel against the whole `CLASS_TERMS` vocabulary in one pass, then argmax picks a single winning class per pixel — exhaustive and mutually exclusive.
 - `CLASS_TERMS` in `run_inference.py` covers anything that could plausibly fill a pixel in a NYC street-level photo: COCO-Stuff's trained class names where available, zero-shot CLIP text for NYC-specific concepts otherwise (see the comment above `CLASS_TERMS`).
 
 ### Masks (`masks/*.npz`)
