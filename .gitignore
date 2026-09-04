@@ -23,3 +23,13 @@ cache/
 
 # stray working document, not part of the pipeline
 morphology and urban blocks study 8.21.2026.docx
+
+# ---- sim/ ------------------------------------------------------------------
+# Street View imagery and anything that embeds it. Google caps caching at
+# thirty days and the photographs are not ours to redistribute; the derived
+# measurements are, and those are committed.
+sim/data/raw/
+sim/data/london/raw/
+sim/results/figures/
+**/walk_*.html
+sim/**/frames/

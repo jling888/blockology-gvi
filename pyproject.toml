@@ -22,6 +22,16 @@ dependencies = [
     "shapely>=2.1.2",
     "torch>=2.13.0",
     "tqdm>=4.70.0",
+    # --- sim/ : VLM rating and the two-segmenter track ---
+    "transformers>=4.45.0",
+    "accelerate>=0.34.0",
+    "bitsandbytes>=0.44.0",
+    "sentencepiece>=0.2.0",
+    "statsmodels>=0.14.0",
+    "scikit-learn>=1.3.0",
+    "pyyaml>=6.0",
+    "cmcrameri>=1.9",
+    "cmocean>=3.1",
 ]
 
 [tool.uv]

@@ -7,6 +7,13 @@ streetscape supplement, see `segmentation/cat-seg/`), and computes a Green View
 Index (GVI) and Visual Enclosure Index (VEI) per point as a flat
 pixel-count ratio.
 
+A second measurement lives in [`sim/`](sim/README.md): the Street Interface
+Matrix, rating ten perceptual fields with a vision-language model and composing
+them into Place Imageability, Place Identity and Place Dependence, over Murray
+Hill and the City of London. It runs independently of the stages below --
+different frames, different segmenters, its own config -- and ships its result
+tables so the analysis reproduces without a GPU or a key.
+
 ## Setup
 
 Requires Python >=3.12.
