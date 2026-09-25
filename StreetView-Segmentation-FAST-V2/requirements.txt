@@ -1,0 +1,11 @@
+transformers>=4.57,<5
+huggingface-hub<1.0
+accelerate
+safetensors
+numpy
+pandas
+matplotlib
+pillow
+opencv-python
+tqdm
+notebook
