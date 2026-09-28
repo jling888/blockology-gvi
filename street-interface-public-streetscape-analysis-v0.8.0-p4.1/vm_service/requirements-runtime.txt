@@ -1,0 +1,17 @@
+# CUDA-enabled torch + torchvision must be installed from the appropriate
+# PyTorch CUDA wheel index for the deployment GPU before this file.
+fastapi>=0.115,<1
+uvicorn[standard]>=0.34,<1
+pydantic>=2.10,<3
+transformers>=4.57,<5
+huggingface-hub<1.0
+accelerate
+safetensors
+pandas
+matplotlib
+pillow
+scikit-learn
+tqdm
+opencv-python-headless
+ipython
+numpy

@@ -1,0 +1,63 @@
+{
+  "contract_version": "public_app_source_contract_v0.8.0-P3",
+  "product": "Street Interface — Public Streetscape Analysis",
+  "active_public_stage": "P3_QWEN_LIVE_INFERENCE",
+  "scientific_core": {
+    "version": "v0.6.3_GOLDEN_FREEZE",
+    "active_formula": "M_i = I_i^a_i × Y_i^b_i × D_i^c_i",
+    "no_omega": true,
+    "no_external_A_i": true,
+    "engine_sha256": "645ee93d6efe63e66e76ba1b4a4fb24bc7048d7b19c25ba49181cb4e2c280902"
+  },
+  "vm": {
+    "role": "ACTIVE_RUNTIME_P2B",
+    "repository": "guanyupan2002-png/Street-View-Semantic-Segmentation",
+    "commit": "ba4a14731074e744d798956d0f38493c19c773cd",
+    "segmentation_local_blob": "804dd7e287becd464c8716626a69d7df54bf3924",
+    "taxonomy": "street_interface_v1.5.7.1",
+    "class_count": 30,
+    "ignore_index": 255,
+    "scientific_output": "LABEL_MAP_STABLE",
+    "deployment_boundary": "Node gateway -> external FastAPI CUDA worker",
+    "same_gpu_p3_handoff": "After finalized VM output, LOW_VRAM_MODE source models are moved back to CPU and CUDA cache is emptied. Scientific segmentation is unchanged."
+  },
+  "vlm": {
+    "role": "ACTIVE_RUNTIME_P3",
+    "repository": "mikellu12/murrayhill-v12",
+    "commit": "f1d204df09da572db3417999f04aaf195ebd6ca6",
+    "source_blobs": {
+      "sim_vlm_run.py": "5b95c4e994e29fe080a18ce4966ed049cd91e474",
+      "sim_fields.py": "416423f0ffa279d3483ae8fd16cf5278c3f49bb4",
+      "sim_scale.py": "5072c85e22793e44a78811025e7327d7eef9eb50",
+      "sim_readout.py": "d446e44d5291ca78beaaae168e5c786eee8f7bf2"
+    },
+    "model": "Qwen/Qwen2-VL-7B-Instruct",
+    "field_count": 10,
+    "anchors_per_field": 7,
+    "readout": "PRUNE_ONCE_INTERPOLATED_MEDIAN",
+    "active_value": "readoutMedian",
+    "normalization_for_future_p4": "(readoutMedian - 1) / 6",
+    "preserved_provenance": ["p1..p7", "expectedValue", "argmax", "surveyRoundEv"],
+    "capture_protocol": "PUBLIC_SINGLE_PHOTO_UNCALIBRATED",
+    "mast_policy": "DISABLED_PUBLIC_UPLOAD",
+    "paper_equivalence_claim": false
+  },
+  "validation_reference": {
+    "repository": "jling888/blockology-gvi",
+    "rule": "GVI/VEI and validation twins are reference/validation evidence, not substitutes for GVI_eye or active SIM terms"
+  },
+  "street_geometry": {
+    "repository": "ex032895-crypto/street-view-nodes",
+    "role": "BACKGROUND/FUTURE CITY-SCALE SAMPLING",
+    "rule": "Never infer a Murray Hill n#### crosswalk without explicit mapping"
+  },
+  "forbidden_conflations": [
+    "GVI_eye != blockology GVI != node_GVI",
+    "sky_openness != node_SVF_band",
+    "D_i != behavioral D_xy",
+    "20m sampling != 100m GWR bandwidth != 800m Space Syntax radius",
+    "legacy Omega/A_i must not re-enter the active Nature 9.03 engine",
+    "dwell outputs remain gated without measured t_raw and fitted lambda",
+    "public single-photo P3 output must not be described as paper-equivalent directional sampling without validation"
+  ]
+}

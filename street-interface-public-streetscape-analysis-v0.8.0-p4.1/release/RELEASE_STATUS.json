@@ -1,0 +1,23 @@
+{
+  "release_label": "v0.8.0-P4.1 PROTOCOL-AWARE VALIDATION CANDIDATE",
+  "release_status": "PUBLIC_DEVELOPMENT_CANDIDATE",
+  "parent_public_branch": "v0.8.0-P4",
+  "base_verified_release": "v0.7.0 RELEASE VERIFIED",
+  "scientific_core": "v0.6.3_GOLDEN_FREEZE",
+  "active_formula": "M_i = I_i^a_i × Y_i^b_i × D_i^c_i",
+  "scientific_change": false,
+  "validation_architecture_change": true,
+  "public_ui_change": true,
+  "sim_contract": "public_sim_contract_v1_1",
+  "validation_contract": "public_validation_contract_v1",
+  "research_golden_class": "RESEARCH_90_HALF_VIEW_GOLDEN",
+  "public_live_class": "PUBLIC_SINGLE_PHOTO_LIVE",
+  "p4_1_protocol_contract": "PASS_IN_PACKAGING_ENVIRONMENT",
+  "p4_1_golden_n00045": "PASS_IN_PACKAGING_ENVIRONMENT",
+  "p4_1_public_live_repeat_stability": "PENDING_USER_HOST_REPEAT_RUN_AUDIT",
+  "host_lint_build_gate": "PENDING_USER_HOST_P4_1_VALIDATION",
+  "runtime_vm_gateway": "P2B_SOURCE_BACKED_REAL_CUDA_PREVIOUSLY_PASS_ON_USER_HOST",
+  "runtime_vlm_gateway": "P3_1_REPRODUCIBILITY_LOCKED_QWEN_PREVIOUSLY_PASS_ON_USER_HOST",
+  "runtime_sim_gateway": "P4_FROZEN_CORE_PREVIOUSLY_PASS_ON_USER_HOST",
+  "scope": "P0+P1+P2A+P2B_REAL_VM+P3_1_QWEN_REPRO_LOCK+P4_FROZEN_SYNTHESIS+P4_1_PROTOCOL_AWARE_VALIDATION"
+}

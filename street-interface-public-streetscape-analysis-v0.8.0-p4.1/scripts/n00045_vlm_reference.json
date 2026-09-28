@@ -1,0 +1,151 @@
+{
+  "referenceId": "N00045_REPOSITORY_VLM_OBSERVATION_P3_1",
+  "sourceImage": "1st_avenue/north_to_south/001_n00045_S.jpg",
+  "sourceRepository": "mikellu12/murrayhill-v12",
+  "sourceCommit": "f1d204df09da572db3417999f04aaf195ebd6ca6",
+  "observationBlob": "975feac25b631c0839fb694db68ffd2e4da51e98",
+  "readout": "PRUNE_ONCE_INTERPOLATED_MEDIAN",
+  "probabilitiesNote": "Repository p1..p7 are stored to four decimals; regression tolerances account for that rounding and GPU numeric noise.",
+  "fields": {
+    "vertical_greenery": {
+      "probabilities": [
+        0.6687,
+        0.2171,
+        0.0705,
+        0.0157,
+        0.0157,
+        0.0066,
+        0.0058
+      ],
+      "expectedValue": 1.5357464253574642,
+      "readoutMedian": 1.2434574547629729,
+      "normalized01": 0.04057624246049548
+    },
+    "vertical_hardscape": {
+      "probabilities": [
+        0.0126,
+        0.0301,
+        0.0929,
+        0.1192,
+        0.3241,
+        0.286,
+        0.1351
+      ],
+      "expectedValue": 5.1105,
+      "readoutMedian": 5.275995063252083,
+      "normalized01": 0.7126658438753471
+    },
+    "green_eye_level": {
+      "probabilities": [
+        0.1827,
+        0.4383,
+        0.2346,
+        0.0672,
+        0.0408,
+        0.0247,
+        0.0117
+      ],
+      "expectedValue": 2.4660000000000006,
+      "readoutMedian": 2.210586356376911,
+      "normalized01": 0.20176439272948513
+    },
+    "sky_openness": {
+      "probabilities": [
+        0.0068,
+        0.027,
+        0.0831,
+        0.1994,
+        0.2901,
+        0.3288,
+        0.0647
+      ],
+      "expectedValue": 4.984398439843984,
+      "readoutMedian": 5.144777662874871,
+      "normalized01": 0.6907962771458118
+    },
+    "walkable_ground": {
+      "probabilities": [
+        0.0479,
+        0.0697,
+        0.1475,
+        0.1148,
+        0.2146,
+        0.2755,
+        0.1301
+      ],
+      "expectedValue": 4.7252274772522735,
+      "readoutMedian": 5.17148182665424,
+      "normalized01": 0.69524697110904
+    },
+    "green_softening": {
+      "probabilities": [
+        0.2216,
+        0.3224,
+        0.1955,
+        0.0719,
+        0.0815,
+        0.0635,
+        0.0436
+      ],
+      "expectedValue": 2.8342,
+      "readoutMedian": 2.2959057071960296,
+      "normalized01": 0.2159842845326716
+    },
+    "signage_detail": {
+      "probabilities": [
+        0.0245,
+        0.0853,
+        0.2047,
+        0.2047,
+        0.232,
+        0.232,
+        0.0168
+      ],
+      "expectedValue": 4.297600000000001,
+      "readoutMedian": 4.365168539325842,
+      "normalized01": 0.5608614232209738
+    },
+    "facade_variation": {
+      "probabilities": [
+        0.002,
+        0.0101,
+        0.0579,
+        0.0954,
+        0.1782,
+        0.4276,
+        0.2289
+      ],
+      "expectedValue": 5.635836416358364,
+      "readoutMedian": 5.868217960710945,
+      "normalized01": 0.8113696601184909
+    },
+    "ground_floor_activity": {
+      "probabilities": [
+        0.0379,
+        0.0708,
+        0.1322,
+        0.103,
+        0.1322,
+        0.4073,
+        0.1167
+      ],
+      "expectedValue": 4.909309069093091,
+      "readoutMedian": 5.605327768229806,
+      "normalized01": 0.767554628038301
+    },
+    "resting_affordance": {
+      "probabilities": [
+        0.6013,
+        0.2507,
+        0.0814,
+        0.0233,
+        0.0206,
+        0.016,
+        0.0067
+      ],
+      "expectedValue": 1.686,
+      "readoutMedian": 1.3259604190919674,
+      "normalized01": 0.0543267365153279
+    }
+  }
+}

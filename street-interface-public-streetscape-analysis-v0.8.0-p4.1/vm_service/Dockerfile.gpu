@@ -1,0 +1,36 @@
+# P2B reference GPU container. The research source is cloned at the exact
+# pinned commit and verified again at worker startup using its Git blob SHA.
+FROM nvidia/cuda:12.4.1-cudnn-runtime-ubuntu22.04
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    HF_HOME=/models/huggingface \
+    VM_RUNTIME_ROOT=/runtime/street-interface-vm \
+    VM_SOURCE_REPO_DIR=/opt/Street-View-Semantic-Segmentation \
+    VM_SEGMENTATION_SOURCE_FILE=/opt/Street-View-Semantic-Segmentation/segmentation_local.py
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3 python3-pip git ca-certificates libglib2.0-0 libgl1 \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /service
+COPY vm_service/requirements-runtime.txt /service/requirements-runtime.txt
+
+# Upstream repository did not pin torch. P2B explicitly installs a CUDA build.
+RUN python3 -m pip install --upgrade pip \
+    && python3 -m pip install torch torchvision --index-url https://download.pytorch.org/whl/cu124 \
+    && python3 -m pip install -r /service/requirements-runtime.txt
+
+ARG VM_REPO=https://github.com/guanyupan2002-png/Street-View-Semantic-Segmentation.git
+ARG VM_COMMIT=ba4a14731074e744d798956d0f38493c19c773cd
+RUN git clone "${VM_REPO}" /opt/Street-View-Semantic-Segmentation \
+    && git -C /opt/Street-View-Semantic-Segmentation checkout "${VM_COMMIT}" \
+    && test "$(git -C /opt/Street-View-Semantic-Segmentation rev-parse HEAD)" = "${VM_COMMIT}"
+
+COPY vm_service/app.py vm_service/source_runtime.py /service/
+RUN mkdir -p /models/huggingface /runtime/street-interface-vm
+
+EXPOSE 8010
+CMD ["python3", "-m", "uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8010", "--workers", "1"]

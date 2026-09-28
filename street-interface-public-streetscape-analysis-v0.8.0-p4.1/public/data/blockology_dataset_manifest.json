@@ -1,0 +1,46 @@
+{
+  "schema_version": "blockology_gvi_bridge_v0.1",
+  "source_repository": "jling888/blockology-gvi",
+  "source_branch": "main",
+  "source_commit": "ba15df0b337b345d42f4f4fbc9446bfd3687d67c",
+  "source_commit_date": "2026-08-25T06:38:28Z",
+  "node_count": 712,
+  "metadata_ok_count": 712,
+  "usable_capture_count": 685,
+  "recommended_capture_cohort": "2026-04",
+  "typology_counts": {
+    "mid_block": 473,
+    "avenue": 239
+  },
+  "protocol": {
+    "metadata_search_radius_m": 20,
+    "metadata_source": "outdoor",
+    "imagery_headings_per_node": 6,
+    "imagery_offsets_deg": [
+      0,
+      60,
+      120,
+      180,
+      240,
+      300
+    ],
+    "field_of_view_deg": 60,
+    "pitch_deg": 0,
+    "image_size": "640x640",
+    "grid_bearing_deg": {
+      "avenue": 29,
+      "mid_block": 119
+    },
+    "gvi_formula": "100 * sum(px_veg) / sum(px_total)",
+    "vei_formula": "sum(px_bldg) / sum(px_sky + px_bldg)",
+    "metrics_complete_node_rule": "all 6 headings required",
+    "scaffolding_sensitivity_rule": "repeat typology contrast with scaffold_frac < 0.05"
+  },
+  "limitations": [
+    "Blockology node IDs are not the same namespace as the current Qwen n##### node IDs.",
+    "street + sequence matching is candidate crosswalk evidence only unless an explicit spatial crosswalk is supplied.",
+    "No output/metrics/metrics.csv is bundled in the inspected repository state; GVI/VEI formulas can be registered now, but Blockology metric values cannot be asserted from the repo data currently available.",
+    "Blockology GVI is a six-heading flat pixel-count metric and must not overwrite the current Qwen GVI_eye construct.",
+    "Blockology VEI is an image-derived building-vs-sky enclosure ratio and must not be relabeled as true hemispherical SVF."
+  ]
+}

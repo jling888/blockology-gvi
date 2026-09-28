@@ -1,0 +1,8 @@
+{
+  "name": "Street Interface — Public Streetscape Analysis v0.8.0-P4.1",
+  "description": "Public-facing photo-first Street Interface analysis with source-backed CUDA vision segmentation, reproducibility-locked Qwen2-VL 10-field inference, server-side Nature 9.03 Final · No-Omega synthesis, and protocol-aware validation separating canonical 90° research-golden parity from public single-photo live stability.\n\nScientific baseline preserved: v0.6.3 GOLDEN FREEZE; Mᵢ = Iᵢᵃ · Yᵢᵇ · Dᵢᶜ; no Omega; no external Aᵢ. Public single-photo outputs are explicitly marked historicalGoldenComparable=false.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

@@ -1,0 +1,68 @@
+{
+  "schema": "street_interface_public_p4_1_validation_summary_v1",
+  "release": "v0.8.0-P4.1",
+  "generated_at_utc": "2026-09-09T15:10:20Z",
+  "scientific_core": "v0.6.3_GOLDEN_FREEZE",
+  "engine_sha256": "645ee93d6efe63e66e76ba1b4a4fb24bc7048d7b19c25ba49181cb4e2c280902",
+  "engine_sha_matches_frozen": true,
+  "protocol_aware_validation": {
+    "contract_version": "public_validation_contract_v1",
+    "research_golden": {
+      "validation_class": "RESEARCH_90_HALF_VIEW_GOLDEN",
+      "input_protocol": "MURRAY_HILL_CANONICAL_90_DEG_HALF_VIEW",
+      "comparison_mode": "EXACT_NUMERIC_GOLDEN_PARITY",
+      "historical_golden_comparable": true,
+      "status": "PASS_IN_PACKAGING_ENVIRONMENT"
+    },
+    "public_live": {
+      "validation_class": "PUBLIC_SINGLE_PHOTO_LIVE",
+      "input_protocol": "PUBLIC_SINGLE_PHOTO_UNCALIBRATED",
+      "comparison_mode": "SAME_INPUT_RUNTIME_STABILITY",
+      "historical_golden_comparable": false,
+      "status": "PENDING_USER_HOST_REPEAT_RUN_AUDIT"
+    }
+  },
+  "golden_n00045": {
+    "expected": {
+      "I_raw": 0.4746845369069087,
+      "I": 6.785792291750779,
+      "Y": 4.275239548226926,
+      "D_raw": 0.7495737076243679,
+      "D": 6.861271847132807,
+      "M": 6.214327916148292
+    },
+    "computed_packaging_check": {
+      "I_raw": 0.4746845369069087,
+      "I": 6.785792291750779,
+      "Y": 4.275239548226926,
+      "D_raw": 0.7495737076243679,
+      "D": 6.861271847132807,
+      "M": 6.214327916148293
+    },
+    "max_absolute_delta": 8.881784197001252e-16,
+    "tolerance": 1e-12,
+    "passed": true
+  },
+  "packaging_checks": {
+    "modified_typescript_transpile_syntax": "PASS",
+    "modified_file_targeted_typecheck_with_external_stubs": "PASS_NO_MODIFIED_FILE_ERRORS",
+    "p4_1_protocol_contract_test": "PASS",
+    "p4_1_research_golden_regression": "PASS",
+    "live_stability_script_node_syntax": "PASS",
+    "release_integrity": "PASS",
+    "full_dependency_backed_lint_build": "PENDING_USER_HOST_P4_1_VALIDATION"
+  },
+  "scientific_guards": {
+    "active_formula": "M_i = I_i^a_i × Y_i^b_i × D_i^c_i",
+    "no_omega": true,
+    "no_external_A_i": true,
+    "fallback_elasticities": {
+      "a": 0.4,
+      "b": 0.2,
+      "c": 0.4,
+      "source": "PAPER_GLOBAL_REFERENCE",
+      "calibration_status": "REFERENCE_NOT_LOCAL_GWR"
+    },
+    "sfv": "SUPPLEMENTARY_ONLY"
+  }
+}
