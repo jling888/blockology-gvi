@@ -1,0 +1,296 @@
+{
+  "schema_version": "murrayhill_main_repo_audit_v0.1",
+  "source_repository": "mikellu12/murrayhill-v12",
+  "source_branch": "main",
+  "source_commit": "9353169b3dc3a1b4673e7144249db6ccbf7ac0f1",
+  "source_commit_message": "Improve H/W geometry robustness and update SIM formulation",
+  "source_commit_date": "2026-09-02T05:27:37Z",
+  "dataset": {
+    "physical_nodes": 766,
+    "vlm_views": 3064,
+    "views_per_node": 4
+  },
+  "source_pipeline_config": {
+    "projected_epsg": 32618,
+    "node_spacing_m": 20,
+    "headings_deg": [
+      0,
+      90,
+      180,
+      270
+    ],
+    "fov_deg": 90,
+    "pitch_deg": 0,
+    "image_size_px": 640,
+    "max_pano_offset_m": 15,
+    "solid_angle_weighting": true,
+    "target_capture": "2026-04",
+    "directional_grid_bearing_deg": 29,
+    "directional_fov_deg": 180,
+    "directional_n_bins": 360,
+    "geometry": {
+      "corridor_m": 35,
+      "facade_half_m": 40,
+      "facade_cone_deg": 10,
+      "open_test_deg": 25,
+      "open_reach_m": 90,
+      "hw_probe": "band",
+      "hw_band_stat": "min",
+      "hw_band_rays": 9,
+      "hw_min_w_m": 4,
+      "hw_max_w_m": 80
+    }
+  },
+  "hw_source_categories": [
+    "measured",
+    "radius_mean",
+    "series",
+    "open_one_side"
+  ],
+  "validation_twins": [
+    {
+      "field": "vertical_greenery",
+      "n": 3032,
+      "rho_against_measured_twin": 0.328526,
+      "rho_expected_value": 0.33781,
+      "pass_direction": true
+    },
+    {
+      "field": "vertical_hardscape",
+      "n": 3032,
+      "rho_against_measured_twin": 0.40662,
+      "rho_expected_value": 0.406096,
+      "pass_direction": true
+    },
+    {
+      "field": "green_eye_level",
+      "n": 3032,
+      "rho_against_measured_twin": 0.451899,
+      "rho_expected_value": 0.450072,
+      "pass_direction": true
+    },
+    {
+      "field": "sky_openness",
+      "n": 3032,
+      "rho_against_measured_twin": 0.39875,
+      "rho_expected_value": 0.395583,
+      "pass_direction": true
+    },
+    {
+      "field": "walkable_ground",
+      "n": 3032,
+      "rho_against_measured_twin": 0.111669,
+      "rho_expected_value": 0.113114,
+      "pass_direction": true
+    },
+    {
+      "field": "green_softening",
+      "n": 3032,
+      "rho_against_measured_twin": 0.206238,
+      "rho_expected_value": 0.223694,
+      "pass_direction": true
+    },
+    {
+      "field": "signage_detail",
+      "n": 3032,
+      "rho_against_measured_twin": 0.19929,
+      "rho_expected_value": 0.228838,
+      "pass_direction": true
+    },
+    {
+      "field": "facade_variation",
+      "n": 0,
+      "rho_against_measured_twin": null,
+      "rho_expected_value": null,
+      "pass_direction": false
+    },
+    {
+      "field": "ground_floor_activity",
+      "n": 3032,
+      "rho_against_measured_twin": -0.08462,
+      "rho_expected_value": -0.076761,
+      "pass_direction": false
+    },
+    {
+      "field": "resting_affordance",
+      "n": 0,
+      "rho_against_measured_twin": null,
+      "rho_expected_value": null,
+      "pass_direction": null,
+      "note": "Not present in the inspected validation_twins.csv table."
+    }
+  ],
+  "rating_reliability": [
+    {
+      "field": "vertical_greenery",
+      "n": 3064,
+      "rho_same_frontage": 0.5058,
+      "moran_I": 0.3498,
+      "top_p": 0.7267
+    },
+    {
+      "field": "vertical_hardscape",
+      "n": 3064,
+      "rho_same_frontage": 0.3839,
+      "moran_I": 0.3612,
+      "top_p": 0.4881
+    },
+    {
+      "field": "green_eye_level",
+      "n": 3064,
+      "rho_same_frontage": 0.3294,
+      "moran_I": 0.3321,
+      "top_p": 0.6893
+    },
+    {
+      "field": "sky_openness",
+      "n": 3064,
+      "rho_same_frontage": 0.3716,
+      "moran_I": 0.2019,
+      "top_p": 0.2725
+    },
+    {
+      "field": "walkable_ground",
+      "n": 3064,
+      "rho_same_frontage": 0.2229,
+      "moran_I": 0.2875,
+      "top_p": 0.4031
+    },
+    {
+      "field": "green_softening",
+      "n": 3064,
+      "rho_same_frontage": 0.3554,
+      "moran_I": 0.3371,
+      "top_p": 0.3456
+    },
+    {
+      "field": "signage_detail",
+      "n": 3064,
+      "rho_same_frontage": 0.179,
+      "moran_I": 0.248,
+      "top_p": 0.6216
+    },
+    {
+      "field": "facade_variation",
+      "n": 3064,
+      "rho_same_frontage": 0.4775,
+      "moran_I": 0.3377,
+      "top_p": 0.4112
+    },
+    {
+      "field": "ground_floor_activity",
+      "n": 3064,
+      "rho_same_frontage": 0.2124,
+      "moran_I": 0.3372,
+      "top_p": 0.7995
+    },
+    {
+      "field": "resting_affordance",
+      "n": 0,
+      "rho_same_frontage": null,
+      "moran_I": null,
+      "top_p": null,
+      "note": "Not present in the inspected rating_reliability.csv table."
+    }
+  ],
+  "partial_correlations": [
+    {
+      "scope": "node",
+      "x": "GVI",
+      "y": "VEI",
+      "control": "northing_m",
+      "n": null,
+      "r_partial": -0.51384
+    },
+    {
+      "scope": "node",
+      "x": "GVI",
+      "y": "SVF_band",
+      "control": "northing_m",
+      "n": null,
+      "r_partial": -0.06402
+    },
+    {
+      "scope": "node",
+      "x": "VEI",
+      "y": "SVF_band",
+      "control": "northing_m",
+      "n": null,
+      "r_partial": -0.05531
+    },
+    {
+      "scope": "face",
+      "x": "GVI",
+      "y": "VEI",
+      "control": "northing_m",
+      "n": null,
+      "r_partial": -0.3341
+    },
+    {
+      "scope": "face",
+      "x": "GVI",
+      "y": "SVF_band",
+      "control": "northing_m",
+      "n": null,
+      "r_partial": 0.02909
+    },
+    {
+      "scope": "face",
+      "x": "VEI",
+      "y": "SVF_band",
+      "control": "northing_m",
+      "n": null,
+      "r_partial": -0.13581
+    }
+  ],
+  "method_availability": [
+    {
+      "key": "node_geometry",
+      "label": "Node geometry / H-W",
+      "status": "available",
+      "evidence": "data/processed/metrics.csv + VLM observation tables include H_m, W_facade, HW_facade, HW_effective, HW_source."
+    },
+    {
+      "key": "qwen_validation",
+      "label": "Qwen measured-twin / reliability QA",
+      "status": "available",
+      "evidence": "results/tables/validation_twins.csv and rating_reliability.csv are committed outputs."
+    },
+    {
+      "key": "space_syntax",
+      "label": "Choice / Integration R=800 m",
+      "status": "not_found_as_node_output",
+      "evidence": "No committed node-level Choice/Integration table was found in the inspected main-branch output tables."
+    },
+    {
+      "key": "gwr",
+      "label": "Empirical local GWR coefficients",
+      "status": "machinery_only",
+      "evidence": "tools/gwr_machinery.py is a structural/synthetic scaffold; tools/gwr_feasibility.py is exploratory and explicitly not a paper-facing GWR."
+    },
+    {
+      "key": "t_base",
+      "label": "Observed baseline stayability t_base",
+      "status": "missing",
+      "evidence": "The repo audit states no usable pedestrian-stay/dwell outcome is available to fit the paper-facing GWR."
+    },
+    {
+      "key": "lambda",
+      "label": "Validated stayability \u03bb",
+      "status": "uncalibrated",
+      "evidence": "sim_dwell.py exposes a demo/tool parameter, not a validated behavioral calibration."
+    },
+    {
+      "key": "pedestrian_detector",
+      "label": "Pedestrian detector",
+      "status": "validation_covariate_only",
+      "evidence": "tools/pedestrian.py counts person detections; it is not an observed dwell/stay outcome."
+    }
+  ],
+  "method_boundaries": [
+    "node_SVF_band is not true hemispherical / whole-sky SVF.",
+    "Legacy vlm_calculations I/Y/D/Omega/a/b/c/M must not overwrite current v0.3 paper equations.",
+    "Source-pipeline headings in config.yaml do not by themselves resolve the current Qwen team-walk-relative versus teacher-orthogonal canonicalization gate.",
+    "Demo/synthetic GWR and dwell machinery must not populate paper-facing \u03b2, t_base, or \u03bb."
+  ]
+}

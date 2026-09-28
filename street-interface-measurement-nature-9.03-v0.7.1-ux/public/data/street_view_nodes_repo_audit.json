@@ -1,0 +1,127 @@
+{
+  "schema_version": "street_view_nodes_repo_audit_v0.2",
+  "classification": "DERIVED_APP_AUDIT_ARTIFACT",
+  "external_status": "EXTERNAL_SUPPLEMENTARY_PROVENANCE",
+  "evidence_status": "NOT_ACTIVE_SIM_EVIDENCE",
+  "isolation_boundary_rule": "MUST_NEVER_AFFECT: V_nat, V_built, GVI_eye, GMI, V_sign, SVF, GFAPI, V_pave, IAS, I, Y, D, a, b, c, M",
+  "source_repository": "ex032895-crypto/street-view-nodes",
+  "source_branch": "main",
+  "source_commit": "51f0250de0c446313b5fba912becabd03db8b572",
+  "source_commit_date": "2026-08-31T19:31:20Z",
+  "source_commit_message": "Ignore .env explicitly (safety net for the API key file)",
+  "repository_role": "Upstream OSM street-network \u2192 evenly spaced street-view camera-node geometry and QA. It is not the VLM, segmentation, Space Syntax, GWR or behavior model.",
+  "committed_generated_node_dataset": false,
+  "node_output_contract": [
+    "node_id",
+    "street_name",
+    "lat",
+    "lng",
+    "heading_fwd_deg",
+    "heading_rev_deg",
+    "seq_fwd",
+    "seq_rev",
+    "is_tunnel",
+    "is_bridge"
+  ],
+  "sampling_defaults": {
+    "spacing_m": 20.0,
+    "min_corridor_m": 60.0,
+    "endpoint_trim_m": 0.0,
+    "max_gap_factor": 1.5,
+    "bearing_smooth_window": 0,
+    "exclude_tunnel": true,
+    "exclude_bridge": true,
+    "exclude_links": true,
+    "require_name": true,
+    "snap_m": 1.5,
+    "max_turn_deg": 35.0,
+    "parallel_min_m": 8.0,
+    "streetview_validation_default": false,
+    "streetview_max_snap_rule": "None -> spacing_m when validation is enabled"
+  },
+  "heading_semantics": {
+    "heading_fwd_deg": "bearing from current node toward the next node along the ordered street path; last node reuses previous segment bearing",
+    "heading_rev_deg": "(heading_fwd_deg + 180) mod 360",
+    "north_reference": "0 degrees = north, clockwise"
+  },
+  "qa_output_fields": [
+    "street_category",
+    "street_name",
+    "nodes",
+    "axis",
+    "segments",
+    "length_m",
+    "gap_min_m",
+    "gap_med_m",
+    "gap_max_m",
+    "gaps_off_standard",
+    "max_perp_offset_m",
+    "straight",
+    "max_heading_jump_deg",
+    "needs_review",
+    "is_tunnel",
+    "is_bridge",
+    "osm_way_ids"
+  ],
+  "streetview_metadata_validation": {
+    "available_in_repo": true,
+    "default_enabled": false,
+    "upstream_behavior": "When enabled, nodes without nearby panorama metadata are dropped and covered nodes are snapped to returned panorama coordinates before output.",
+    "pano_id_persisted_to_node_output": false,
+    "capture_date_persisted_to_node_output": false,
+    "imagery_download_in_repo": false
+  },
+  "app_relevance": [
+    {
+      "key": "camera_node_geometry",
+      "status": "available",
+      "role": "lat/lng + node_id + street name can be imported as acquisition geometry provenance."
+    },
+    {
+      "key": "street_tangent_heading",
+      "status": "available",
+      "role": "heading_fwd/rev provides a path-derived local street axis, useful for camera/orientation provenance."
+    },
+    {
+      "key": "teacher_orthogonal_candidate",
+      "status": "app_derived_only",
+      "role": "APP may derive 0/90/180/270 candidate centers from heading_fwd; the repo itself does not output four teacher views."
+    },
+    {
+      "key": "corridor_qa",
+      "status": "available",
+      "role": "QA table can support sampling integrity review but does not validate VLM scores."
+    },
+    {
+      "key": "streetview_coverage",
+      "status": "optional_upstream",
+      "role": "Coverage checking exists, but output CSV does not retain pano_id/date, so APP cannot prove coverage from node CSV alone."
+    },
+    {
+      "key": "qwen_orientation_gate",
+      "status": "not_resolved",
+      "role": "A street tangent does not make existing team walk-relative L/R images equivalent to teacher orthogonal views."
+    },
+    {
+      "key": "murrayhill_n_id_crosswalk",
+      "status": "not_provided",
+      "role": "Repo node IDs use street_slug_sequence and do not provide a committed crosswalk to n##### Murray Hill IDs."
+    },
+    {
+      "key": "paper_formulas",
+      "status": "no_ownership",
+      "role": "No direct ownership of I/Y/D/A/a/b/c/M/F/t_effective."
+    }
+  ],
+  "current_main_consistency_audit": {
+    "status": "review_required",
+    "finding": "Current root README and committed area examples describe polygon-only selection, but current pipeline.py still declares REQUIRED_KEYS=(area_name,bbox), builds a box, clips corridors to the box, then applies polygon as a post-resample point filter. The latest main therefore contains selection-contract drift.",
+    "app_policy": "Do not import polygon-only claims as authoritative research provenance until the upstream repo reconciles README/config/pipeline."
+  },
+  "boundaries": [
+    "No generated <area>_nodes.csv is committed in the inspected repository tree; the APP cannot auto-populate real node rows from GitHub alone.",
+    "Street-view metadata coverage is an optional upstream operation; because pano_id/date are discarded before io_writers output, a node CSV alone cannot demonstrate panorama identity/date.",
+    "APP-derived orthogonal headings are geometry candidates only and do not auto-approve existing Qwen orientation protocol.",
+    "This repository does not supply segmentation masks, Qwen scores, H/W, true hemispherical SVF, Space Syntax Choice/Integration, local GWR betas, observed t_base, or validated lambda."
+  ]
+}
