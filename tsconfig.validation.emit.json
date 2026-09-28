@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "allowImportingTsExtensions": false,
+    "module": "CommonJS",
+    "moduleResolution": "Node",
+    "isolatedModules": false,
+    "outDir": ".release-validation",
+    "rootDir": "src"
+  },
+  "include": [
+    "src/data/teamRepository/teamRepositoryValidation.ts"
+  ]
+}

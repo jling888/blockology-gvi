@@ -1,0 +1,2564 @@
+{
+  "schema_version": "street_interface_paper_aligned_v0.7.0_multi_source_master_rc1",
+  "image_id": "001_n00045_S",
+  "exported_at": "2026-09-08T05:03:55.091Z",
+  "multi_source_master": {
+    "schema_version": "V0_7_0_MULTI_SOURCE_INTEGRATION_RC1",
+    "release_candidate_status": "V0_7_0_MULTI_SOURCE_INTEGRATION_RC1",
+    "active_scientific_core": "v0.6.3_GOLDEN_FREEZE",
+    "frozen_golden_sim_n00045": 6.214327916148292,
+    "multi_source_version": "Nature 9.03 Final · No-Omega v0.7.0 — Multi-Source Research Integration",
+    "release_candidate_version": "V0_7_0_MULTI_SOURCE_INTEGRATION_RC1",
+    "scientific_core": "v0.6.3_GOLDEN_FREEZE",
+    "qwen_visual_semantic": {
+      "source": "team_repository_data_bridge",
+      "approval_status": "AUTHORIZED",
+      "orientation_protocol": "TEAM_ALONG_STREET_180",
+      "source_field_of_view_degrees": 180,
+      "source_directionality": "BIDIRECTIONAL_FORWARD_BACKWARD",
+      "source_axis_alignment": "STREET_AXIS",
+      "paper_protocol_alignment": "UNRESOLVED_PAPER_PROTOCOL_ALIGNMENT",
+      "source_image_id": "1st_avenue/north_to_south/001_n00045_S.jpg"
+    },
+    "street_view_sampling_geometry": {
+      "repository": "ex032895-crypto/street-view-nodes",
+      "repository_commit": "51f0250de0c446313b5fba912becabd03db8b572",
+      "role": "STREET_NETWORK_SAMPLING_GEOMETRY",
+      "spacing_m": 20,
+      "crs": "WGS84",
+      "node_id": null,
+      "crosswalk_status": "UNRESOLVED_NODE_CROSSWALK",
+      "crosswalk_method": "NO_MATCH",
+      "matched_node": null,
+      "headings": {
+        "heading_fwd_deg": null,
+        "heading_rev_deg": null
+      },
+      "active_sim_evidence": false
+    },
+    "morphology_geometry": {
+      "repository": "mikellu12/murrayhill-v12",
+      "repository_commit": "9353169b3dc3a1b4673e7144249db6ccbf7ac0f1",
+      "source_table": "results/tables/vlm_observations_murrayhill.csv",
+      "source_blob": "975feac25b631c0839fb694db68ffd2e4da51e98",
+      "role": "MORPHOLOGY_CONTEXT",
+      "H_m": 18.373344000000003,
+      "W_facade": null,
+      "HW_facade": null,
+      "HW_effective": 0.5367320941078925,
+      "HW_source": "series",
+      "node_GVI": 1.8055209092729336,
+      "node_VEI": 0.6017595356297097,
+      "node_SVF_band": 0.1946937439740204,
+      "active_sim_evidence": false
+    },
+    "space_syntax_gwr": {
+      "space_syntax_radius_m": 800,
+      "choice_definition": "Segment Choice at pedestrian radius R = 800 m",
+      "integration_definition": "Segment Integration at pedestrian radius R = 800 m",
+      "paper_sample_accounting": {
+        "raw_observations": 2848,
+        "raw_physical_nodes": 712,
+        "excluded_tunnel_observations": 8,
+        "excluded_tunnel_nodes": 2,
+        "active_observations": 2840,
+        "active_physical_nodes": 710
+      },
+      "paper_gwr_diagnostics": {
+        "model1_r2": 0.8142,
+        "model2_r2": 0.8316,
+        "delta_r2": 0.0174,
+        "delta_aicc": ">140",
+        "morans_i": -0.00843,
+        "morans_p": 0.584,
+        "bandwidth_m": 100,
+        "kernel": "ROW_STANDARDIZED_ADAPTIVE_BI_SQUARE"
+      },
+      "repository_gwr_machinery": {
+        "repository_statement": "The proposed local regression requires t_base, but this study does not have localized pedestrian stayability outcomes, therefore the regression cannot be run.",
+        "calibration_status": "BLOCKED_MISSING_T_BASE_OUTCOME",
+        "machinery_status": "OUTCOME_INDEPENDENT_ONLY",
+        "feasibility_kernel": "GAUSSIAN",
+        "historical_paper_n_reference": 1320,
+        "bandwidth_100m": {
+          "tr_S": 42.66357115679539,
+          "tr_SS": 26.199468878295285,
+          "effective_df": 638.3364288432047,
+          "s2_divisor": 621.8723265647045,
+          "aicc_penalty": 774.4565132844356
+        }
+      },
+      "node_choice": null,
+      "node_choice_status": "UNAVAILABLE_NODE_LEVEL_SOURCE",
+      "node_integration": null,
+      "node_integration_status": "UNAVAILABLE_NODE_LEVEL_SOURCE",
+      "local_betas": null,
+      "local_gwr_status": "UNAVAILABLE_NODE_LEVEL_CALIBRATION",
+      "active_elasticities": {
+        "a": 0.4,
+        "b": 0.2,
+        "c": 0.4,
+        "source": "PAPER_GLOBAL_REFERENCE",
+        "calibration_status": "REFERENCE_NOT_LOCAL_GWR"
+      }
+    },
+    "active_sim": {
+      "I": 6.785792291750779,
+      "Y": 4.275239548226926,
+      "D": 6.861271847132807,
+      "a": 0.4,
+      "b": 0.2,
+      "c": 0.4,
+      "M": 6.214327916148292
+    },
+    "gwr_active_elasticity": {
+      "a": 0.4,
+      "b": 0.2,
+      "c": 0.4,
+      "source": "PAPER_GLOBAL_REFERENCE",
+      "calibration_status": "REFERENCE_NOT_LOCAL_GWR"
+    },
+    "space_syntax_node_level": {
+      "choice": null,
+      "integration": null,
+      "status": "UNAVAILABLE_NODE_LEVEL_SOURCE"
+    },
+    "behavioral_observation": {
+      "paper_specification": {
+        "t_min": 0,
+        "t_max": 300,
+        "formula_t_base": "(min(300,max(0,t_raw))-0)/(300-0)",
+        "formula_F_i": "F_i = 1 + lambda * M_i",
+        "formula_t_effective": "t_effective = F_i * t_base"
+      },
+      "node_empirical_observation": {
+        "t_raw_seconds": null,
+        "t_raw_status": "UNAVAILABLE_EMPIRICAL_BEHAVIORAL_OUTCOME",
+        "t_base": null,
+        "t_base_status": "INPUT_GATED_MISSING_T_RAW"
+      },
+      "stayability_calibration": {
+        "active_M_i": 6.214327916148292,
+        "lambda": null,
+        "lambda_status": "UNRESOLVED_BEHAVIORAL_CALIBRATION",
+        "F_i": null,
+        "F_i_status": "METHOD_GATED_MISSING_LAMBDA",
+        "t_effective": null,
+        "t_effective_status": "INPUT_GATED"
+      },
+      "proxy_dwell_surface": {
+        "status": "NETWORK_MODEL_GATED",
+        "kernel_method": "GAUSSIAN_SPATIAL_KERNEL",
+        "discretization_m": 20,
+        "bandwidth_R": null,
+        "bandwidth_status": "UNRESOLVED_PROXY_DWELL_BANDWIDTH",
+        "D_xy": null
+      }
+    },
+    "stayability_calibration": {
+      "active_M_i": 6.214327916148292,
+      "lambda": null,
+      "lambda_status": "UNRESOLVED_BEHAVIORAL_CALIBRATION",
+      "F_i": null,
+      "F_i_status": "METHOD_GATED_MISSING_LAMBDA",
+      "t_effective": null,
+      "t_effective_status": "INPUT_GATED"
+    },
+    "proxy_dwell_surface": {
+      "status": "NETWORK_MODEL_GATED",
+      "kernel_method": "GAUSSIAN_SPATIAL_KERNEL",
+      "discretization_m": 20,
+      "bandwidth_R": null,
+      "bandwidth_status": "UNRESOLVED_PROXY_DWELL_BANDWIDTH",
+      "D_xy": null
+    },
+    "provenance_resolutions": {
+      "title": "MULTI-SOURCE PROVENANCE RESOLUTION",
+      "rows": [
+        {
+          "sourceBoundary": "Paper vs Repository GWR",
+          "status": "RESOLVED BY SEPARATION",
+          "code": "RESOLVED_BY_SEPARATION",
+          "description": "Paper reports final manuscript GWR diagnostics (N=2,840 active observations / 710 active nodes, Model 2 R²=0.8316, adaptive bi-square reported BW=100 m). Repository retains outcome-independent feasibility machinery (Gaussian kernel, tr(S), tr(S'S)). Kept strictly separated."
+        },
+        {
+          "sourceBoundary": "Paper Behavioral Method vs Repository Outcome",
+          "status": "SOURCE-GATED",
+          "code": "SOURCE_GATED",
+          "description": "Paper specifies dwell duration equations (t_base, F_i, t_effective). Static street-view imagery lacks temporal sensor dwell observations. Gated without assigning zero."
+        },
+        {
+          "sourceBoundary": "Blockology λ=1",
+          "status": "DEMO_ONLY",
+          "code": "DEMO_ONLY",
+          "description": "Blockology dwell lambda=1.0 is an uncalibrated repository demonstration placeholder. Isolated from active SIM synthesis."
+        },
+        {
+          "sourceBoundary": "Street Node ↔ Murray Hill Crosswalk",
+          "status": "UNRESOLVED unless explicit mapping exists",
+          "code": "UNRESOLVED",
+          "description": "OSM sampling geometry street_node_* IDs and Murray Hill n* IDs occupy distinct namespaces. Implicit spatial proximity joins are prohibited."
+        },
+        {
+          "sourceBoundary": "180° Team Source vs Orthogonal 90° Paper Protocol",
+          "status": "UNRESOLVED_PAPER_PROTOCOL_ALIGNMENT",
+          "code": "UNRESOLVED_PAPER_PROTOCOL_ALIGNMENT",
+          "description": "Team source verified as bidirectional along-street 180° views. Equivalence to paper orthogonal 90° analytical protocol remains unresolved."
+        }
+      ],
+      "visual_semantic_orientation": {
+        "source_protocol": "TEAM_ALONG_STREET_180",
+        "fov_degrees": 180,
+        "directionality": "BIDIRECTIONAL_FORWARD_BACKWARD",
+        "axis_alignment": "STREET_AXIS",
+        "paper_protocol_alignment": "UNRESOLVED_PAPER_PROTOCOL_ALIGNMENT"
+      },
+      "footerNotice": "None of these are runtime errors. They are provenance boundaries."
+    },
+    "provenance_boundaries": {
+      "paper_vs_repo_gwr": "RESOLVED_BY_SEPARATION",
+      "paper_behavioral_vs_repo": "SOURCE_GATED",
+      "blockology_placeholder_lambda": "DEMO_ONLY",
+      "street_node_crosswalk": "UNRESOLVED_NODE_CROSSWALK",
+      "view_protocol_alignment": "UNRESOLVED_PAPER_PROTOCOL_ALIGNMENT"
+    }
+  },
+  "source_images": {
+    "original_available": true,
+    "original_filename": "001_n00045_S.jpg",
+    "pixel_classification_available": true,
+    "qwen_source_image": "1st_avenue/north_to_south/001_n00045_S.jpg",
+    "qwen_source_image_basename": "001_n00045_S.jpg",
+    "app_qwen_source_image_match": true
+  },
+  "protocol": {
+    "vision_baseline": "v1.5.7.1-share-ready-audited",
+    "taxonomy_version": "street_interface_v1.5.7.1",
+    "strict_paper_mode": true,
+    "computation_engine": "paper_aligned_sim_engine_v0.5.2_nature_9_03_no_omega",
+    "calibration_profile": {
+      "alpha": {
+        "first": 1,
+        "second": 1,
+        "third": 1
+      },
+      "identityWeights": {
+        "first": 1,
+        "second": 1,
+        "third": 1
+      },
+      "gamma": {
+        "first": 1,
+        "second": 1,
+        "third": null
+      },
+      "tauI": 0.2,
+      "kappaI": 12,
+      "tauD": 0.5,
+      "kappaD": 15,
+      "canyonThreshold": 2,
+      "canyonPsi": 0.15,
+      "lambda": null,
+      "lambdaStatus": "UNRESOLVED_BEHAVIORAL_CALIBRATION",
+      "lambdaSource": "PAPER_SYMBOLIC_ONLY",
+      "lambdaNote": "Nature 9.03 defines λ symbolically as the calibration parameter in F_i = 1 + λM_i but does not provide a validated implementation value.",
+      "calibrationMode": "CWMC_MANUSCRIPT_REFERENCE_9_03",
+      "tauISource": "city-wide median(I_raw) — manuscript reference (tau_I = 0.20)",
+      "tauDSource": "city-wide median(D_raw) — manuscript reference (tau_D = 0.50)",
+      "canyonThresholdSource": "city-wide median(H/W) — retired from active calculation",
+      "calibrationNote": "Nature 9.03 Final (No-Omega) calibration profile. Active SIM is computed as M_i = I_i^a_i × Y_i^b_i × D_i^c_i. Values tau_I=0.20, tau_D=0.50 are manuscript Murray Hill reference values."
+    },
+    "paper_method": "Nature 9.03 Final · No-Omega v0.7.0 — Multi-Source Research Integration",
+    "scientific_core_version": "v0.6.3_GOLDEN_FREEZE",
+    "active_vlm_owner": "approved_team_repository_data_bridge",
+    "teacher_gemma_role": "experimental_comparator_only"
+  },
+  "vision_layer": {
+    "node_record": {
+      "record_id": "NODE_001_n00045_S_1788843811185",
+      "image_id": "001_n00045_S",
+      "created_at": "2026-09-08T05:03:31.185Z",
+      "schema_version": "vision_bridge_v1.2",
+      "taxonomy_status": "configured",
+      "pixel_measurements": {
+        "status": "computed",
+        "provenance": {
+          "source": "PIXEL_CLASSIFICATION",
+          "method": "EXACT RGB TAXONOMY MATCH",
+          "analysis_roi": "full_valid_pixel_classification_frame",
+          "timestamp": "2026-09-08T05:03:31.100Z"
+        },
+        "taxonomy": {
+          "status": "configured",
+          "taxonomy_id": "street_interface_v1.5.7.1",
+          "taxonomy_version": "1.5.7.1",
+          "mapping_mode": "exact_rgb"
+        },
+        "image": {
+          "width_px": 2048,
+          "height_px": 1303,
+          "format": "png",
+          "total_pixel_count": 2668544,
+          "source_filename": "001_n00045_S_RGB_PRESENTATION_RECOVERED.png",
+          "source_mime_type": "image/png",
+          "source_kind": "unknown",
+          "source_integrity": "unknown",
+          "png_signature_verified": false
+        },
+        "coverage": {
+          "valid_pixel_count": 2668544,
+          "transparent_pixel_count": 0,
+          "mapped_pixel_count": 2633386,
+          "unmapped_pixel_count": 35158,
+          "mapped_fraction": 0.9868250251822717,
+          "unmapped_fraction": 0.01317497481772832
+        },
+        "class_measurements": [
+          {
+            "class_id": "other_unknown",
+            "label": "Other / Unknown / Unclassified",
+            "rgb": [
+              0,
+              0,
+              0
+            ],
+            "research_groups": [],
+            "pixel_count": 12594,
+            "fraction_of_valid_pixels": 0.004719427523023791
+          },
+          {
+            "class_id": "roadway",
+            "label": "Roadway Asphalt / Vehicular Lane",
+            "rgb": [
+              128,
+              64,
+              128
+            ],
+            "research_groups": [],
+            "pixel_count": 1057467,
+            "fraction_of_valid_pixels": 0.3962711501103223
+          },
+          {
+            "class_id": "sidewalk",
+            "label": "Pedestrian Sidewalk / Footpath",
+            "rgb": [
+              244,
+              35,
+              232
+            ],
+            "research_groups": [
+              "sidewalk"
+            ],
+            "pixel_count": 6380,
+            "fraction_of_valid_pixels": 0.0023908168649270914
+          },
+          {
+            "class_id": "bike_lane",
+            "label": "Bike Lane / Compatibility Class",
+            "rgb": [
+              255,
+              100,
+              100
+            ],
+            "research_groups": [],
+            "pixel_count": 0,
+            "fraction_of_valid_pixels": 0
+          },
+          {
+            "class_id": "curb_edge",
+            "label": "Curb Edge / Street Interface Margin",
+            "rgb": [
+              255,
+              180,
+              180
+            ],
+            "research_groups": [],
+            "pixel_count": 3136,
+            "fraction_of_valid_pixels": 0.0011751726784343822
+          },
+          {
+            "class_id": "upper_building_facade",
+            "label": "Upper Building Facade / Solid Wall",
+            "rgb": [
+              70,
+              70,
+              70
+            ],
+            "research_groups": [
+              "built_above_ground"
+            ],
+            "pixel_count": 418841,
+            "fraction_of_valid_pixels": 0.1569548787653492
+          },
+          {
+            "class_id": "ground_floor_solid_facade",
+            "label": "Ground Floor Solid Facade",
+            "rgb": [
+              110,
+              80,
+              70
+            ],
+            "research_groups": [
+              "built_above_ground"
+            ],
+            "pixel_count": 20092,
+            "fraction_of_valid_pixels": 0.007529199443591711
+          },
+          {
+            "class_id": "ground_floor_glazing",
+            "label": "Ground Floor Glazing / Storefront Window",
+            "rgb": [
+              0,
+              220,
+              255
+            ],
+            "research_groups": [
+              "built_above_ground",
+              "architectural_detail"
+            ],
+            "pixel_count": 5949,
+            "fraction_of_valid_pixels": 0.002229305568879509
+          },
+          {
+            "class_id": "door_entrance",
+            "label": "Door / Building Entrance Portal",
+            "rgb": [
+              255,
+              140,
+              0
+            ],
+            "research_groups": [
+              "built_above_ground",
+              "architectural_detail"
+            ],
+            "pixel_count": 389,
+            "fraction_of_valid_pixels": 0.000145772376247122
+          },
+          {
+            "class_id": "signboard",
+            "label": "Signboard / Commercial Fascia",
+            "rgb": [
+              255,
+              220,
+              0
+            ],
+            "research_groups": [
+              "signboard"
+            ],
+            "pixel_count": 3,
+            "fraction_of_valid_pixels": 0.0000011242085571757483
+          },
+          {
+            "class_id": "awning_canopy",
+            "label": "Awning / Entrance Canopy",
+            "rgb": [
+              180,
+              100,
+              255
+            ],
+            "research_groups": [
+              "built_above_ground",
+              "parasol"
+            ],
+            "pixel_count": 14112,
+            "fraction_of_valid_pixels": 0.00528827705295472
+          },
+          {
+            "class_id": "arcade_column",
+            "label": "Arcade Column / Pillar Support",
+            "rgb": [
+              120,
+              120,
+              160
+            ],
+            "research_groups": [
+              "built_above_ground",
+              "architectural_detail"
+            ],
+            "pixel_count": 1385,
+            "fraction_of_valid_pixels": 0.0005190096172294704
+          },
+          {
+            "class_id": "arcade_soffit",
+            "label": "Arcade Soffit / Covered Walkway Ceiling",
+            "rgb": [
+              170,
+              170,
+              210
+            ],
+            "research_groups": [
+              "built_above_ground",
+              "architectural_detail"
+            ],
+            "pixel_count": 72,
+            "fraction_of_valid_pixels": 0.000026981005372217958
+          },
+          {
+            "class_id": "sidewalk_shed_scaffold",
+            "label": "Sidewalk Shed / Scaffold Structure",
+            "rgb": [
+              0,
+              200,
+              200
+            ],
+            "research_groups": [
+              "built_above_ground"
+            ],
+            "pixel_count": 48022,
+            "fraction_of_valid_pixels": 0.017995581110897926
+          },
+          {
+            "class_id": "stoop_stair",
+            "label": "Stoop / Exterior Stair / Steps",
+            "rgb": [
+              170,
+              90,
+              40
+            ],
+            "research_groups": [
+              "built_above_ground",
+              "architectural_detail"
+            ],
+            "pixel_count": 53,
+            "fraction_of_valid_pixels": 0.00001986101784343822
+          },
+          {
+            "class_id": "wall_ledge",
+            "label": "Wall Ledge / Low Retaining Wall",
+            "rgb": [
+              150,
+              120,
+              80
+            ],
+            "research_groups": [
+              "built_above_ground"
+            ],
+            "pixel_count": 47440,
+            "fraction_of_valid_pixels": 0.017777484650805832
+          },
+          {
+            "class_id": "fence_railing",
+            "label": "Fence / Railing / Guard Barrier",
+            "rgb": [
+              190,
+              153,
+              153
+            ],
+            "research_groups": [
+              "built_above_ground"
+            ],
+            "pixel_count": 29601,
+            "fraction_of_valid_pixels": 0.011092565833653109
+          },
+          {
+            "class_id": "planter_container",
+            "label": "Planter Container / Built Box",
+            "rgb": [
+              180,
+              110,
+              40
+            ],
+            "research_groups": [
+              "planter",
+              "street_furniture"
+            ],
+            "pixel_count": 48,
+            "fraction_of_valid_pixels": 0.000017987336914811973
+          },
+          {
+            "class_id": "tree",
+            "label": "Tree — Crown / Branches / Trunk",
+            "rgb": [
+              50,
+              130,
+              20
+            ],
+            "research_groups": [
+              "natural_above_ground",
+              "vegetation"
+            ],
+            "pixel_count": 23633,
+            "fraction_of_valid_pixels": 0.00885614027724482
+          },
+          {
+            "class_id": "shrub_hedge",
+            "label": "Shrub / Hedge",
+            "rgb": [
+              100,
+              180,
+              40
+            ],
+            "research_groups": [
+              "natural_above_ground",
+              "vegetation"
+            ],
+            "pixel_count": 23,
+            "fraction_of_valid_pixels": 0.000008618932271680736
+          },
+          {
+            "class_id": "ground_vegetation",
+            "label": "Ground Vegetation / Grass / Low Flora",
+            "rgb": [
+              150,
+              220,
+              80
+            ],
+            "research_groups": [
+              "vegetation"
+            ],
+            "pixel_count": 93,
+            "fraction_of_valid_pixels": 0.000034850465272448194
+          },
+          {
+            "class_id": "vertical_green_wall",
+            "label": "Vertical Green Wall / Climbing Flora",
+            "rgb": [
+              0,
+              150,
+              80
+            ],
+            "research_groups": [
+              "natural_above_ground",
+              "vegetation"
+            ],
+            "pixel_count": 33,
+            "fraction_of_valid_pixels": 0.000012366294128933232
+          },
+          {
+            "class_id": "bench_seating",
+            "label": "Bench / Dedicated Seating Structure",
+            "rgb": [
+              255,
+              80,
+              160
+            ],
+            "research_groups": [
+              "outdoor_seating",
+              "street_furniture"
+            ],
+            "pixel_count": 33,
+            "fraction_of_valid_pixels": 0.000012366294128933232
+          },
+          {
+            "class_id": "pole_fixture",
+            "label": "Pole / Utility Fixture / Lamp Post",
+            "rgb": [
+              153,
+              153,
+              153
+            ],
+            "research_groups": [
+              "street_furniture"
+            ],
+            "pixel_count": 24096,
+            "fraction_of_valid_pixels": 0.00902964313123561
+          },
+          {
+            "class_id": "traffic_sign_signal",
+            "label": "Traffic Sign / Signal Fixture",
+            "rgb": [
+              255,
+              255,
+              0
+            ],
+            "research_groups": [
+              "street_furniture"
+            ],
+            "pixel_count": 4400,
+            "fraction_of_valid_pixels": 0.0016488392171910974
+          },
+          {
+            "class_id": "person",
+            "label": "Person / Pedestrian Presence",
+            "rgb": [
+              220,
+              20,
+              60
+            ],
+            "research_groups": [],
+            "pixel_count": 1439,
+            "fraction_of_valid_pixels": 0.0005392453712586339
+          },
+          {
+            "class_id": "vehicle",
+            "label": "Vehicle / Transit Carrier",
+            "rgb": [
+              0,
+              0,
+              142
+            ],
+            "research_groups": [],
+            "pixel_count": 165398,
+            "fraction_of_valid_pixels": 0.0619806156465848
+          },
+          {
+            "class_id": "sky",
+            "label": "Open Sky / Celestial Hemisphere",
+            "rgb": [
+              70,
+              130,
+              180
+            ],
+            "research_groups": [],
+            "pixel_count": 729265,
+            "fraction_of_valid_pixels": 0.273281984482924
+          },
+          {
+            "class_id": "upper_building_glazing",
+            "label": "Upper Building Glazing / Upper Windows",
+            "rgb": [
+              0,
+              170,
+              220
+            ],
+            "research_groups": [
+              "built_above_ground",
+              "architectural_detail"
+            ],
+            "pixel_count": 19389,
+            "fraction_of_valid_pixels": 0.007265759905026861
+          },
+          {
+            "class_id": "traffic_cone_barrel",
+            "label": "Traffic Cone / Construction Barrel",
+            "rgb": [
+              255,
+              80,
+              0
+            ],
+            "research_groups": [],
+            "pixel_count": 0,
+            "fraction_of_valid_pixels": 0
+          }
+        ],
+        "group_measurements": {
+          "P_natural_above_ground": 23689,
+          "P_built_above_ground": 605345,
+          "P_vegetation": 23782,
+          "P_sidewalk": 6380,
+          "P_paver": 0,
+          "P_signboard": 3,
+          "P_architectural_detail": 27237,
+          "P_outdoor_seating": 33,
+          "P_parasol": 14112,
+          "P_planter": 48,
+          "P_street_furniture": 28577
+        },
+        "derived_metrics": {
+          "natural_built_above_ground_ratio": {
+            "value": 0.0391,
+            "status": "computed",
+            "numerator": 23689,
+            "denominator": 605345,
+            "description": "P_natural_above_ground / P_built_above_ground"
+          },
+          "sidewalk_paver_ratio": {
+            "value": 0.0024,
+            "status": "computed",
+            "numerator": 6380,
+            "denominator": 2668544,
+            "description": "(P_sidewalk + P_paver) / P_total_valid"
+          },
+          "signboard_detail_ratio": {
+            "value": 0.0102,
+            "status": "computed",
+            "numerator": 27240,
+            "denominator": 2668544,
+            "description": "(P_signboard + P_architectural_detail) / P_total_valid"
+          },
+          "GVI_eye": {
+            "value": null,
+            "status": "pending_eye_level_roi_definition",
+            "note": "Eye-level visual ROI and projection parameters are pending formal teacher definition."
+          }
+        },
+        "status_reason": "PRESENTATION SCREENSHOT RECOVERY — DEMO ONLY. Exact before=44.65%; recovered/mappable=98.68%; RGB maxDistance=40. Use the original RGB_CLEAN PNG for research reporting."
+      },
+      "derived_indices": {
+        "natural_built_above_ground_ratio": 0.0391,
+        "sidewalk_paver_ratio": 0.0024,
+        "signboard_detail_ratio": 0.0102
+      }
+    },
+    "measurement_status": "computed",
+    "recovery_warning": "PRESENTATION SCREENSHOT RECOVERY — DEMO ONLY",
+    "coverage": {
+      "valid_pixel_count": 2668544,
+      "transparent_pixel_count": 0,
+      "mapped_pixel_count": 2633386,
+      "unmapped_pixel_count": 35158,
+      "mapped_fraction": 0.9868250251822717,
+      "unmapped_fraction": 0.01317497481772832
+    }
+  },
+  "qwen_vlm_instrument": {
+    "imported": true,
+    "approval_active": true,
+    "approval_record": {
+      "source": "team_repository_data_bridge",
+      "nodeId": "n00045",
+      "repositorySource": "mikellu12/murrayhill-v12 @ 9353169b3dc3a1b4673e7144249db6ccbf7ac0f1 · results/tables/vlm_observations_murrayhill.csv",
+      "sourceImageId": "1st_avenue/north_to_south/001_n00045_S.jpg",
+      "repositoryName": "mikellu12/murrayhill-v12",
+      "repositoryCommit": "9353169b3dc3a1b4673e7144249db6ccbf7ac0f1",
+      "repositoryBlob": "975feac25b631c0839fb694db68ffd2e4da51e98",
+      "sourceFilename": "1st_avenue/north_to_south/001_n00045_S.jpg",
+      "modelId": "Qwen/Qwen2-VL-7B-Instruct",
+      "instrumentVersion": "team_repository_bridge_v0.6.3",
+      "approvedAtIso": "2026-09-08T05:03:55.062Z",
+      "approvalActionProvenance": "EXPLICIT_APPROVAL_GATE_USER_ACTION: Confirmed for paper synthesis"
+    },
+    "source_image_match": true,
+    "source_identity": {
+      "file": "1st_avenue/north_to_south/001_n00045_S.jpg",
+      "street": "1st_avenue",
+      "walk": "north_to_south",
+      "seq": 1,
+      "node_id": "n00045",
+      "cardinal": "S",
+      "side": "W"
+    },
+    "source_view_protocol": "TEAM_ALONG_STREET_180",
+    "source_field_of_view_degrees": 180,
+    "source_directionality": "BIDIRECTIONAL_FORWARD_BACKWARD",
+    "source_axis_alignment": "STREET_AXIS",
+    "paper_protocol_alignment_status": "UNRESOLVED_PAPER_PROTOCOL_ALIGNMENT",
+    "source_protocol": {
+      "recognized_team_90_view": false,
+      "source_csv_format": "vlm_observations_murrayhill",
+      "source_filename": "vlm_observations_murrayhill.csv",
+      "source_schema": "MEDIAN_LED_REPOSITORY_TABLE",
+      "probability_storage_decimals": 4,
+      "view_protocol": "team_along_street_180",
+      "orientation_alignment_status": "UNRESOLVED_PAPER_PROTOCOL_ALIGNMENT",
+      "view_center_offset_from_walk_degrees": 0,
+      "field_of_view_degrees": 180
+    },
+    "run": {
+      "schema_version": "paper_vlm_instrument_v0.3",
+      "node_metadata": {
+        "image_quadrant": null,
+        "view_protocol": "team_along_street_180",
+        "orientation_alignment_status": "UNRESOLVED_PAPER_PROTOCOL_ALIGNMENT",
+        "walk_cardinal": "S",
+        "walk_side": "W",
+        "view_center_offset_from_walk_degrees": 0,
+        "horizon_alignment_verified": false,
+        "field_of_view_degrees": 180,
+        "eye_height_m": null,
+        "pitch_degrees": null,
+        "node_id": "n00045",
+        "source_image_id": "1st_avenue/north_to_south/001_n00045_S.jpg"
+      },
+      "model": {
+        "family": "Qwen",
+        "model_id": "Qwen/Qwen2-VL-7B-Instruct",
+        "inference_mode": "one_field_per_call",
+        "score_readout": "next_token_logits_1_to_7"
+      },
+      "complete": true,
+      "eligible_for_paper_assembly": true,
+      "warnings": [],
+      "fields": {
+        "vertical_greenery": {
+          "field_id": "vertical_greenery",
+          "paper_variable": "V_nat",
+          "rung": 1,
+          "expected_value": 1.5357464253574642,
+          "normalized_ev": 0.0892910708929107,
+          "argmax": 1,
+          "probabilities": {
+            "p1": 0.6687,
+            "p2": 0.2171,
+            "p3": 0.0705,
+            "p4": 0.0157,
+            "p5": 0.0157,
+            "p6": 0.0066,
+            "p7": 0.0058
+          },
+          "continuous_readout_method": "ORDINAL_INTERPOLATED_MEDIAN",
+          "continuous_readout_value": 1.2434574547629729,
+          "normalized_continuous_readout": 0.04057624246049548,
+          "instrument_version": "qwen_7_rung_v0.3",
+          "validation": {
+            "strength": "strong"
+          }
+        },
+        "vertical_hardscape": {
+          "field_id": "vertical_hardscape",
+          "paper_variable": "V_built",
+          "rung": 5,
+          "expected_value": 5.1105,
+          "normalized_ev": 0.6850833333333334,
+          "argmax": 5,
+          "probabilities": {
+            "p1": 0.0126,
+            "p2": 0.0301,
+            "p3": 0.0929,
+            "p4": 0.1192,
+            "p5": 0.3241,
+            "p6": 0.286,
+            "p7": 0.1351
+          },
+          "continuous_readout_method": "ORDINAL_INTERPOLATED_MEDIAN",
+          "continuous_readout_value": 5.275995063252083,
+          "normalized_continuous_readout": 0.7126658438753471,
+          "instrument_version": "qwen_7_rung_v0.3",
+          "validation": {
+            "strength": "strong"
+          }
+        },
+        "green_eye_level": {
+          "field_id": "green_eye_level",
+          "paper_variable": "GVI_eye",
+          "rung": 2,
+          "expected_value": 2.4660000000000006,
+          "normalized_ev": 0.24433333333333343,
+          "argmax": 2,
+          "probabilities": {
+            "p1": 0.1827,
+            "p2": 0.4383,
+            "p3": 0.2346,
+            "p4": 0.0672,
+            "p5": 0.0408,
+            "p6": 0.0247,
+            "p7": 0.0117
+          },
+          "continuous_readout_method": "ORDINAL_INTERPOLATED_MEDIAN",
+          "continuous_readout_value": 2.210586356376911,
+          "normalized_continuous_readout": 0.20176439272948513,
+          "instrument_version": "qwen_7_rung_v0.3",
+          "validation": {
+            "strength": "strong"
+          }
+        },
+        "green_softening": {
+          "field_id": "green_softening",
+          "paper_variable": "GMI",
+          "rung": 2,
+          "expected_value": 2.8342,
+          "normalized_ev": 0.3057,
+          "argmax": 2,
+          "probabilities": {
+            "p1": 0.2216,
+            "p2": 0.3224,
+            "p3": 0.1955,
+            "p4": 0.0719,
+            "p5": 0.0815,
+            "p6": 0.0635,
+            "p7": 0.0436
+          },
+          "continuous_readout_method": "ORDINAL_INTERPOLATED_MEDIAN",
+          "continuous_readout_value": 2.2959057071960296,
+          "normalized_continuous_readout": 0.2159842845326716,
+          "instrument_version": "qwen_7_rung_v0.3",
+          "validation": {
+            "strength": "strong"
+          }
+        },
+        "signage_detail": {
+          "field_id": "signage_detail",
+          "paper_variable": "V_sign",
+          "rung": 4,
+          "expected_value": 4.297600000000001,
+          "normalized_ev": 0.5496000000000002,
+          "argmax": 5,
+          "probabilities": {
+            "p1": 0.0245,
+            "p2": 0.0853,
+            "p3": 0.2047,
+            "p4": 0.2047,
+            "p5": 0.232,
+            "p6": 0.232,
+            "p7": 0.0168
+          },
+          "continuous_readout_method": "ORDINAL_INTERPOLATED_MEDIAN",
+          "continuous_readout_value": 4.365168539325842,
+          "normalized_continuous_readout": 0.5608614232209738,
+          "instrument_version": "qwen_7_rung_v0.3",
+          "validation": {
+            "strength": "strong"
+          }
+        },
+        "sky_openness": {
+          "field_id": "sky_openness",
+          "paper_variable": "sky_openness_proxy",
+          "rung": 5,
+          "expected_value": 4.984398439843984,
+          "normalized_ev": 0.664066406640664,
+          "argmax": 6,
+          "probabilities": {
+            "p1": 0.0068,
+            "p2": 0.027,
+            "p3": 0.0831,
+            "p4": 0.1994,
+            "p5": 0.2901,
+            "p6": 0.3288,
+            "p7": 0.0647
+          },
+          "continuous_readout_method": "ORDINAL_INTERPOLATED_MEDIAN",
+          "continuous_readout_value": 5.144777662874871,
+          "normalized_continuous_readout": 0.6907962771458118,
+          "instrument_version": "qwen_7_rung_v0.3",
+          "validation": {
+            "strength": "strong"
+          }
+        },
+        "ground_floor_activity": {
+          "field_id": "ground_floor_activity",
+          "paper_variable": "GFAPI",
+          "rung": 6,
+          "expected_value": 4.909309069093091,
+          "normalized_ev": 0.6515515115155152,
+          "argmax": 6,
+          "probabilities": {
+            "p1": 0.0379,
+            "p2": 0.0708,
+            "p3": 0.1322,
+            "p4": 0.103,
+            "p5": 0.1322,
+            "p6": 0.4073,
+            "p7": 0.1167
+          },
+          "continuous_readout_method": "ORDINAL_INTERPOLATED_MEDIAN",
+          "continuous_readout_value": 5.605327768229806,
+          "normalized_continuous_readout": 0.767554628038301,
+          "instrument_version": "qwen_7_rung_v0.3",
+          "validation": {
+            "strength": "strong"
+          }
+        },
+        "walkable_ground": {
+          "field_id": "walkable_ground",
+          "paper_variable": "V_pave",
+          "rung": 5,
+          "expected_value": 4.7252274772522735,
+          "normalized_ev": 0.6208712462087123,
+          "argmax": 6,
+          "probabilities": {
+            "p1": 0.0479,
+            "p2": 0.0697,
+            "p3": 0.1475,
+            "p4": 0.1148,
+            "p5": 0.2146,
+            "p6": 0.2755,
+            "p7": 0.1301
+          },
+          "continuous_readout_method": "ORDINAL_INTERPOLATED_MEDIAN",
+          "continuous_readout_value": 5.17148182665424,
+          "normalized_continuous_readout": 0.69524697110904,
+          "instrument_version": "qwen_7_rung_v0.3",
+          "validation": {
+            "strength": "strong"
+          }
+        },
+        "resting_affordance": {
+          "field_id": "resting_affordance",
+          "paper_variable": "IAS",
+          "rung": 1,
+          "expected_value": 1.686,
+          "normalized_ev": 0.11433333333333333,
+          "argmax": 1,
+          "probabilities": {
+            "p1": 0.6013,
+            "p2": 0.2507,
+            "p3": 0.0814,
+            "p4": 0.0233,
+            "p5": 0.0206,
+            "p6": 0.016,
+            "p7": 0.0067
+          },
+          "continuous_readout_method": "ORDINAL_INTERPOLATED_MEDIAN",
+          "continuous_readout_value": 1.3259604190919674,
+          "normalized_continuous_readout": 0.0543267365153279,
+          "instrument_version": "qwen_7_rung_v0.3",
+          "validation": {
+            "strength": "strong"
+          }
+        },
+        "facade_variation": {
+          "field_id": "facade_variation",
+          "paper_variable": "SFV",
+          "rung": 6,
+          "expected_value": 5.635836416358364,
+          "normalized_ev": 0.772639402726394,
+          "argmax": 6,
+          "probabilities": {
+            "p1": 0.002,
+            "p2": 0.0101,
+            "p3": 0.0579,
+            "p4": 0.0954,
+            "p5": 0.1782,
+            "p6": 0.4276,
+            "p7": 0.2289
+          },
+          "continuous_readout_method": "ORDINAL_INTERPOLATED_MEDIAN",
+          "continuous_readout_value": 5.868217960710945,
+          "normalized_continuous_readout": 0.8113696601184909,
+          "instrument_version": "qwen_7_rung_v0.3",
+          "validation": {
+            "strength": "strong"
+          }
+        }
+      }
+    },
+    "note": "The full Qwen run preserves rung, expected value, argmax, p1–p7, normalized_ev, validation status, model provenance and orientation provenance. Approval remains separately recorded."
+  },
+  "team_repository_bridge": {
+    "repository_name": "mikellu12/murrayhill-v12",
+    "repository_commit": "9353169b3dc3a1b4673e7144249db6ccbf7ac0f1",
+    "repository_data_version": "murrayhill_team_repo_v0.6.2",
+    "import_timestamp": "2026-09-08T05:03:45.688Z",
+    "bridge_status": "READY",
+    "node_id": "n00045",
+    "source_filename": "1st_avenue/north_to_south/001_n00045_S.jpg",
+    "match_strategy": "BASENAME_ONLY",
+    "usable_status": "SOURCE_USABLE",
+    "usable_for_active_synthesis": true,
+    "exclude_reason": null,
+    "paper_variables_available": [
+      "vNat",
+      "vBuilt",
+      "gviEye",
+      "gmi",
+      "vSign",
+      "svf",
+      "gfapi",
+      "vPave",
+      "ias"
+    ],
+    "paper_variables_missing": [],
+    "supplementary_variables": [
+      "sfv"
+    ],
+    "excluded_downstream_variables": [
+      "spaceSyntaxChoice",
+      "spaceSyntaxIntegration",
+      "gwrLocalBetas",
+      "lambda",
+      "tBase",
+      "tRawSeconds"
+    ],
+    "calibration_mode": "PAPER_MURRAY_HILL_REFERENCE",
+    "mapped_paper_variables": {
+      "vNat": {
+        "value": 0.04057624246049548,
+        "classification": "REPO_MEASURED",
+        "sourceFile": "vlm_observations_murrayhill.csv",
+        "sourceField": "vertical_greenery_median",
+        "sourceColumn": "vertical_greenery_median",
+        "sourceValue": "1.2434574547629729",
+        "sourceRow": 2,
+        "sourceNodeId": "n00045",
+        "sourceFilename": "1st_avenue/north_to_south/001_n00045_S.jpg",
+        "readoutMethod": "ORDINAL_INTERPOLATED_MEDIAN",
+        "continuousReadoutSource": "vertical_greenery_median",
+        "displayRung": 1,
+        "displayRungSource": "vertical_greenery_median_round",
+        "displayRungValue": "1",
+        "sourceScale": "ORDINAL_1_TO_7",
+        "targetScale": "UNIT_0_TO_1",
+        "normalizationFormula": "(raw_median_1_7 - 1) / 6",
+        "usableStatus": "SOURCE_USABLE",
+        "probabilityDistribution": {
+          "p1": 0.6687,
+          "p2": 0.2171,
+          "p3": 0.0705,
+          "p4": 0.0157,
+          "p5": 0.0157,
+          "p6": 0.0066,
+          "p7": 0.0058
+        },
+        "notes": "Team Qwen 7-rung qualitative rating mapped to V_nat via ORDINAL_INTERPOLATED_MEDIAN (source: vertical_greenery_median)."
+      },
+      "vBuilt": {
+        "value": 0.7126658438753471,
+        "classification": "REPO_MEASURED",
+        "sourceFile": "vlm_observations_murrayhill.csv",
+        "sourceField": "vertical_hardscape_median",
+        "sourceColumn": "vertical_hardscape_median",
+        "sourceValue": "5.275995063252083",
+        "sourceRow": 2,
+        "sourceNodeId": "n00045",
+        "sourceFilename": "1st_avenue/north_to_south/001_n00045_S.jpg",
+        "readoutMethod": "ORDINAL_INTERPOLATED_MEDIAN",
+        "continuousReadoutSource": "vertical_hardscape_median",
+        "displayRung": 5,
+        "displayRungSource": "vertical_hardscape_median_round",
+        "displayRungValue": "5",
+        "sourceScale": "ORDINAL_1_TO_7",
+        "targetScale": "UNIT_0_TO_1",
+        "normalizationFormula": "(raw_median_1_7 - 1) / 6",
+        "usableStatus": "SOURCE_USABLE",
+        "probabilityDistribution": {
+          "p1": 0.0126,
+          "p2": 0.0301,
+          "p3": 0.0929,
+          "p4": 0.1192,
+          "p5": 0.3241,
+          "p6": 0.286,
+          "p7": 0.1351
+        },
+        "notes": "Team Qwen 7-rung qualitative rating mapped to V_built via ORDINAL_INTERPOLATED_MEDIAN (source: vertical_hardscape_median)."
+      },
+      "naturalBuiltRatio": {
+        "value": 0.056935859644751965,
+        "classification": "DERIVED_FOR_PROVENANCE_ONLY",
+        "sourceFile": "vlm_observations_murrayhill.csv",
+        "sourceField": "vertical_greenery_median / vertical_hardscape_median",
+        "sourceColumn": "vertical_greenery_median / vertical_hardscape_median",
+        "sourceValue": 0.056935859644751965,
+        "sourceRow": 2,
+        "sourceNodeId": "n00045",
+        "sourceFilename": "1st_avenue/north_to_south/001_n00045_S.jpg",
+        "readoutMethod": "ORDINAL_INTERPOLATED_MEDIAN",
+        "sourceScale": "RATIO",
+        "targetScale": "RATIO",
+        "normalizationFormula": "V_nat / V_built",
+        "usableStatus": "SOURCE_USABLE",
+        "notes": "DERIVED_FOR_PROVENANCE_ONLY: Diagnostic ratio V_nat (0.0406) / V_built (0.7127) = 0.0569. Authoritative ratio is computed inside frozen SIM engine."
+      },
+      "gviEye": {
+        "value": 0.20176439272948513,
+        "classification": "REPO_MEASURED",
+        "sourceFile": "vlm_observations_murrayhill.csv",
+        "sourceField": "green_eye_level_median",
+        "sourceColumn": "green_eye_level_median",
+        "sourceValue": "2.210586356376911",
+        "sourceRow": 2,
+        "sourceNodeId": "n00045",
+        "sourceFilename": "1st_avenue/north_to_south/001_n00045_S.jpg",
+        "readoutMethod": "ORDINAL_INTERPOLATED_MEDIAN",
+        "continuousReadoutSource": "green_eye_level_median",
+        "displayRung": 2,
+        "displayRungSource": "green_eye_level_median_round",
+        "displayRungValue": "2",
+        "sourceScale": "ORDINAL_1_TO_7",
+        "targetScale": "UNIT_0_TO_1",
+        "normalizationFormula": "(raw_median_1_7 - 1) / 6",
+        "usableStatus": "SOURCE_USABLE",
+        "probabilityDistribution": {
+          "p1": 0.1827,
+          "p2": 0.4383,
+          "p3": 0.2346,
+          "p4": 0.0672,
+          "p5": 0.0408,
+          "p6": 0.0247,
+          "p7": 0.0117
+        },
+        "notes": "ACTIVE_IMAGEABILITY_INPUT: Eye-level greenness from green_eye_level_median. Kept distinct from node_GVI (node-level geometric context)."
+      },
+      "gmi": {
+        "value": 0.2159842845326716,
+        "classification": "REPO_MEASURED",
+        "sourceFile": "vlm_observations_murrayhill.csv",
+        "sourceField": "green_softening_median",
+        "sourceColumn": "green_softening_median",
+        "sourceValue": "2.2959057071960296",
+        "sourceRow": 2,
+        "sourceNodeId": "n00045",
+        "sourceFilename": "1st_avenue/north_to_south/001_n00045_S.jpg",
+        "readoutMethod": "ORDINAL_INTERPOLATED_MEDIAN",
+        "continuousReadoutSource": "green_softening_median",
+        "displayRung": 2,
+        "displayRungSource": "green_softening_median_round",
+        "displayRungValue": "2",
+        "sourceScale": "ORDINAL_1_TO_7",
+        "targetScale": "UNIT_0_TO_1",
+        "normalizationFormula": "(raw_median_1_7 - 1) / 6",
+        "usableStatus": "SOURCE_USABLE",
+        "probabilityDistribution": {
+          "p1": 0.2216,
+          "p2": 0.3224,
+          "p3": 0.1955,
+          "p4": 0.0719,
+          "p5": 0.0815,
+          "p6": 0.0635,
+          "p7": 0.0436
+        },
+        "notes": "Team Qwen 7-rung qualitative rating mapped to GMI via ORDINAL_INTERPOLATED_MEDIAN (source: green_softening_median)."
+      },
+      "vSign": {
+        "value": 0.5608614232209738,
+        "classification": "REPO_MEASURED",
+        "sourceFile": "vlm_observations_murrayhill.csv",
+        "sourceField": "signage_detail_median",
+        "sourceColumn": "signage_detail_median",
+        "sourceValue": "4.365168539325842",
+        "sourceRow": 2,
+        "sourceNodeId": "n00045",
+        "sourceFilename": "1st_avenue/north_to_south/001_n00045_S.jpg",
+        "readoutMethod": "ORDINAL_INTERPOLATED_MEDIAN",
+        "continuousReadoutSource": "signage_detail_median",
+        "displayRung": 4,
+        "displayRungSource": "signage_detail_median_round",
+        "displayRungValue": "4",
+        "sourceScale": "ORDINAL_1_TO_7",
+        "targetScale": "UNIT_0_TO_1",
+        "normalizationFormula": "(raw_median_1_7 - 1) / 6",
+        "usableStatus": "SOURCE_USABLE",
+        "probabilityDistribution": {
+          "p1": 0.0245,
+          "p2": 0.0853,
+          "p3": 0.2047,
+          "p4": 0.2047,
+          "p5": 0.232,
+          "p6": 0.232,
+          "p7": 0.0168
+        },
+        "notes": "Team Qwen 7-rung qualitative rating mapped to V_sign via ORDINAL_INTERPOLATED_MEDIAN (source: signage_detail_median)."
+      },
+      "svf": {
+        "value": 0.6907962771458118,
+        "classification": "REPO_MEASURED",
+        "sourceFile": "vlm_observations_murrayhill.csv",
+        "sourceField": "sky_openness_median",
+        "sourceColumn": "sky_openness_median",
+        "sourceValue": "5.144777662874871",
+        "sourceRow": 2,
+        "sourceNodeId": "n00045",
+        "sourceFilename": "1st_avenue/north_to_south/001_n00045_S.jpg",
+        "readoutMethod": "ORDINAL_INTERPOLATED_MEDIAN",
+        "continuousReadoutSource": "sky_openness_median",
+        "displayRung": 5,
+        "displayRungSource": "sky_openness_median_round",
+        "displayRungValue": "5",
+        "sourceScale": "ORDINAL_1_TO_7",
+        "targetScale": "UNIT_0_TO_1",
+        "normalizationFormula": "(raw_median_1_7 - 1) / 6",
+        "usableStatus": "SOURCE_USABLE",
+        "probabilityDistribution": {
+          "p1": 0.0068,
+          "p2": 0.027,
+          "p3": 0.0831,
+          "p4": 0.1994,
+          "p5": 0.2901,
+          "p6": 0.3288,
+          "p7": 0.0647
+        },
+        "notes": "TEAM_QWEN_STANDARDIZED_SKY_OPENNESS: Standardized sky openness from Team Qwen sky_openness_median. Enters Identity Y_i as 1 - SVF. Kept distinct from node_SVF_band (LIMITED_ELEVATION_SKY_BAND)."
+      },
+      "gfapi": {
+        "value": 0.767554628038301,
+        "classification": "REPO_MEASURED",
+        "sourceFile": "vlm_observations_murrayhill.csv",
+        "sourceField": "ground_floor_activity_median",
+        "sourceColumn": "ground_floor_activity_median",
+        "sourceValue": "5.605327768229806",
+        "sourceRow": 2,
+        "sourceNodeId": "n00045",
+        "sourceFilename": "1st_avenue/north_to_south/001_n00045_S.jpg",
+        "readoutMethod": "ORDINAL_INTERPOLATED_MEDIAN",
+        "continuousReadoutSource": "ground_floor_activity_median",
+        "displayRung": 6,
+        "displayRungSource": "ground_floor_activity_median_round",
+        "displayRungValue": "6",
+        "sourceScale": "ORDINAL_1_TO_7",
+        "targetScale": "UNIT_0_TO_1",
+        "normalizationFormula": "(raw_median_1_7 - 1) / 6",
+        "usableStatus": "SOURCE_USABLE",
+        "probabilityDistribution": {
+          "p1": 0.0379,
+          "p2": 0.0708,
+          "p3": 0.1322,
+          "p4": 0.103,
+          "p5": 0.1322,
+          "p6": 0.4073,
+          "p7": 0.1167
+        },
+        "notes": "Team Qwen 7-rung qualitative rating mapped to GFAPI via ORDINAL_INTERPOLATED_MEDIAN (source: ground_floor_activity_median)."
+      },
+      "vPave": {
+        "value": 0.69524697110904,
+        "classification": "REPO_MEASURED",
+        "sourceFile": "vlm_observations_murrayhill.csv",
+        "sourceField": "walkable_ground_median",
+        "sourceColumn": "walkable_ground_median",
+        "sourceValue": "5.17148182665424",
+        "sourceRow": 2,
+        "sourceNodeId": "n00045",
+        "sourceFilename": "1st_avenue/north_to_south/001_n00045_S.jpg",
+        "readoutMethod": "ORDINAL_INTERPOLATED_MEDIAN",
+        "continuousReadoutSource": "walkable_ground_median",
+        "displayRung": 5,
+        "displayRungSource": "walkable_ground_median_round",
+        "displayRungValue": "5",
+        "sourceScale": "ORDINAL_1_TO_7",
+        "targetScale": "UNIT_0_TO_1",
+        "normalizationFormula": "(raw_median_1_7 - 1) / 6",
+        "usableStatus": "SOURCE_USABLE",
+        "probabilityDistribution": {
+          "p1": 0.0479,
+          "p2": 0.0697,
+          "p3": 0.1475,
+          "p4": 0.1148,
+          "p5": 0.2146,
+          "p6": 0.2755,
+          "p7": 0.1301
+        },
+        "notes": "Team Qwen 7-rung qualitative rating mapped to V_pave via ORDINAL_INTERPOLATED_MEDIAN (source: walkable_ground_median)."
+      },
+      "ias": {
+        "value": 0.0543267365153279,
+        "classification": "REPO_MEASURED",
+        "sourceFile": "vlm_observations_murrayhill.csv",
+        "sourceField": "resting_affordance_median",
+        "sourceColumn": "resting_affordance_median",
+        "sourceValue": "1.3259604190919674",
+        "sourceRow": 2,
+        "sourceNodeId": "n00045",
+        "sourceFilename": "1st_avenue/north_to_south/001_n00045_S.jpg",
+        "readoutMethod": "ORDINAL_INTERPOLATED_MEDIAN",
+        "continuousReadoutSource": "resting_affordance_median",
+        "displayRung": 1,
+        "displayRungSource": "resting_affordance_median_round",
+        "displayRungValue": "1",
+        "sourceScale": "ORDINAL_1_TO_7",
+        "targetScale": "UNIT_0_TO_1",
+        "normalizationFormula": "(raw_median_1_7 - 1) / 6",
+        "usableStatus": "SOURCE_USABLE",
+        "probabilityDistribution": {
+          "p1": 0.6013,
+          "p2": 0.2507,
+          "p3": 0.0814,
+          "p4": 0.0233,
+          "p5": 0.0206,
+          "p6": 0.016,
+          "p7": 0.0067
+        },
+        "notes": "Team Qwen 7-rung qualitative rating mapped to IAS via ORDINAL_INTERPOLATED_MEDIAN (source: resting_affordance_median)."
+      },
+      "sfv": {
+        "value": 0.8113696601184909,
+        "classification": "REPO_MEASURED",
+        "sourceFile": "vlm_observations_murrayhill.csv",
+        "sourceField": "facade_variation_median",
+        "sourceColumn": "facade_variation_median",
+        "sourceValue": "5.868217960710945",
+        "sourceRow": 2,
+        "sourceNodeId": "n00045",
+        "sourceFilename": "1st_avenue/north_to_south/001_n00045_S.jpg",
+        "readoutMethod": "ORDINAL_INTERPOLATED_MEDIAN",
+        "continuousReadoutSource": "facade_variation_median",
+        "displayRung": 6,
+        "displayRungSource": "facade_variation_median_round",
+        "displayRungValue": "6",
+        "sourceScale": "ORDINAL_1_TO_7",
+        "targetScale": "UNIT_0_TO_1",
+        "normalizationFormula": "(raw_median_1_7 - 1) / 6",
+        "usableStatus": "SOURCE_USABLE",
+        "probabilityDistribution": {
+          "p1": 0.002,
+          "p2": 0.0101,
+          "p3": 0.0579,
+          "p4": 0.0954,
+          "p5": 0.1782,
+          "p6": 0.4276,
+          "p7": 0.2289
+        },
+        "notes": "Team Qwen 7-rung qualitative rating mapped to SFV via ORDINAL_INTERPOLATED_MEDIAN (source: facade_variation_median)."
+      },
+      "hwRatio": {
+        "value": 0.5367320941078925,
+        "classification": "REPO_GEOMETRY_CONTEXT",
+        "sourceFile": "vlm_observations_murrayhill.csv",
+        "sourceField": "HW_effective",
+        "sourceColumn": "HW_effective",
+        "sourceValue": "0.5367320941078925",
+        "sourceRow": 2,
+        "sourceNodeId": "n00045",
+        "sourceFilename": "1st_avenue/north_to_south/001_n00045_S.jpg",
+        "sourceScale": "RATIO",
+        "targetScale": "RATIO",
+        "usableStatus": "SOURCE_USABLE",
+        "notes": "GEOMETRY_CONTEXT_ONLY: Does not directly modify active M."
+      },
+      "nodeGVI": {
+        "value": 1.8055209092729336,
+        "classification": "REPO_MEASURED",
+        "sourceFile": "vlm_observations_murrayhill.csv",
+        "sourceField": "node_GVI",
+        "sourceColumn": "node_GVI",
+        "sourceValue": "1.8055209092729336",
+        "sourceRow": 2,
+        "sourceNodeId": "n00045",
+        "sourceFilename": "1st_avenue/north_to_south/001_n00045_S.jpg",
+        "usableStatus": "SOURCE_USABLE",
+        "notes": "Node-level GVI geometric context; strictly distinct from green_eye_level_median."
+      },
+      "nodeVEI": {
+        "value": 0.6017595356297097,
+        "classification": "REPO_MEASURED",
+        "sourceFile": "vlm_observations_murrayhill.csv",
+        "sourceField": "node_VEI",
+        "sourceColumn": "node_VEI",
+        "sourceValue": "0.6017595356297097",
+        "sourceRow": 2,
+        "sourceNodeId": "n00045",
+        "sourceFilename": "1st_avenue/north_to_south/001_n00045_S.jpg",
+        "usableStatus": "SOURCE_USABLE",
+        "notes": "Node-level VEI context; strictly not shifted to node_SVF_band."
+      },
+      "nodeSVFBand": {
+        "value": 0.1946937439740204,
+        "classification": "REPO_MEASURED",
+        "sourceFile": "vlm_observations_murrayhill.csv",
+        "sourceField": "node_SVF_band",
+        "sourceColumn": "node_SVF_band",
+        "sourceValue": "0.1946937439740204",
+        "sourceRow": 2,
+        "sourceNodeId": "n00045",
+        "sourceFilename": "1st_avenue/north_to_south/001_n00045_S.jpg",
+        "usableStatus": "SOURCE_USABLE",
+        "notes": "Limited-elevation sky band context; strictly distinct from sky_openness_median and node_GVI."
+      },
+      "hwEffectiveField": {
+        "value": 0.5367320941078925,
+        "classification": "REPO_GEOMETRY_CONTEXT",
+        "sourceFile": "vlm_observations_murrayhill.csv",
+        "sourceField": "HW_effective",
+        "sourceColumn": "HW_effective",
+        "sourceValue": "0.5367320941078925",
+        "sourceRow": 2,
+        "sourceNodeId": "n00045",
+        "sourceFilename": "1st_avenue/north_to_south/001_n00045_S.jpg",
+        "usableStatus": "SOURCE_USABLE",
+        "notes": "Effective street aspect ratio (H/W); geometry context only."
+      },
+      "hwSourceField": {
+        "value": "series",
+        "classification": "REPO_GEOMETRY_CONTEXT",
+        "sourceFile": "vlm_observations_murrayhill.csv",
+        "sourceField": "HW_source",
+        "sourceColumn": "HW_source",
+        "sourceValue": "series",
+        "sourceRow": 2,
+        "sourceNodeId": "n00045",
+        "sourceFilename": "1st_avenue/north_to_south/001_n00045_S.jpg",
+        "usableStatus": "SOURCE_USABLE",
+        "notes": "Source attribution category for canyon geometry."
+      },
+      "spaceSyntaxChoice": {
+        "value": null,
+        "classification": "UNAVAILABLE",
+        "sourceFile": null,
+        "sourceField": null,
+        "sourceColumn": null,
+        "sourceValue": null,
+        "sourceRow": null,
+        "sourceNodeId": "n00045",
+        "sourceFilename": null,
+        "usableStatus": "SOURCE_USABLE",
+        "notes": "Choice R800 is Space Syntax network metric not supplied in node tables. Missing in repository node tables."
+      },
+      "spaceSyntaxIntegration": {
+        "value": null,
+        "classification": "UNAVAILABLE",
+        "sourceFile": null,
+        "sourceField": null,
+        "sourceColumn": null,
+        "sourceValue": null,
+        "sourceRow": null,
+        "sourceNodeId": "n00045",
+        "sourceFilename": null,
+        "usableStatus": "SOURCE_USABLE",
+        "notes": "Integration R800 is Space Syntax network metric not supplied in node tables. Missing in repository node tables."
+      },
+      "gwrLocalBetas": {
+        "value": null,
+        "classification": "UNAVAILABLE",
+        "sourceFile": null,
+        "sourceField": null,
+        "sourceColumn": null,
+        "sourceValue": null,
+        "sourceRow": null,
+        "sourceNodeId": "n00045",
+        "sourceFilename": null,
+        "usableStatus": "SOURCE_USABLE",
+        "notes": "GWR Local Betas is Empirical GWR regression parameters not calibrated for this node. Missing in repository node tables."
+      },
+      "lambda": {
+        "value": null,
+        "classification": "UNAVAILABLE",
+        "sourceFile": null,
+        "sourceField": null,
+        "sourceColumn": null,
+        "sourceValue": null,
+        "sourceRow": null,
+        "sourceNodeId": "n00045",
+        "sourceFilename": null,
+        "usableStatus": "SOURCE_USABLE",
+        "notes": "Stayability Lambda is Behavioral dwell amplification parameter uncalibrated. Missing in repository node tables."
+      },
+      "tBase": {
+        "value": null,
+        "classification": "UNAVAILABLE",
+        "sourceFile": null,
+        "sourceField": null,
+        "sourceColumn": null,
+        "sourceValue": null,
+        "sourceRow": null,
+        "sourceNodeId": "n00045",
+        "sourceFilename": null,
+        "usableStatus": "SOURCE_USABLE",
+        "notes": "Stayability t_base is Baseline dwell seconds uncalibrated. Missing in repository node tables."
+      },
+      "tRawSeconds": {
+        "value": null,
+        "classification": "UNAVAILABLE",
+        "sourceFile": null,
+        "sourceField": null,
+        "sourceColumn": null,
+        "sourceValue": null,
+        "sourceRow": null,
+        "sourceNodeId": "n00045",
+        "sourceFilename": null,
+        "usableStatus": "SOURCE_USABLE",
+        "notes": "Observed t_raw is Raw pedestrian stay duration not recorded. Missing in repository node tables."
+      }
+    },
+    "trace_provenance": {
+      "synthesis_formula": "M_i = I_i^a_i × Y_i^b_i × D_i^c_i",
+      "trace_path": "M -> I/Y/D -> paper input -> Qwen/geometry field -> repository source row",
+      "provenance_trail": [
+        "Repository: mikellu12/murrayhill-v12 @ 9353169b3dc3a1b4673e7144249db6ccbf7ac0f1",
+        "Source Table: vlm_observations_murrayhill.csv (row 2)",
+        "Physical Node: n00045",
+        "Node ID Provenance: EXPLICIT_NODE_ID_COLUMN",
+        "Match Strategy: BASENAME_ONLY",
+        "Usability: SOURCE_USABLE",
+        "Engine: v0.5.2 Source-Locked SIM Engine",
+        "Elasticity Mode: PAPER_GLOBAL_REFERENCE",
+        "Computed M_i: 6.214328 (computed)"
+      ]
+    },
+    "comparative_legacy_finals": null
+  },
+  "teacher_gemma_comparator": {
+    "role": "experimental_comparator_only",
+    "measurement": null,
+    "metadata": null,
+    "raw_response_excluded_from_export": true,
+    "comparison_allowed_only_on_source_match": true
+  },
+  "paper_variable_assembly": {
+    "variables": {
+      "vNat": {
+        "key": "v_nat",
+        "symbol": "V_nat",
+        "label": "Natural Elements Above-Ground",
+        "value": 0.04057624246049548,
+        "status": "paper_ready",
+        "source": "vlm",
+        "usableForComputation": true,
+        "reason": "V_nat is a source-backed approved Team Repository input for Nature 9.03 Final · No-Omega paper synthesis.",
+        "provenance": [
+          "Approved Team Qwen 7-rung instrument",
+          "vertical_greenery → V_nat"
+        ],
+        "normalization": "[0,1]"
+      },
+      "vBuilt": {
+        "key": "v_built",
+        "symbol": "V_built",
+        "label": "Built Elements Above-Ground",
+        "value": 0.7126658438753471,
+        "status": "paper_ready",
+        "source": "vlm",
+        "usableForComputation": true,
+        "reason": "V_built is a source-backed approved Team Repository input for Nature 9.03 Final · No-Omega paper synthesis.",
+        "provenance": [
+          "Approved Team Qwen 7-rung instrument",
+          "vertical_hardscape / enclosure provenance"
+        ],
+        "normalization": "[0,1]"
+      },
+      "naturalBuiltRatio": {
+        "key": "natural_built_ratio",
+        "symbol": "V_nat / V_built",
+        "label": "Natural-to-Built Above-Ground Ratio",
+        "value": 0.056935859644751965,
+        "status": "paper_ready",
+        "source": "derived",
+        "usableForComputation": true,
+        "reason": "Derived from approved Qwen normalized V_nat and V_built paper inputs.",
+        "provenance": [
+          "VLM V_nat",
+          "VLM V_built",
+          "V_nat / V_built"
+        ]
+      },
+      "vSign": {
+        "key": "v_sign",
+        "symbol": "V_sign",
+        "label": "Cognitive Legibility Landmarks",
+        "value": 0.5608614232209738,
+        "status": "paper_ready",
+        "source": "vlm",
+        "usableForComputation": true,
+        "reason": "V_sign is a source-backed approved Team Repository input for Nature 9.03 Final · No-Omega paper synthesis.",
+        "provenance": [
+          "Approved Team Qwen 7-rung instrument",
+          "signage_detail → V_sign"
+        ],
+        "normalization": "[0,1]"
+      },
+      "vPave": {
+        "key": "v_pave",
+        "symbol": "V_pave",
+        "label": "Sidewalk & Paver Walkability",
+        "value": 0.69524697110904,
+        "status": "paper_ready",
+        "source": "vlm",
+        "usableForComputation": true,
+        "reason": "V_pave is a source-backed approved Team Repository input for Nature 9.03 Final · No-Omega paper synthesis.",
+        "provenance": [
+          "Approved Team Qwen 7-rung instrument",
+          "walkable_ground → V_pave"
+        ],
+        "normalization": "[0,1]"
+      },
+      "gviEye": {
+        "key": "gvi_eye",
+        "symbol": "GVI_eye",
+        "label": "Foveal Green View Index",
+        "value": 0.20176439272948513,
+        "status": "paper_ready",
+        "source": "vlm",
+        "usableForComputation": true,
+        "reason": "GVI_eye is a source-backed approved Team Repository input for Nature 9.03 Final · No-Omega paper synthesis.",
+        "provenance": [
+          "Approved Team Qwen 7-rung instrument",
+          "green_eye_level → GVI_eye"
+        ],
+        "normalization": "[0,1]"
+      },
+      "gmi": {
+        "key": "gmi",
+        "symbol": "GMI",
+        "label": "Green Mitigation Interaction",
+        "value": 0.2159842845326716,
+        "status": "paper_ready",
+        "source": "vlm",
+        "usableForComputation": true,
+        "reason": "GMI is a source-backed approved Team Repository input for Nature 9.03 Final · No-Omega paper synthesis.",
+        "provenance": [
+          "Approved Team Qwen 7-rung instrument",
+          "green_softening → GMI"
+        ],
+        "normalization": "[0,1]"
+      },
+      "canyonEnclosureRatio": {
+        "key": "canyon_enclosure_ratio",
+        "symbol": "E_proxy",
+        "label": "Standardized Canyon Enclosure Proxy",
+        "value": 0.3092037228541882,
+        "status": "paper_ready",
+        "source": "vlm",
+        "usableForComputation": true,
+        "reason": "E_proxy is a source-backed approved Team Repository input for Nature 9.03 Final · No-Omega paper synthesis.",
+        "provenance": [
+          "Approved Team Qwen 7-rung instrument",
+          "sky_openness → enclosure proxy",
+          "PROXY — NOT WHOLE-SKY SVF"
+        ],
+        "normalization": "[0,1]"
+      },
+      "sfv": {
+        "key": "sfv",
+        "symbol": "SFV",
+        "label": "Street Facade Variation (Supplementary Validation Only)",
+        "value": 0.8113696601184909,
+        "status": "paper_ready",
+        "source": "vlm",
+        "usableForComputation": true,
+        "reason": "SFV is a source-backed approved Team Repository input for Nature 9.03 Final · No-Omega paper synthesis.",
+        "provenance": [
+          "Approved Team Qwen 7-rung instrument",
+          "facade_variation → SFV",
+          "SUPPLEMENTARY VALIDATION ONLY — EXCLUDED FROM 9.03 SIM"
+        ],
+        "normalization": "[0,1]"
+      },
+      "ias": {
+        "key": "ias",
+        "symbol": "IAS",
+        "label": "Interface Affordance Score",
+        "value": 0.0543267365153279,
+        "status": "paper_ready",
+        "source": "vlm",
+        "usableForComputation": true,
+        "reason": "IAS is a source-backed approved Team Repository input for Nature 9.03 Final · No-Omega paper synthesis.",
+        "provenance": [
+          "Approved Team Qwen 7-rung instrument",
+          "resting_affordance → IAS"
+        ],
+        "normalization": "[0,1]"
+      },
+      "gfapi": {
+        "key": "gfapi",
+        "symbol": "GFAPI",
+        "label": "Ground-Floor Active Permeability Index (Identity Term)",
+        "value": 0.767554628038301,
+        "status": "paper_ready",
+        "source": "vlm",
+        "usableForComputation": true,
+        "reason": "GFAPI is a source-backed approved Team Repository input for Nature 9.03 Final · No-Omega paper synthesis.",
+        "provenance": [
+          "Approved Team Qwen 7-rung instrument",
+          "ground_floor_activity → GFAPI",
+          "Nature 9.03 Y_i term"
+        ],
+        "normalization": "[0,1]"
+      },
+      "hwRatio": {
+        "key": "hw_ratio",
+        "symbol": "H/W",
+        "label": "Street Canyon Aspect Ratio",
+        "value": 0.5367320941078925,
+        "status": "paper_ready",
+        "source": "gis",
+        "usableForComputation": true,
+        "reason": "H/W is retained as source-backed geometry context for Nature 9.03 Final · No-Omega provenance and does not directly modify active M_i.",
+        "provenance": [
+          "Building height",
+          "Street width / right-of-way geometry"
+        ]
+      },
+      "svf": {
+        "key": "svf",
+        "symbol": "SVF_proxy",
+        "label": "Standardized Openness Proxy for Y_i",
+        "value": 0.6907962771458118,
+        "status": "paper_ready",
+        "source": "derived",
+        "usableForComputation": true,
+        "reason": "Derived from the approved Team Qwen 180° along-street sky_openness source as the standardized openness proxy used in Y_i. This is an operational proxy, not a true whole-sky / hemispherical SVF measurement.",
+        "provenance": [
+          "Approved Team Qwen 180° along-street sky_openness source",
+          "openness_proxy = 1 − enclosure",
+          "PROXY — NOT WHOLE-SKY SVF"
+        ],
+        "normalization": "[0,1]"
+      },
+      "spaceSyntaxChoice": {
+        "key": "space_syntax_choice",
+        "symbol": "Choice_i",
+        "label": "Space Syntax Segment Choice (Betweenness)",
+        "value": null,
+        "status": "external_input",
+        "source": "gwr",
+        "usableForComputation": false,
+        "reason": "Choice_i is required as the 800 m through-movement control in the latest GWR model.",
+        "provenance": [
+          "Space Syntax segment analysis",
+          "Walking radius R = 800 m"
+        ],
+        "normalization": "positive value for ln(Choice_i)"
+      },
+      "spaceSyntaxIntegration": {
+        "key": "space_syntax_integration",
+        "symbol": "Integration_i",
+        "label": "Space Syntax Segment Integration (Closeness)",
+        "value": null,
+        "status": "external_input",
+        "source": "gwr",
+        "usableForComputation": false,
+        "reason": "Integration_i is required as the 800 m to-movement control in the latest GWR model.",
+        "provenance": [
+          "Space Syntax segment analysis",
+          "Walking radius R = 800 m"
+        ],
+        "normalization": "positive value for ln(Integration_i)"
+      },
+      "tBase": {
+        "key": "t_base",
+        "symbol": "t_base",
+        "label": "Baseline Stayability Index",
+        "value": null,
+        "status": "external_input",
+        "source": "behavior",
+        "usableForComputation": false,
+        "reason": "Nature 9.03 Final derives t_base deterministically from observed t_raw when available. A manual normalized t_base override may be supplied only for migration/audit when raw duration is unavailable.",
+        "provenance": [
+          "Manual normalized override",
+          "Nature 9.03 Final migration / audit path"
+        ],
+        "normalization": "[0,1]"
+      }
+    },
+    "taxonomy_capabilities": {
+      "hasSidewalk": true,
+      "hasPaver": false,
+      "hasSignboard": true,
+      "hasArchitecturalDetail": true,
+      "hasNaturalAboveGround": true,
+      "hasBuiltAboveGround": true
+    },
+    "computation_inputs": {
+      "naturalBuiltRatio": 0.056935859644751965,
+      "gviEye": 0.20176439272948513,
+      "gmi": 0.2159842845326716,
+      "vSign": 0.5608614232209738,
+      "svf": 0.6907962771458118,
+      "sfv": 0.8113696601184909,
+      "vPave": 0.69524697110904,
+      "ias": 0.0543267365153279,
+      "gfapi": 0.767554628038301,
+      "hwRatio": 0.5367320941078925,
+      "spaceSyntaxChoice": null,
+      "spaceSyntaxIntegration": null,
+      "gwrLocalBetas": null,
+      "tBase": null
+    },
+    "assembly_gates": [
+      "Choice_i: Choice_i is required as the 800 m through-movement control in the latest GWR model.",
+      "Integration_i: Integration_i is required as the 800 m to-movement control in the latest GWR model.",
+      "t_base: Nature 9.03 Final derives t_base deterministically from observed t_raw when available. A manual normalized t_base override may be supplied only for migration/audit when raw duration is unavailable."
+    ]
+  },
+  "paper_synthesis": {
+    "authorization_status": "AUTHORIZED",
+    "authorization_note": "Explicit scientific Approval Gate completed for this repository record.",
+    "imageability_raw": {
+      "value": 0.4746845369069087,
+      "status": "computed",
+      "reason": "Imageability raw value computed deterministically from paper linear combination.",
+      "formula": "I_raw = α1·(V_nat/V_built) + α2·GVI_eye + α3·GMI",
+      "computation_status": "computed",
+      "authorization_status": "AUTHORIZED"
+    },
+    "place_imageability": {
+      "value": 6.785792291750779,
+      "status": "computed",
+      "reason": "Place Imageability mapped to 1–7 using CWMC_MANUSCRIPT_REFERENCE_9_03 τ_I=0.2, κ_I=12 on raw paper linear combination.",
+      "formula": "I_i = 1 + 6 / [1 + exp(-κ_I·(I_raw - τ_I))]",
+      "computation_status": "computed",
+      "authorization_status": "AUTHORIZED"
+    },
+    "place_identity": {
+      "value": 4.275239548226926,
+      "status": "computed",
+      "reason": "Place Identity computed using the Nature 9.03 Final formulation (V_sign, 1-SVF, GFAPI). SFV is excluded as supplementary provenance.",
+      "formula": "Y_raw = β1·V_sign + β2·(1−SVF) + β3·GFAPI, Y_i = 1 + 6·Y_raw / (β1+β2+β3)",
+      "computation_status": "computed",
+      "authorization_status": "AUTHORIZED"
+    },
+    "dependence_raw": {
+      "value": 0.7495737076243679,
+      "status": "computed",
+      "reason": "Dependence paper composition: D_raw = 1·V_pave + 1·IAS = 0.7496. Evaluated directly in sigmoid with no active normalization.",
+      "formula": "D_raw = γ1·V_pave + γ2·IAS",
+      "computation_status": "computed",
+      "authorization_status": "AUTHORIZED"
+    },
+    "place_dependence": {
+      "value": 6.861271847132807,
+      "status": "computed",
+      "reason": "Place Dependence mapped to 1–7 using CWMC_MANUSCRIPT_REFERENCE_9_03 τ_D=0.5, κ_D=15 directly on D_raw.",
+      "formula": "D_i = 1 + 6 / [1 + exp(-κ_D·(D_raw - τ_D))]",
+      "computation_status": "computed",
+      "authorization_status": "AUTHORIZED"
+    },
+    "space_syntax_controls": {
+      "value": null,
+      "status": "input_gated",
+      "substatus": "LOCAL_GWR_NOT_AVAILABLE",
+      "reason": "Space Syntax Choice and Integration are network GWR control variables (LOCAL_GWR_NOT_AVAILABLE; not required for paper global reference M_i).",
+      "formula": "GWR controls: β_Choice(s_i)·ln(Choice_i) + β_Int(s_i)·ln(Integration_i), R=800m"
+    },
+    "local_elasticities": {
+      "value": {
+        "a": 0.4,
+        "b": 0.2,
+        "c": 0.4,
+        "sum": 1,
+        "source": "PAPER_GLOBAL_REFERENCE",
+        "calibrationStatus": "REFERENCE_NOT_LOCAL_GWR",
+        "methodNote": "Nature 9.03 explicitly permits global constants a=0.40, b=0.20, c=0.40 when node-specific elasticities are not available."
+      },
+      "status": "computed",
+      "substatus": "PAPER_GLOBAL_REFERENCE",
+      "reason": "Nature 9.03 explicitly permits global constants a=0.40, b=0.20, c=0.40 when node-specific elasticities are not available.",
+      "formula": "a_i,b_i,c_i = |β_I,β_Y,β_D| / (|β_I|+|β_Y|+|β_D|) [LOCAL_GWR] OR paper reference profile [GLOBAL/TYPOLOGY]",
+      "computation_status": "computed",
+      "authorization_status": "AUTHORIZED"
+    },
+    "sim": {
+      "value": 6.214327916148292,
+      "status": "computed",
+      "substatus": "COMPUTED_REFERENCE_ELASTICITY",
+      "reason": "Street Interface Matrix computed using Nature 9.03 Final (No-Omega) global reference elasticities (a=0.40, b=0.20, c=0.40): M_i = I_i^0.40 × Y_i^0.20 × D_i^0.40.",
+      "formula": "M_i = I_i^a_i × Y_i^b_i × D_i^c_i",
+      "computation_status": "computed",
+      "authorization_status": "AUTHORIZED"
+    },
+    "stayability_factor_F_i": {
+      "value": null,
+      "status": "method_gated",
+      "substatus": "GATED_MISSING_LAMBDA",
+      "reason": "Nature 9.03 defines λ symbolically as the calibration parameter in F_i = 1 + λM_i but does not provide a validated implementation value (UNRESOLVED_BEHAVIORAL_CALIBRATION).",
+      "formula": "F_i = 1 + λ·M_i"
+    },
+    "t_effective": {
+      "value": null,
+      "status": "input_gated",
+      "substatus": "GATED_MISSING_LAMBDA",
+      "reason": "t_effective blocked because F_i is unavailable: Nature 9.03 defines λ symbolically as the calibration parameter in F_i = 1 + λM_i but does not provide a validated implementation value (UNRESOLVED_BEHAVIORAL_CALIBRATION).",
+      "formula": "t_effective = F_i · t_base"
+    },
+    "synthesis_gates": [
+      "F_i: Nature 9.03 defines λ symbolically as the calibration parameter in F_i = 1 + λM_i but does not provide a validated implementation value (UNRESOLVED_BEHAVIORAL_CALIBRATION).",
+      "t_effective: t_effective blocked because F_i is unavailable: Nature 9.03 defines λ symbolically as the calibration parameter in F_i = 1 + λM_i but does not provide a validated implementation value (UNRESOLVED_BEHAVIORAL_CALIBRATION)."
+    ],
+    "active_formula": "M_i = I_i^a_i × Y_i^b_i × D_i^c_i"
+  },
+  "multi_source_research_integration": {
+    "version": "v0.7.0",
+    "release_candidate_status": "V0_7_0_MULTI_SOURCE_INTEGRATION_RC1",
+    "frozen_scientific_core": "v0.6.3_GOLDEN_FREEZE",
+    "multi_source_master": {
+      "schema_version": "V0_7_0_MULTI_SOURCE_INTEGRATION_RC1",
+      "release_candidate_status": "V0_7_0_MULTI_SOURCE_INTEGRATION_RC1",
+      "active_scientific_core": "v0.6.3_GOLDEN_FREEZE",
+      "frozen_golden_sim_n00045": 6.214327916148292,
+      "multi_source_version": "Nature 9.03 Final · No-Omega v0.7.0 — Multi-Source Research Integration",
+      "release_candidate_version": "V0_7_0_MULTI_SOURCE_INTEGRATION_RC1",
+      "scientific_core": "v0.6.3_GOLDEN_FREEZE",
+      "qwen_visual_semantic": {
+        "source": "team_repository_data_bridge",
+        "approval_status": "AUTHORIZED",
+        "orientation_protocol": "TEAM_ALONG_STREET_180",
+        "source_field_of_view_degrees": 180,
+        "source_directionality": "BIDIRECTIONAL_FORWARD_BACKWARD",
+        "source_axis_alignment": "STREET_AXIS",
+        "paper_protocol_alignment": "UNRESOLVED_PAPER_PROTOCOL_ALIGNMENT",
+        "source_image_id": "1st_avenue/north_to_south/001_n00045_S.jpg"
+      },
+      "street_view_sampling_geometry": {
+        "repository": "ex032895-crypto/street-view-nodes",
+        "repository_commit": "51f0250de0c446313b5fba912becabd03db8b572",
+        "role": "STREET_NETWORK_SAMPLING_GEOMETRY",
+        "spacing_m": 20,
+        "crs": "WGS84",
+        "node_id": null,
+        "crosswalk_status": "UNRESOLVED_NODE_CROSSWALK",
+        "crosswalk_method": "NO_MATCH",
+        "matched_node": null,
+        "headings": {
+          "heading_fwd_deg": null,
+          "heading_rev_deg": null
+        },
+        "active_sim_evidence": false
+      },
+      "morphology_geometry": {
+        "repository": "mikellu12/murrayhill-v12",
+        "repository_commit": "9353169b3dc3a1b4673e7144249db6ccbf7ac0f1",
+        "source_table": "results/tables/vlm_observations_murrayhill.csv",
+        "source_blob": "975feac25b631c0839fb694db68ffd2e4da51e98",
+        "role": "MORPHOLOGY_CONTEXT",
+        "H_m": 18.373344000000003,
+        "W_facade": null,
+        "HW_facade": null,
+        "HW_effective": 0.5367320941078925,
+        "HW_source": "series",
+        "node_GVI": 1.8055209092729336,
+        "node_VEI": 0.6017595356297097,
+        "node_SVF_band": 0.1946937439740204,
+        "active_sim_evidence": false
+      },
+      "space_syntax_gwr": {
+        "space_syntax_radius_m": 800,
+        "choice_definition": "Segment Choice at pedestrian radius R = 800 m",
+        "integration_definition": "Segment Integration at pedestrian radius R = 800 m",
+        "paper_sample_accounting": {
+          "raw_observations": 2848,
+          "raw_physical_nodes": 712,
+          "excluded_tunnel_observations": 8,
+          "excluded_tunnel_nodes": 2,
+          "active_observations": 2840,
+          "active_physical_nodes": 710
+        },
+        "paper_gwr_diagnostics": {
+          "model1_r2": 0.8142,
+          "model2_r2": 0.8316,
+          "delta_r2": 0.0174,
+          "delta_aicc": ">140",
+          "morans_i": -0.00843,
+          "morans_p": 0.584,
+          "bandwidth_m": 100,
+          "kernel": "ROW_STANDARDIZED_ADAPTIVE_BI_SQUARE"
+        },
+        "repository_gwr_machinery": {
+          "repository_statement": "The proposed local regression requires t_base, but this study does not have localized pedestrian stayability outcomes, therefore the regression cannot be run.",
+          "calibration_status": "BLOCKED_MISSING_T_BASE_OUTCOME",
+          "machinery_status": "OUTCOME_INDEPENDENT_ONLY",
+          "feasibility_kernel": "GAUSSIAN",
+          "historical_paper_n_reference": 1320,
+          "bandwidth_100m": {
+            "tr_S": 42.66357115679539,
+            "tr_SS": 26.199468878295285,
+            "effective_df": 638.3364288432047,
+            "s2_divisor": 621.8723265647045,
+            "aicc_penalty": 774.4565132844356
+          }
+        },
+        "node_choice": null,
+        "node_choice_status": "UNAVAILABLE_NODE_LEVEL_SOURCE",
+        "node_integration": null,
+        "node_integration_status": "UNAVAILABLE_NODE_LEVEL_SOURCE",
+        "local_betas": null,
+        "local_gwr_status": "UNAVAILABLE_NODE_LEVEL_CALIBRATION",
+        "active_elasticities": {
+          "a": 0.4,
+          "b": 0.2,
+          "c": 0.4,
+          "source": "PAPER_GLOBAL_REFERENCE",
+          "calibration_status": "REFERENCE_NOT_LOCAL_GWR"
+        }
+      },
+      "active_sim": {
+        "I": 6.785792291750779,
+        "Y": 4.275239548226926,
+        "D": 6.861271847132807,
+        "a": 0.4,
+        "b": 0.2,
+        "c": 0.4,
+        "M": 6.214327916148292
+      },
+      "gwr_active_elasticity": {
+        "a": 0.4,
+        "b": 0.2,
+        "c": 0.4,
+        "source": "PAPER_GLOBAL_REFERENCE",
+        "calibration_status": "REFERENCE_NOT_LOCAL_GWR"
+      },
+      "space_syntax_node_level": {
+        "choice": null,
+        "integration": null,
+        "status": "UNAVAILABLE_NODE_LEVEL_SOURCE"
+      },
+      "behavioral_observation": {
+        "paper_specification": {
+          "t_min": 0,
+          "t_max": 300,
+          "formula_t_base": "(min(300,max(0,t_raw))-0)/(300-0)",
+          "formula_F_i": "F_i = 1 + lambda * M_i",
+          "formula_t_effective": "t_effective = F_i * t_base"
+        },
+        "node_empirical_observation": {
+          "t_raw_seconds": null,
+          "t_raw_status": "UNAVAILABLE_EMPIRICAL_BEHAVIORAL_OUTCOME",
+          "t_base": null,
+          "t_base_status": "INPUT_GATED_MISSING_T_RAW"
+        },
+        "stayability_calibration": {
+          "active_M_i": 6.214327916148292,
+          "lambda": null,
+          "lambda_status": "UNRESOLVED_BEHAVIORAL_CALIBRATION",
+          "F_i": null,
+          "F_i_status": "METHOD_GATED_MISSING_LAMBDA",
+          "t_effective": null,
+          "t_effective_status": "INPUT_GATED"
+        },
+        "proxy_dwell_surface": {
+          "status": "NETWORK_MODEL_GATED",
+          "kernel_method": "GAUSSIAN_SPATIAL_KERNEL",
+          "discretization_m": 20,
+          "bandwidth_R": null,
+          "bandwidth_status": "UNRESOLVED_PROXY_DWELL_BANDWIDTH",
+          "D_xy": null
+        }
+      },
+      "stayability_calibration": {
+        "active_M_i": 6.214327916148292,
+        "lambda": null,
+        "lambda_status": "UNRESOLVED_BEHAVIORAL_CALIBRATION",
+        "F_i": null,
+        "F_i_status": "METHOD_GATED_MISSING_LAMBDA",
+        "t_effective": null,
+        "t_effective_status": "INPUT_GATED"
+      },
+      "proxy_dwell_surface": {
+        "status": "NETWORK_MODEL_GATED",
+        "kernel_method": "GAUSSIAN_SPATIAL_KERNEL",
+        "discretization_m": 20,
+        "bandwidth_R": null,
+        "bandwidth_status": "UNRESOLVED_PROXY_DWELL_BANDWIDTH",
+        "D_xy": null
+      },
+      "provenance_resolutions": {
+        "title": "MULTI-SOURCE PROVENANCE RESOLUTION",
+        "rows": [
+          {
+            "sourceBoundary": "Paper vs Repository GWR",
+            "status": "RESOLVED BY SEPARATION",
+            "code": "RESOLVED_BY_SEPARATION",
+            "description": "Paper reports final manuscript GWR diagnostics (N=2,840 active observations / 710 active nodes, Model 2 R²=0.8316, adaptive bi-square reported BW=100 m). Repository retains outcome-independent feasibility machinery (Gaussian kernel, tr(S), tr(S'S)). Kept strictly separated."
+          },
+          {
+            "sourceBoundary": "Paper Behavioral Method vs Repository Outcome",
+            "status": "SOURCE-GATED",
+            "code": "SOURCE_GATED",
+            "description": "Paper specifies dwell duration equations (t_base, F_i, t_effective). Static street-view imagery lacks temporal sensor dwell observations. Gated without assigning zero."
+          },
+          {
+            "sourceBoundary": "Blockology λ=1",
+            "status": "DEMO_ONLY",
+            "code": "DEMO_ONLY",
+            "description": "Blockology dwell lambda=1.0 is an uncalibrated repository demonstration placeholder. Isolated from active SIM synthesis."
+          },
+          {
+            "sourceBoundary": "Street Node ↔ Murray Hill Crosswalk",
+            "status": "UNRESOLVED unless explicit mapping exists",
+            "code": "UNRESOLVED",
+            "description": "OSM sampling geometry street_node_* IDs and Murray Hill n* IDs occupy distinct namespaces. Implicit spatial proximity joins are prohibited."
+          },
+          {
+            "sourceBoundary": "180° Team Source vs Orthogonal 90° Paper Protocol",
+            "status": "UNRESOLVED_PAPER_PROTOCOL_ALIGNMENT",
+            "code": "UNRESOLVED_PAPER_PROTOCOL_ALIGNMENT",
+            "description": "Team source verified as bidirectional along-street 180° views. Equivalence to paper orthogonal 90° analytical protocol remains unresolved."
+          }
+        ],
+        "visual_semantic_orientation": {
+          "source_protocol": "TEAM_ALONG_STREET_180",
+          "fov_degrees": 180,
+          "directionality": "BIDIRECTIONAL_FORWARD_BACKWARD",
+          "axis_alignment": "STREET_AXIS",
+          "paper_protocol_alignment": "UNRESOLVED_PAPER_PROTOCOL_ALIGNMENT"
+        },
+        "footerNotice": "None of these are runtime errors. They are provenance boundaries."
+      },
+      "provenance_boundaries": {
+        "paper_vs_repo_gwr": "RESOLVED_BY_SEPARATION",
+        "paper_behavioral_vs_repo": "SOURCE_GATED",
+        "blockology_placeholder_lambda": "DEMO_ONLY",
+        "street_node_crosswalk": "UNRESOLVED_NODE_CROSSWALK",
+        "view_protocol_alignment": "UNRESOLVED_PAPER_PROTOCOL_ALIGNMENT"
+      }
+    },
+    "active_sim": {
+      "I": 6.785792291750779,
+      "Y": 4.275239548226926,
+      "D": 6.861271847132807,
+      "a": 0.4,
+      "b": 0.2,
+      "c": 0.4,
+      "M": 6.214327916148292
+    },
+    "geometry_context": {
+      "h_m": 18.373344000000003,
+      "w_facade": null,
+      "hw_facade": null,
+      "hw_effective": 0.5367320941078925,
+      "hw_source": "series",
+      "node_gvi": 1.8055209092729336,
+      "node_vei": 0.6017595356297097,
+      "node_svf_band": 0.1946937439740204,
+      "status": "REPO_MEASURED_OR_DERIVED",
+      "node_svf_band_warning": "Finite elevation-band sky fraction. Not a true whole-sky SVF and prohibited from overwriting the active Qwen sky-openness proxy.",
+      "node_gvi_warning": "Contextual visual metric; strictly distinct from eye-level green_eye_level_median / GVI_eye."
+    },
+    "murray_hill_geometry_context": {
+      "source": {
+        "repository_name": "mikellu12/murrayhill-v12",
+        "repository_commit": "9353169b3dc3a1b4673e7144249db6ccbf7ac0f1",
+        "source_table": "results/tables/vlm_observations_murrayhill.csv",
+        "source_blob": "975feac25b631c0839fb694db68ffd2e4da51e98"
+      },
+      "node_id": "n00045",
+      "H_m": {
+        "value": 18.373344000000003,
+        "unit": "m",
+        "source_column": "H_m",
+        "classification": "REPO_GEOMETRY_CONTEXT",
+        "status": "SOURCE-BACKED CONTEXT"
+      },
+      "W_facade": {
+        "value": null,
+        "unit": "m",
+        "source_column": "W_facade",
+        "classification": "REPO_GEOMETRY_CONTEXT",
+        "status": "UNAVAILABLE IN SOURCE ROW"
+      },
+      "HW_facade": {
+        "value": null,
+        "source_column": "HW_facade",
+        "classification": "REPO_GEOMETRY_CONTEXT",
+        "status": "UNAVAILABLE IN SOURCE ROW"
+      },
+      "HW_effective": {
+        "value": 0.5367320941078925,
+        "source_column": "HW_effective",
+        "classification": "REPO_GEOMETRY_CONTEXT",
+        "active_sim_evidence": false,
+        "status": "SOURCE-BACKED CONTEXT"
+      },
+      "HW_source": {
+        "value": "series",
+        "source_column": "HW_source",
+        "classification": "REPO_GEOMETRY_CONTEXT"
+      },
+      "node_GVI": {
+        "value": 1.8055209092729336,
+        "source_column": "node_GVI",
+        "classification": "REPO_GEOMETRY_CONTEXT",
+        "paper_boundary": "NOT_GVI_EYE"
+      },
+      "node_VEI": {
+        "value": 0.6017595356297097,
+        "source_column": "node_VEI",
+        "classification": "REPO_GEOMETRY_CONTEXT"
+      },
+      "node_SVF_band": {
+        "value": 0.1946937439740204,
+        "source_column": "node_SVF_band",
+        "classification": "REPO_GEOMETRY_CONTEXT",
+        "paper_boundary": "NOT_TRUE_SVF_NOT_ACTIVE_Y_INPUT"
+      }
+    },
+    "street_view_sampling_geometry": {
+      "source": {
+        "repository_name": "ex032895-crypto/street-view-nodes",
+        "repository_commit": "51f0250de0c446313b5fba912becabd03db8b572",
+        "role": "STREET_NETWORK_SAMPLING_GEOMETRY"
+      },
+      "source_specification": {
+        "spacing_m": 20,
+        "crs": "WGS84",
+        "heading_reference": "0_NORTH_CLOCKWISE"
+      },
+      "crosswalk": {
+        "murray_hill_node_id": "n00045",
+        "external_node_id": null,
+        "method": "NO_MATCH",
+        "status": "UNRESOLVED_NODE_CROSSWALK"
+      },
+      "matched_node": null,
+      "active_sim_evidence": false
+    },
+    "paper_reported_gwr_diagnostics": {
+      "model1R2": 0.8142,
+      "model2R2": 0.8316,
+      "deltaR2": 0.0174,
+      "deltaAicc": ">140",
+      "model1ResidualMoransI": 0.002545,
+      "model2ResidualMoransI": -0.00843,
+      "model2MoransP": 0.584,
+      "model1VifMax": 5.87,
+      "model2VifMax": 6.78,
+      "reportedOptimizedBandwidthM": 100,
+      "kernel": "ROW_STANDARDIZED_ADAPTIVE_BI_SQUARE",
+      "classification": "PAPER_REPORTED",
+      "paperSample": {
+        "rawObservations": 2848,
+        "rawNodes": 712,
+        "excludedTunnelObservations": 8,
+        "excludedTunnelNodes": 2,
+        "activeObservations": 2840,
+        "activePhysicalNodes": 710
+      },
+      "note": "Manuscript-reported empirical Model 2 statistics. Never injected into node-level local beta regression.",
+      "source": "Nature09.03 end manuscript",
+      "walkingRadiusM": 800,
+      "gwrKernel": "ROW_STANDARDIZED_ADAPTIVE_BI_SQUARE",
+      "bandwidthSelection": "AICc-optimized / manuscript-reported",
+      "spaceSyntaxControls": {
+        "choice": "Segment Choice at pedestrian R = 800 m (Through-movement)",
+        "integration": "Segment Integration at pedestrian R = 800 m (To-movement)"
+      }
+    },
+    "space_syntax_gwr_reconciliation": {
+      "final_paper": {
+        "sample": {
+          "raw_observations": 2848,
+          "raw_nodes": 712,
+          "excluded_tunnel_observations": 8,
+          "excluded_tunnel_nodes": 2,
+          "active_observations": 2840,
+          "active_nodes": 710
+        },
+        "space_syntax": {
+          "radius_m": 800,
+          "choice_definition": "Segment Choice at pedestrian radius R = 800 m",
+          "integration_definition": "Segment Integration at pedestrian radius R = 800 m"
+        },
+        "diagnostics": {
+          "model1_r2": 0.8142,
+          "model2_r2": 0.8316,
+          "delta_r2": 0.0174,
+          "delta_aicc": ">140",
+          "model1_residual_morans_i": 0.002545,
+          "model2_residual_morans_i": -0.00843,
+          "model2_morans_p": 0.584,
+          "model1_vif_max": 5.87,
+          "model2_vif_max": 6.78,
+          "reported_bandwidth_m": 100
+        },
+        "classification": "PAPER_REPORTED_MODEL_RESULT"
+      },
+      "repository": {
+        "calibration_status": "BLOCKED_MISSING_T_BASE_OUTCOME",
+        "feasibility_kernel": "GAUSSIAN",
+        "machinery_status": "OUTCOME_INDEPENDENT_ONLY",
+        "historical_paper_n_reference": 1320,
+        "historical_n_status": "REPOSITORY_HISTORICAL_MANUSCRIPT_REFERENCE",
+        "machinery_table": [
+          {
+            "bandwidth": 60,
+            "tr_S": 97.19922039706658,
+            "tr_SS": 61.63792241315478,
+            "eff_df": 583.8007796029334,
+            "s2_divisor": 548.2394816190216,
+            "aicc_penalty": 910.8851133752079
+          },
+          {
+            "bandwidth": 100,
+            "tr_S": 42.66357115679539,
+            "tr_SS": 26.199468878295285,
+            "eff_df": 638.3364288432047,
+            "s2_divisor": 621.8723265647045,
+            "aicc_penalty": 774.4565132844356
+          },
+          {
+            "bandwidth": 150,
+            "tr_S": 22.70126389574217,
+            "tr_SS": 14.006946061004948,
+            "eff_df": 658.2987361042578,
+            "s2_divisor": 649.6044182695206,
+            "aicc_penalty": 730.186627445939
+          },
+          {
+            "bandwidth": 250,
+            "tr_S": 10.976372333882086,
+            "tr_SS": 7.015799072959707,
+            "eff_df": 670.0236276661179,
+            "s2_divisor": 666.0630544051955,
+            "aicc_penalty": 705.4180272122053
+          },
+          {
+            "bandwidth": 400,
+            "tr_S": 6.56020560964402,
+            "tr_SS": 4.735319183534273,
+            "eff_df": 674.4397943903559,
+            "s2_divisor": 672.6149079642462,
+            "aicc_penalty": 696.3128951115551
+          }
+        ]
+      },
+      "node_level": {
+        "choice": null,
+        "integration": null,
+        "local_betas": null,
+        "status": "UNAVAILABLE_NODE_LEVEL_CALIBRATION"
+      },
+      "active_elasticity_execution": {
+        "a": 0.4,
+        "b": 0.2,
+        "c": 0.4,
+        "source": "PAPER_GLOBAL_REFERENCE",
+        "calibration_status": "REFERENCE_NOT_LOCAL_GWR"
+      },
+      "provenance_resolution": "PAPER_AND_REPOSITORY_RETAINED_SEPARATELY"
+    },
+    "behavioral_stayability_reconciliation": {
+      "paper_specification": {
+        "t_min_seconds": 0,
+        "t_max_seconds": 300,
+        "t_base_formula": "(min(300,max(0,t_raw))-0)/(300-0)",
+        "stayability_formula": "F_i = 1 + lambda * M_i",
+        "effective_dwell_formula": "t_effective = F_i * t_base",
+        "proxy_dwell_method": "GAUSSIAN_SPATIAL_KERNEL",
+        "classification": "PAPER_SPECIFICATION"
+      },
+      "empirical_node_observation": {
+        "node_id": "n00045",
+        "t_raw_seconds": null,
+        "t_raw_status": "UNAVAILABLE_EMPIRICAL_BEHAVIORAL_OUTCOME",
+        "t_base": null,
+        "t_base_status": "INPUT_GATED_MISSING_T_RAW"
+      },
+      "calibration": {
+        "lambda": null,
+        "lambda_status": "UNRESOLVED_BEHAVIORAL_CALIBRATION",
+        "blockology_placeholder_lambda": 1,
+        "placeholder_classification": "DEMO_ONLY",
+        "placeholder_active": false
+      },
+      "stayability": {
+        "M_i": 6.214327916148292,
+        "F_i": null,
+        "F_i_status": "METHOD_GATED_MISSING_LAMBDA",
+        "t_effective": null,
+        "t_effective_status": "INPUT_GATED"
+      },
+      "proxy_dwell_surface": {
+        "variable_id": "D_xy",
+        "value": null,
+        "status": "NETWORK_MODEL_GATED",
+        "kernel": "GAUSSIAN",
+        "bandwidth_R": null,
+        "bandwidth_status": "UNRESOLVED_PROXY_DWELL_BANDWIDTH",
+        "active_sim_evidence": false
+      },
+      "provenance_resolution": "PAPER_SPECIFIED_REPOSITORY_OUTCOME_UNAVAILABLE"
+    },
+    "node_level_space_syntax": {
+      "choice": null,
+      "integration": null,
+      "status": "UNAVAILABLE_NODE_LEVEL_SOURCE"
+    },
+    "node_level_gwr": {
+      "local_betas": null,
+      "status": "UNAVAILABLE_NODE_LEVEL_CALIBRATION",
+      "active_fallback": {
+        "source": "PAPER_GLOBAL_REFERENCE",
+        "a": 0.4,
+        "b": 0.2,
+        "c": 0.4,
+        "reason": "Node-specific local GWR coefficients are unavailable. Paper global reference elasticities remain the active fallback."
+      }
+    },
+    "behavioral_observation": {
+      "t_raw_seconds": null,
+      "t_base": null,
+      "lambda": null,
+      "status": "SOURCE_GATED"
+    },
+    "provenance_boundary": [
+      "paper diagnostics are displayed as PAPER_REPORTED",
+      "repository machinery is displayed separately",
+      "no paper statistic is injected into node-specific fields",
+      "active SIM remains valid using PAPER_GLOBAL_REFERENCE elasticities when local GWR is unavailable"
+    ]
+  },
+  "deprecated_legacy_method": {
+    "environmental_tfp_A_i": {
+      "value": 1,
+      "status": "method_gated",
+      "reason": "RETIRED FROM ACTIVE CALCULATION · NATURE 9.02 COMPARATIVE CONTEXT ONLY",
+      "formula": "A_i = exp[-ψ·max(0, H_i/W_i − Ω_th)] (RETIRED FROM ACTIVE 9.03 SIM)"
+    },
+    "used_in_active_sim": false,
+    "omega_threshold": null,
+    "note": "Nature 9.03 Final (No-Omega) retires canyon factor A_i from active SIM calculation. Retained for historical comparative context only."
+  },
+  "methodological_boundary": {
+    "single_node_mode": true,
+    "gwr_calibrated_in_app": false,
+    "d_xy_computed_in_app": false,
+    "missing_values_are_zero": false,
+    "candidate_mapping_is_paper_ready": false,
+    "space_syntax_controls_required_for_latest_gwr": true,
+    "space_syntax_radius_m": 800,
+    "gwr_intercept_beta0_status": "not_supplied",
+    "beta0_enters_elasticity_normalization": false,
+    "beta_choice_enters_elasticity_normalization": false,
+    "beta_integration_enters_elasticity_normalization": false,
+    "qwen_orientation_protocol": "TEAM_ALONG_STREET_180",
+    "qwen_orientation_alignment_status": "UNRESOLVED_PAPER_PROTOCOL_ALIGNMENT",
+    "qwen_approval_active": true,
+    "app_qwen_source_match": true
+  }
+}

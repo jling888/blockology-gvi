@@ -1,0 +1,62 @@
+{
+  "schema": "street_interface_public_candidate_verification_v1_1",
+  "release_label": "v0.8.0-P4.1 PROTOCOL-AWARE VALIDATION CANDIDATE",
+  "release_status": "PUBLIC_DEVELOPMENT_CANDIDATE",
+  "scientific_core": "v0.6.3_GOLDEN_FREEZE",
+  "scientific_invariants": {
+    "active_formula": "M_i = I_i^a_i × Y_i^b_i × D_i^c_i",
+    "a": 0.4,
+    "b": 0.2,
+    "c": 0.4,
+    "elasticity_source": "PAPER_GLOBAL_REFERENCE",
+    "calibration_status": "REFERENCE_NOT_LOCAL_GWR",
+    "no_active_omega": true,
+    "no_active_environmental_A_i": true,
+    "sfv_active_in_identity": false,
+    "sim_engine_sha256": "645ee93d6efe63e66e76ba1b4a4fb24bc7048d7b19c25ba49181cb4e2c280902"
+  },
+  "p4_1_changes": [
+    "Introduces public_validation_contract_v1 with two non-interchangeable validation classes.",
+    "Classifies canonical historical n00045 formula regression as RESEARCH_90_HALF_VIEW_GOLDEN with exact numeric parity.",
+    "Classifies every successful public single-photo SIM response as PUBLIC_SINGLE_PHOTO_LIVE with SAME_INPUT_RUNTIME_STABILITY and historicalGoldenComparable=false.",
+    "Adds the validation profile to /api/public/sim/status and /api/public/sim/analyze responses.",
+    "Updates the public result card so it explicitly states that a single uploaded photo is not a historical n00045 parity case.",
+    "Adds a repeat-run live audit script for ten Qwen medians, p1-p7 probabilities, and I/Y/D/M.",
+    "Does not modify src/utils/simComputationEngine.ts or any VM/VLM source lock."
+  ],
+  "validation_profiles": {
+    "research": {
+      "class": "RESEARCH_90_HALF_VIEW_GOLDEN",
+      "input_protocol": "MURRAY_HILL_CANONICAL_90_DEG_HALF_VIEW",
+      "comparison_mode": "EXACT_NUMERIC_GOLDEN_PARITY",
+      "historical_golden_comparable": true
+    },
+    "public": {
+      "class": "PUBLIC_SINGLE_PHOTO_LIVE",
+      "input_protocol": "PUBLIC_SINGLE_PHOTO_UNCALIBRATED",
+      "comparison_mode": "SAME_INPUT_RUNTIME_STABILITY",
+      "historical_golden_comparable": false
+    }
+  },
+  "p4_1_golden_n00045": {
+    "I_raw": 0.4746845369069087,
+    "I": 6.785792291750779,
+    "Y": 4.275239548226926,
+    "D_raw": 0.7495737076243679,
+    "D": 6.861271847132807,
+    "M_expected": 6.214327916148292,
+    "M_packaging_check": 6.214327916148293,
+    "max_absolute_delta": 8.881784197001252e-16,
+    "status": "PASS_IN_PACKAGING_ENVIRONMENT"
+  },
+  "validation": {
+    "modified_typescript_transpile_syntax": "PASS",
+    "modified_file_targeted_typecheck": "PASS_NO_MODIFIED_FILE_ERRORS_WITH_EXTERNAL_STUBS",
+    "p4_1_protocol_contract": "PASS",
+    "p4_1_golden_regression": "PASS",
+    "frozen_engine_sha256": "PASS_UNCHANGED",
+    "live_stability_script_syntax": "PASS",
+    "user_host_p4_1_lint_build": "PENDING",
+    "user_host_p4_1_repeat_run_live_stability": "PENDING"
+  }
+}

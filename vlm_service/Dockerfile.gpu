@@ -1,0 +1,38 @@
+# P3 source-backed Qwen worker. The Murray Hill repository is cloned at the
+# exact pinned commit and its four execution-critical source blobs are verified
+# by the runtime before the first model call.
+FROM nvidia/cuda:12.4.1-cudnn-runtime-ubuntu22.04
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    HF_HOME=/models/huggingface \
+    VLM_SOURCE_REPO_DIR=/opt/murrayhill-v12 \
+    VLM_RELEASE_MODEL_AFTER_INFER=true \
+    VLM_REPRO_LOCK=P3_1_QWEN_REPRO_LOCK_2026_09_09 \
+    CC=/usr/bin/gcc \
+    CXX=/usr/bin/g++
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3 python3-pip python3-dev git ca-certificates build-essential gcc g++ libglib2.0-0 libgl1 \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /service
+COPY vlm_service/requirements-runtime.txt /service/requirements-runtime.txt
+RUN python3 -m pip install --upgrade pip \
+    && python3 -m pip install torch==2.6.0 torchvision==0.21.0 --index-url https://download.pytorch.org/whl/cu124 \
+    && python3 -m pip install -r /service/requirements-runtime.txt
+
+ARG VLM_REPO=https://github.com/mikellu12/murrayhill-v12.git
+ARG VLM_COMMIT=f1d204df09da572db3417999f04aaf195ebd6ca6
+RUN git clone "${VLM_REPO}" /opt/murrayhill-v12 \
+    && git -C /opt/murrayhill-v12 checkout "${VLM_COMMIT}" \
+    && test "$(git -C /opt/murrayhill-v12 rev-parse HEAD)" = "${VLM_COMMIT}"
+
+COPY vlm_service/app.py vlm_service/source_runtime.py /service/
+COPY vlm_service/source_reference /service/source_reference
+RUN mkdir -p /models/huggingface
+
+EXPOSE 8020
+CMD ["python3", "-m", "uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8020", "--workers", "1"]
