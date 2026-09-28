@@ -1,0 +1,823 @@
+{
+  "manifest_schema": "street_interface_release_manifest_v1",
+  "generated_at_utc": "2026-09-08T15:30:00Z",
+  "release": {
+    "product": "Street Interface Measurement",
+    "method": "Nature 9.03 Final · No-Omega",
+    "product_version": "0.7.1",
+    "release_label": "v0.7.1-UX1.3 FINAL UI CLEANUP CANDIDATE",
+    "release_status": "WORKFLOW_CANDIDATE",
+    "integration_schema": "V0_7_0_MULTI_SOURCE_INTEGRATION_RC1",
+    "scientific_core": "v0.6.3_GOLDEN_FREEZE",
+    "base_package_input": "street-interface-measurement-v0.7.0-RC1-GWR-final-complete.zip",
+    "base_package_input_sha256": "55fda9af8d9a13cae5f0eea96a99e4aadff6327d07b8fc6f1e5c4e80a7c50f7b",
+    "step7_scope": "REPRODUCIBILITY_MANIFEST_AND_INTEGRITY_ONLY_NO_NEW_SCIENCE",
+    "step8_scope": "PROMOTION_AND_ARCHIVAL_ONLY_NO_NEW_SCIENCE",
+    "promoted_from": "v0.7.0 RELEASE FREEZE CANDIDATE",
+    "promoted_at_utc": "2026-09-08T05:29:34Z",
+    "base_verified_release": "v0.7.0 RELEASE VERIFIED",
+    "ux_scope": "PRIMARY_OPERATOR_WORKFLOW_SIMPLIFICATION_ONLY_NO_NEW_SCIENCE; UX1.1_HARD_ENFORCED_PRESENTATION_RECOVERY; UX1.2_STREET_VIEW_SAMPLING_GEOMETRY_BACKGROUND_ONLY_NO_OPERATOR_UI; UX1.3_FINAL_UI_REPORT_CLEANUP"
+  },
+  "scientific_invariants": {
+    "active_formula": "M_i = I_i^a_i × Y_i^b_i × D_i^c_i",
+    "no_active_omega": true,
+    "no_active_environmental_A_i": true,
+    "golden_node": "n00045",
+    "I_raw": 0.4746845369069087,
+    "I": 6.785792291750779,
+    "Y": 4.275239548226926,
+    "D_raw": 0.7495737076243679,
+    "D": 6.861271847132807,
+    "a": 0.4,
+    "b": 0.2,
+    "c": 0.4,
+    "M": 6.214327916148292,
+    "sim_computation_engine_sha256": "645ee93d6efe63e66e76ba1b4a4fb24bc7048d7b19c25ba49181cb4e2c280902"
+  },
+  "canonical_verification_record": {
+    "path": "release/evidence/n00045_post_approval_canonical_rc1.json",
+    "sha256": "495871b016d29d5871991bc1d1ba3b88a14eaf88adc62745a2eb64edb1cc69a3",
+    "approval_state": "AUTHORIZED",
+    "note": "Canonical Step 6/RC1 post-approval audit snapshot. It contains a PRESENTATION SCREENSHOT RECOVERY — DEMO ONLY mask warning; that mask is not the source of the active Qwen→SIM result."
+  },
+  "source_pins": [
+    {
+      "role": "ACTIVE_QWEN_VISUAL_SEMANTIC_AND_MORPHOLOGY_CONTEXT",
+      "repository": "mikellu12/murrayhill-v12",
+      "commit": "9353169b3dc3a1b4673e7144249db6ccbf7ac0f1",
+      "active_table": "results/tables/vlm_observations_murrayhill.csv",
+      "active_table_blob_sha": "975feac25b631c0839fb694db68ffd2e4da51e98",
+      "readout": "ORDINAL_INTERPOLATED_MEDIAN",
+      "protocol": "TEAM_ALONG_STREET_180",
+      "paper_protocol_alignment": "UNRESOLVED_PAPER_PROTOCOL_ALIGNMENT"
+    },
+    {
+      "role": "REPO_DERIVED_GWR_MACHINERY",
+      "repository": "mikellu12/murrayhill-v12",
+      "commit": "9353169b3dc3a1b4673e7144249db6ccbf7ac0f1",
+      "path": "results/tables/gwr_machinery.csv",
+      "blob_sha": "381a0a3100bdc182293113643820ed8e1cc099b2",
+      "classification": "OUTCOME_INDEPENDENT_ONLY",
+      "kernel": "GAUSSIAN"
+    },
+    {
+      "role": "STREET_NETWORK_SAMPLING_GEOMETRY",
+      "repository": "ex032895-crypto/street-view-nodes",
+      "commit": "51f0250de0c446313b5fba912becabd03db8b572",
+      "spacing_m": 20,
+      "crs": "WGS84",
+      "crosswalk_policy": "NO_IMPLICIT_JOIN",
+      "runtime_ui": "HIDDEN_BACKGROUND_ONLY",
+      "generated_node_dataset_committed_upstream": false,
+      "manual_node_csv_required": false,
+      "background_policy": "LOAD_PINNED_AUDIT_AND_CONTRACT_ONLY; DO_NOT_FABRICATE_NODE_ROWS; KEEP_CROSSWALK_UNRESOLVED_WITHOUT_EXPLICIT_SOURCE_MAPPING"
+    },
+    {
+      "role": "COMPARATIVE_BEHAVIORAL_PLACEHOLDER_AUDIT",
+      "repository": "jling888/blockology-gvi",
+      "commit": "658f993066d186a4977593c0d711a6c1a81f2a81",
+      "path": "sim/config.yaml",
+      "blob_sha": "85b3893fdf5f37d47402147f1bba0e87b21b7d57",
+      "dwell_lambda": 1.0,
+      "classification": "DEMO_ONLY",
+      "active": false,
+      "source_statement": "Manuscript gives no lambda; repository value is a placeholder and must not be reported as fitted."
+    }
+  ],
+  "paper_source": {
+    "title": "Nature09.03 end.docx",
+    "classification": "CANONICAL_MANUSCRIPT_SOURCE",
+    "artifact_digest_status": "UNAVAILABLE_IN_RELEASE_RUNTIME",
+    "raw_observations": 2848,
+    "raw_physical_nodes": 712,
+    "excluded_tunnel_observations": 8,
+    "excluded_tunnel_nodes": 2,
+    "active_observations": 2840,
+    "active_physical_nodes": 710,
+    "gwr": {
+      "model1_r2": 0.8142,
+      "model2_r2": 0.8316,
+      "delta_r2": 0.0174,
+      "delta_aicc": ">140",
+      "model1_residual_morans_i": 0.002545,
+      "model2_residual_morans_i": -0.00843,
+      "model2_morans_p": 0.584,
+      "model1_vif_max": 5.87,
+      "model2_vif_max": 6.78,
+      "reported_bandwidth_m": 100,
+      "kernel": "ROW_STANDARDIZED_ADAPTIVE_BI_SQUARE",
+      "space_syntax_radius_m": 800
+    }
+  },
+  "gating_invariants": {
+    "street_node_crosswalk": "UNRESOLVED_NODE_CROSSWALK",
+    "external_street_node_id": null,
+    "external_headings": null,
+    "space_syntax_choice": null,
+    "space_syntax_integration": null,
+    "local_gwr_betas": null,
+    "lambda": null,
+    "t_raw": null,
+    "t_base": null,
+    "F_i": null,
+    "t_effective": null,
+    "D_xy": null,
+    "proxy_dwell_bandwidth_R": null,
+    "global_elasticity_fallback": {
+      "a": 0.4,
+      "b": 0.2,
+      "c": 0.4,
+      "source": "PAPER_GLOBAL_REFERENCE"
+    }
+  },
+  "validation": {
+    "deterministic_suite": {
+      "status": "NATURE_9_03_V0_7_0_MULTI_SOURCE_RESEARCH_INTEGRATION_VERIFIED",
+      "total_tests": 66,
+      "pass_count": 66,
+      "fail_count": 0,
+      "executed_in_release_packaging_runtime": true
+    },
+    "integrity_verifier": "scripts/verify-release-integrity.mjs",
+    "research_validator": "scripts/run-research-validation.mjs",
+    "host_lint_build_gate": {
+      "status": "PENDING_USER_HOST_VALIDATION",
+      "machine_logs_bundled": false,
+      "reason": "v0.7.1-UX1.3 changes operator presentation/report wording and requires a fresh AI Studio host lint/compile/runtime smoke test."
+    },
+    "source_typecheck_with_local_module_stubs": {
+      "status": "SYNTAX_TRANSPILE_PASS_FOR_CHANGED_TS_TSX",
+      "scope": "App + Header + ReportAndExportSection + exportUtils + PaperProtocolInputsPanel + MultiSourceResearchStatusTable + QwenPaperApprovalPanel",
+      "note": "TypeScript transpile syntax validation passed in packaging runtime. Full host dependency-resolved compile remains pending."
+    }
+  },
+  "integrity": {
+    "algorithm": "SHA-256",
+    "canonicalization": "sorted lines: <relative_path>\\t<sha256>\\n",
+    "protected_file_count": 130,
+    "integrity_root_sha256": "1a1daf3fa02c364e1db6a5c0f5a0cd234018aa2875aade637221cf6f2a8b4cc0",
+    "excluded_self_referential_files": [
+      "release/REPRODUCIBILITY_MANIFEST.json",
+      "release/INTEGRITY_SHA256SUMS.txt",
+      "release/RELEASE_STATUS.json"
+    ],
+    "protected_files": [
+      {
+        "path": ".gitignore",
+        "sha256": "cbc2e4dcbb6255412c3a230442535081014571a23997fbab8836ca0b84862af1",
+        "bytes": 138
+      },
+      {
+        "path": "V071_UX1_1_RECOVERY_HARD_FIX.md",
+        "sha256": "2ba1c2204e5cacb2addcbb683396137620bc9055ef51ac74d00a58c14cab6492",
+        "bytes": 532
+      },
+      {
+        "path": "V071_UX1_2_BACKGROUND_STREET_VIEW_GEOMETRY.md",
+        "sha256": "5500feb2dd20b4fef7a2018971b018d5bcf1341499c862e0b53bb68669b639e6",
+        "bytes": 1019
+      },
+      {
+        "path": "V071_UX1_3_FINAL_UI_CLEANUP.md",
+        "sha256": "ab7317fd1eab6ea443704c5198cd943cb33619ec4471a5e6addf5a926b1dfee4",
+        "bytes": 710
+      },
+      {
+        "path": "V071_UX1_WORKFLOW_NOTES.md",
+        "sha256": "5eb556447aa4ca518ade9b5e2f7f5656f01724cb14a46dd51308271e8d774f4d",
+        "bytes": 1403
+      },
+      {
+        "path": "bun.lock",
+        "sha256": "616d2ccf7c06db322f82750535a43f81974cc4619d4d2db8b8d0bf511bf8adb8",
+        "bytes": 86810
+      },
+      {
+        "path": "index.html",
+        "sha256": "26d8803fd4c15df8df9a6bc1a5895da08f7fc9d96a9caa0b740725d79cc75fd9",
+        "bytes": 1352
+      },
+      {
+        "path": "metadata.json",
+        "sha256": "1160c64a71dd9d7d290d126dc28699585f910c4293f15ef8e77ee9e0be625adf",
+        "bytes": 1030
+      },
+      {
+        "path": "package.json",
+        "sha256": "5eafaa7f87eb1d835f5b10899eb4be2dfff7e4b9e08ac57499bd046f868f7a3c",
+        "bytes": 1344
+      },
+      {
+        "path": "public/data/blockology_dataset_manifest.json",
+        "sha256": "5ea7a85caa7eadbbc67229e81ad87987ee5839fabffae62d432cb91b7503c749",
+        "bytes": 1770
+      },
+      {
+        "path": "public/data/blockology_node_context.csv",
+        "sha256": "b7d5c41002f039b445eae12381041e5e737615ea244ae0f58fd9ae80a5b81111",
+        "bytes": 121957
+      },
+      {
+        "path": "public/data/gwr_machinery.csv",
+        "sha256": "1658b66443cfd79469965c16a72fd6084d2f3596bbccbf186db40f2e189d3118",
+        "bytes": 522
+      },
+      {
+        "path": "public/data/murrayhill_main_repo_audit.json",
+        "sha256": "ab09764a6944736b2a25706fc6f3f1f170c437ac7c1b5e44bf34f10b70663563",
+        "bytes": 7789
+      },
+      {
+        "path": "public/data/street_view_nodes_contract.csv",
+        "sha256": "8e2651ee1f67524643dd1bf21cdfbb1ff8f81230f70dabca39b0c81d47d9a581",
+        "bytes": 96
+      },
+      {
+        "path": "public/data/street_view_nodes_repo_audit.json",
+        "sha256": "4a54ce2e517abb445312f16dfb8552aef93eaf0633689f262ffa6f19ce29c02d",
+        "bytes": 5393
+      },
+      {
+        "path": "release/RELEASE_ACCEPTANCE.md",
+        "sha256": "e7080de3ef357c12f9263f461bd40e7d8161aec97b6194f5e345bfdd61b66eb7",
+        "bytes": 2354
+      },
+      {
+        "path": "release/RELEASE_VERIFICATION.json",
+        "sha256": "8ace0d66b14a743c618d4663d995f85b0e140ec176c0da13f8eb97ff9d80a43c",
+        "bytes": 1736
+      },
+      {
+        "path": "release/evidence/n00045_post_approval_canonical_rc1.json",
+        "sha256": "495871b016d29d5871991bc1d1ba3b88a14eaf88adc62745a2eb64edb1cc69a3",
+        "bytes": 95633
+      },
+      {
+        "path": "scripts/run-research-validation.mjs",
+        "sha256": "c9d52f8665265a6af488d90343f57acf04580ea82d1b43c8dbf4159137a4a144",
+        "bytes": 1259
+      },
+      {
+        "path": "scripts/verify-release-integrity.mjs",
+        "sha256": "0e0222a17e4fb6589ca3e745248a92230a1da8659e154d777d12a58d96eb1410",
+        "bytes": 1444
+      },
+      {
+        "path": "server.ts",
+        "sha256": "42ec6e2ceeed150edc4b53abf63127e3d9770a9764b49ed84a1bd965f6a9c436",
+        "bytes": 10374
+      },
+      {
+        "path": "server/evaluator.ts",
+        "sha256": "8328e242d36931d50ecc9351c2cdfe0b3fb52e00c773f7ff2df8bdab3e1bd3e3",
+        "bytes": 38199
+      },
+      {
+        "path": "server/paperVlmEvaluator.ts",
+        "sha256": "742e0ffec8fb2070e75b347ddef71065d517d12a9666706c9e70a67cb0b4a6ab",
+        "bytes": 11963
+      },
+      {
+        "path": "server/paperVlmMeasurementSchema.ts",
+        "sha256": "68c9686f3653da8b8274321a5327c60ea187e9e06583df13396012c7a6391fa5",
+        "bytes": 2919
+      },
+      {
+        "path": "server/v33Evaluator.ts",
+        "sha256": "d87f5aded2cf755de1265ec3e1ed6da09f164709b0c568e16c887ec15ed4819b",
+        "bytes": 34709
+      },
+      {
+        "path": "server/v33MeasurementSchema.ts",
+        "sha256": "a2c8f9aaf4117248cd18e0f2e54666aa8db382d0d416ee2c4b5afccda4361edf",
+        "bytes": 9273
+      },
+      {
+        "path": "server/v33PixelMeasurementEngine.ts",
+        "sha256": "814105f9341102f6582a591ef5b1c0d32987569a727d5ab1287555b548945f22",
+        "bytes": 16464
+      },
+      {
+        "path": "src/App.tsx",
+        "sha256": "2c7ef05c60ba506489e8484098ea6ff57d4317bb18ecc025621f01d3ad454568",
+        "bytes": 60372
+      },
+      {
+        "path": "src/components/AnalysisStatusStrip.tsx",
+        "sha256": "ebf3b0ae71d8d0185a691293fdb09acb6a7c085c03a04cfcacb0fa8c0a45421b",
+        "bytes": 3635
+      },
+      {
+        "path": "src/components/AuditedScoresPanel.tsx",
+        "sha256": "2fad8f28970d5b1ce1c18a8410d0b3299ef2cf16fd527df9eb411ac22235c097",
+        "bytes": 6183
+      },
+      {
+        "path": "src/components/BlockologyNodeProvenancePanel.tsx",
+        "sha256": "ad9be9f5fd7bc4dc6ceb9ef7605248fca97c71443e047e660e16106cbaeac688",
+        "bytes": 7020
+      },
+      {
+        "path": "src/components/BlockologyValidationProtocolPanel.tsx",
+        "sha256": "3c0b530345f183db5c418d55178328d25193e99f0fb4503231ad8c36a54aa6cb",
+        "bytes": 6572
+      },
+      {
+        "path": "src/components/CaseInputSection.tsx",
+        "sha256": "676324d948f6ef27645e33cb68e7af74d21de133f87b6dc61e30e57e9a27ed91",
+        "bytes": 17126
+      },
+      {
+        "path": "src/components/CorePaperSynthesisPanel.tsx",
+        "sha256": "4c8622727a4ccff9b81f2518faa0c7a9979c21e811ce56e0c0ad538b6a93d688",
+        "bytes": 5120
+      },
+      {
+        "path": "src/components/CoreResearchContextPanel.tsx",
+        "sha256": "2a6bfeed3406806ad8d465cd8e3dc868ce384747a3d7e09b5f95e8cca19d3048",
+        "bytes": 8011
+      },
+      {
+        "path": "src/components/ErrorBoundary.tsx",
+        "sha256": "7c11932013f1b474b6a620ed4f41f4eb727e930c7d9ffb79dbecea62de13d240",
+        "bytes": 1822
+      },
+      {
+        "path": "src/components/EvidenceAuditPanel.tsx",
+        "sha256": "8af1ef9b14cdd12cc3f45a2b790fd31bb73cb271561d5755b9b211a189596173",
+        "bytes": 8478
+      },
+      {
+        "path": "src/components/ExportControls.tsx",
+        "sha256": "f9f00ed491916f4525ee4d2bc52a66538807052994a7a819a6f02a4462c2cc91",
+        "bytes": 4021
+      },
+      {
+        "path": "src/components/Header.tsx",
+        "sha256": "2587c0df7c1f67f8c62ef3bd7193434954f3b0251220ff58bed01004c9e9a657",
+        "bytes": 4309
+      },
+      {
+        "path": "src/components/ImagePairViewer.tsx",
+        "sha256": "29a21164f56c3f390e67063c6ccc62724e0304392affebd509e6895150c90596",
+        "bytes": 3219
+      },
+      {
+        "path": "src/components/ImageUploadZone.tsx",
+        "sha256": "041627565e218cc7da081945c142cc826c9e6253d2ec7ab57646fe92c54ef4d1",
+        "bytes": 13383
+      },
+      {
+        "path": "src/components/MeasurementOwnershipPanel.tsx",
+        "sha256": "7e0cf55079a94f5ff31978dc56b81a181448d366745cbd1c01229ed5cf1a54b2",
+        "bytes": 13499
+      },
+      {
+        "path": "src/components/MethodDiagnosticsPanel.tsx",
+        "sha256": "4cafe28b1f1175591c01671a19402fb2eeb78607b83d67c02f8f5e7f7f087a2f",
+        "bytes": 47138
+      },
+      {
+        "path": "src/components/MorphologicalClassificationPanel.tsx",
+        "sha256": "d5dfa334774ccf7b0527f3ab1e6414ca496b0cadb814ea7954191d13dbd3bab7",
+        "bytes": 12624
+      },
+      {
+        "path": "src/components/MultiSourceResearchStatusTable.tsx",
+        "sha256": "1a3708d1a0587f9255fb728ff54704adb7dbf53e9edd5d42046ac55b35435828",
+        "bytes": 9696
+      },
+      {
+        "path": "src/components/MurrayHillIntegratedDatasetPanel.tsx",
+        "sha256": "b08bf177dc447a3a740a876a25d472fc6e24eee52b8a37b82ad9996eed8d618b",
+        "bytes": 17073
+      },
+      {
+        "path": "src/components/MurrayHillMainRepoEvidencePanel.tsx",
+        "sha256": "ab5569a76873817e901332a73acd3e9f92f3a39293560de28a0989fcc8102352",
+        "bytes": 5770
+      },
+      {
+        "path": "src/components/MurrayHillMainRepoValidationPanel.tsx",
+        "sha256": "47e673f783dd3a9c1cf132ce697f55ec9bfc5b0bdc15beb6f68ba1b2f1ea70df",
+        "bytes": 11382
+      },
+      {
+        "path": "src/components/Nature902CalibrationGwrPanel.tsx",
+        "sha256": "4cef0f7ac7ac21a46271db851d9e641caa822da7e5be28bd831b3155bc60a16c",
+        "bytes": 8000
+      },
+      {
+        "path": "src/components/Nature902ManuscriptAuditPanel.tsx",
+        "sha256": "42172ccb2267264202047c4c1cf645ccb2cc293462a786f2d3d35c105aa65838",
+        "bytes": 6013
+      },
+      {
+        "path": "src/components/Nature902ProtocolAlignmentPanel.tsx",
+        "sha256": "04f912955380f7398ba2488131994dd51e7c45d24285119bf15e159a4a851b30",
+        "bytes": 8170
+      },
+      {
+        "path": "src/components/Nature902SynthesisScalePanel.tsx",
+        "sha256": "c02d87ba81ad214e5f99d2f570cb7a9ed75357e8b954d3ee812dccdaba03f697",
+        "bytes": 7726
+      },
+      {
+        "path": "src/components/OrientationProtocolReconciliationPanel.tsx",
+        "sha256": "246951b193b083572a293b6eada3000a22b4a2685222e10ac445a531fc2f5aa6",
+        "bytes": 7445
+      },
+      {
+        "path": "src/components/OrientationSensitivityAnalysisPanel.tsx",
+        "sha256": "f5223fa4dae83b2c7e15d7f24d79695ad7a428f189571dfba4b700801479a829",
+        "bytes": 11653
+      },
+      {
+        "path": "src/components/OrientationSensitivityValidationPanel.tsx",
+        "sha256": "65991735b1b3460a11bc43cd416510170578c5d940bd104d0189cecce425d478",
+        "bytes": 6627
+      },
+      {
+        "path": "src/components/PaperProtocolInputsPanel.tsx",
+        "sha256": "56a1a2aee867b0f9cd54e2f8283767f8c259b8ee67af39f70bb2955142099c61",
+        "bytes": 70516
+      },
+      {
+        "path": "src/components/PaperSynthesisStatusStrip.tsx",
+        "sha256": "b384511b6c0d3722fbbeb9f158324ecbb51d343fa7ede799f92d90ca5e9c0522",
+        "bytes": 3787
+      },
+      {
+        "path": "src/components/PaperVlmProtocolPanel.tsx",
+        "sha256": "7fbce2777a30e6245977af42b31acdef72870d2e928981f1e12ac705ea3a2420",
+        "bytes": 11511
+      },
+      {
+        "path": "src/components/PrimarySnapshot.tsx",
+        "sha256": "63156092f4f3007a3fe65931bf16b7b093b4f0a69b079fe5b0a238edc60f9ace",
+        "bytes": 1158
+      },
+      {
+        "path": "src/components/ProtocolDocumentationModal.tsx",
+        "sha256": "58f2d705f40d65d822a5927f6539722b5aa62ad6ebe2d2959e4203ad074aa7c5",
+        "bytes": 25604
+      },
+      {
+        "path": "src/components/QuantitativeMeasurementsPanel.tsx",
+        "sha256": "09c7bc6906d7df34b19e7c094ed707a647e96a1cdf81163193c9f6792b12760e",
+        "bytes": 18491
+      },
+      {
+        "path": "src/components/QwenPaperApprovalPanel.tsx",
+        "sha256": "59c3b1a5ef5fb428dee5c38a432c3f92ab9345a3762bc1f1ed77855f809059af",
+        "bytes": 13889
+      },
+      {
+        "path": "src/components/QwenPaperMappingPanel.tsx",
+        "sha256": "f715654621baba0f8e51d29c9d1e01887a02ab3760d0a7aa65a675807a5c2028",
+        "bytes": 14471
+      },
+      {
+        "path": "src/components/QwenVlmImportPanel.tsx",
+        "sha256": "282450b91c7017b55e16f14400bd222209d011b3bc5a7b41f94c41b2266eb0ef",
+        "bytes": 38171
+      },
+      {
+        "path": "src/components/RawOutputViewer.tsx",
+        "sha256": "90268bf95fac396931b467cf95871a965578ef673a833edbdbb5fb65570cd888",
+        "bytes": 3374
+      },
+      {
+        "path": "src/components/ReportAndExportSection.tsx",
+        "sha256": "5661b974940958856700cf294f045801494757e92e7b51b835bbec075d3d4f54",
+        "bytes": 81506
+      },
+      {
+        "path": "src/components/ResearchArchitecturePanel.tsx",
+        "sha256": "4477630ca4804e33d8c8dac7b9f7504c7a8c5a05e4f3870902089d5a00f85275",
+        "bytes": 24022
+      },
+      {
+        "path": "src/components/ResearchDisclosure.tsx",
+        "sha256": "1dc6535ed2ce398a460ab72002474815d1e875124f3f30830a70050e7779cf44",
+        "bytes": 3089
+      },
+      {
+        "path": "src/components/ResearchSectionHeader.tsx",
+        "sha256": "ebb9774084f4a0e4881a01bc1d9b9bd99c2a3595b2312def1f2c8f3ec8805410",
+        "bytes": 1249
+      },
+      {
+        "path": "src/components/ResearchSynthesisPanel.tsx",
+        "sha256": "e7326f1d15cdb5e5e22fb484951b70063700cc49c94ed833e091749586925dbb",
+        "bytes": 34953
+      },
+      {
+        "path": "src/components/ResearchVariableReadinessPanel.tsx",
+        "sha256": "9402485c41b0fb929e8776b4e8df153b698c2d1f248e50a8189f747033cc7299",
+        "bytes": 33147
+      },
+      {
+        "path": "src/components/ResearchWorkflowNavigator.tsx",
+        "sha256": "0ece0d804628cfb5b330fc60ed893a1a9bb5d26e900c8c451c921cd2a32fe538",
+        "bytes": 6217
+      },
+      {
+        "path": "src/components/ScoreBarSevenSegment.tsx",
+        "sha256": "9fd9b4b1bcb569e6404c4e2d5b39ef7afdf35deb68126379be3cc5563b7092c4",
+        "bytes": 2429
+      },
+      {
+        "path": "src/components/SegmentationTaxonomyPanel.tsx",
+        "sha256": "6a5d543eb5bddb13370e5f4e4467e87380c0f50afe66471f2dccce478c160efc",
+        "bytes": 5927
+      },
+      {
+        "path": "src/components/SemanticMeasurementsPanel.tsx",
+        "sha256": "8a30c7948fc34f3b26f89a7c58ea0bb43891a68ba08b07b66179d05cf5b4e430",
+        "bytes": 20636
+      },
+      {
+        "path": "src/components/SenseOfPlacePanel.tsx",
+        "sha256": "aa1b789fa18eb5e0f280d80c3bf74938d04c44e9edf5e2526a741c089c48a82c",
+        "bytes": 4976
+      },
+      {
+        "path": "src/components/StatusBadge.tsx",
+        "sha256": "fc75fc86ee371397f33a9b2674bb5e30caba8a39eeeee3df2b69aad97ec967e2",
+        "bytes": 2754
+      },
+      {
+        "path": "src/components/StreetInterfaceEvidencePanel.tsx",
+        "sha256": "5c06ef921f6255fe92c78ba54b1adff41c30fc6f466d1e88fcd99cc226e68697",
+        "bytes": 36349
+      },
+      {
+        "path": "src/components/StreetInterfaceMeasurementsPanel.tsx",
+        "sha256": "abaf2110b7b54024aab9e212c07f5e0d5b5498979d270fd23d706f9e08fe3beb",
+        "bytes": 21902
+      },
+      {
+        "path": "src/components/StreetViewNodeRegistryPanel.tsx",
+        "sha256": "a2d8de935def92c252c5a03cef76885435ba3a46115a2f4f7385bbf7d052cef2",
+        "bytes": 9782
+      },
+      {
+        "path": "src/components/StreetViewNodesMethodAuditPanel.tsx",
+        "sha256": "d672a6872ee14158f0eafc64ad64896164e2dbe57dfe6c2a1f1779ea40147a10",
+        "bytes": 6929
+      },
+      {
+        "path": "src/components/TeamRepositoryDataPanel.tsx",
+        "sha256": "1697c9cbf8722991e786f18c22a8301b6b76ba92e354aee4b7eb86286ed6da55",
+        "bytes": 22474
+      },
+      {
+        "path": "src/components/V33CandidateInferencePanel.tsx",
+        "sha256": "223fc41ec5f7ad90237cf9e3e2838ed9caa421c1bf82fd0ca30716397cdcf991",
+        "bytes": 56885
+      },
+      {
+        "path": "src/components/V33ValidationPanel.tsx",
+        "sha256": "a273ef8adc65d1a3db54e79e2d68d9386e0f3b257cff51a634dc6a2bb49b6f7a",
+        "bytes": 9760
+      },
+      {
+        "path": "src/components/VisionEvidenceSection.tsx",
+        "sha256": "7172d2b042aa392dbd021b766e1a711d97c2e3913f5e62b3de0af68dbf1aea02",
+        "bytes": 5154
+      },
+      {
+        "path": "src/components/VisionValidationPanel.tsx",
+        "sha256": "1e1076017a5be17b725f361f5df48baefb15237386d3caed8d140b23b5fcfa44",
+        "bytes": 24824
+      },
+      {
+        "path": "src/data/sampleCases.ts",
+        "sha256": "25a4eea6a1262852774883593be5bd1b10da931ec8f73d29b0970ab40a0b8bcc",
+        "bytes": 31439
+      },
+      {
+        "path": "src/data/streetViewNodes/streetViewNodeBridge.ts",
+        "sha256": "58a036171d0b3b8d9a9435c1c01a739904e304176f16318316b396b7ec781c38",
+        "bytes": 7163
+      },
+      {
+        "path": "src/data/streetViewNodes/streetViewNodeParser.ts",
+        "sha256": "a56bd6889345eac29a6ca9ad50cd20610d630391cba8f84adfa64ba0e5cb7374",
+        "bytes": 11822
+      },
+      {
+        "path": "src/data/streetViewNodes/streetViewNodeTypes.ts",
+        "sha256": "76f5a2ad402fc85cc1d42479eb85b8b4f4bd8dcf77b83632647d3e2cfe3ecf61",
+        "bytes": 3963
+      },
+      {
+        "path": "src/data/streetViewNodes/streetViewNodeValidation.ts",
+        "sha256": "9e8b9eec99b2ebca6cd5c0e0f8372b85c39fa470044c12ee5bbc9046b4c25b36",
+        "bytes": 18297
+      },
+      {
+        "path": "src/data/teamRepository/gwrMachinery.ts",
+        "sha256": "938119470c1f94f82676fe9d2ab9ea36aa4bb7374d74a90ca735e3d3437d2e7e",
+        "bytes": 3315
+      },
+      {
+        "path": "src/data/teamRepository/index.ts",
+        "sha256": "37c0bd650f61800fd2e339e808296593350ad1c8ccd91c011f8d79df3027db27",
+        "bytes": 473
+      },
+      {
+        "path": "src/data/teamRepository/teamRepositoryMapper.ts",
+        "sha256": "8f86c9fb99fd11afd436e472a905a16d497902e53e8010b326fd63dd5291e525",
+        "bytes": 27743
+      },
+      {
+        "path": "src/data/teamRepository/teamRepositoryParser.ts",
+        "sha256": "1e0418905154b75266004d6475c1a056eb4881d93eb9501359d1d8b8b8cce4c0",
+        "bytes": 21487
+      },
+      {
+        "path": "src/data/teamRepository/teamRepositoryTypes.ts",
+        "sha256": "10d1357a515776d80e012e3527584ddb6de9dd337ce662de22cbd4466659cad6",
+        "bytes": 9922
+      },
+      {
+        "path": "src/data/teamRepository/teamRepositoryValidation.ts",
+        "sha256": "8c44c09777612abaae8e72e1b8ca7c2424d3a137682d59e9f4ed71b5922fae59",
+        "bytes": 148187
+      },
+      {
+        "path": "src/index.css",
+        "sha256": "42070e0b45bb201b2b838a52aaaa6e965f964e0b542d97f1fe517fe59c4b75a8",
+        "bytes": 23
+      },
+      {
+        "path": "src/main.tsx",
+        "sha256": "5580d48b0fec68698a113d45a640b88d479dc35eb1f4b87c51f67c6cc81cee9b",
+        "bytes": 231
+      },
+      {
+        "path": "src/research/blockologyGviRegistry.ts",
+        "sha256": "b3a814e79249019b0a7110da49d0042c864cc59b80c5b1918bebe1a503dcc091",
+        "bytes": 9311
+      },
+      {
+        "path": "src/research/multiSourceResearchRegistry.ts",
+        "sha256": "79c7241c293d1327eeb367b8e22026a67a4bd89e1eb2358cad41562f361948bc",
+        "bytes": 53535
+      },
+      {
+        "path": "src/research/murrayHillIntegratedDataset.ts",
+        "sha256": "b5035ef9ed6af173332015ebf89f0ebd69ede3ddf8216db2fd45e9f3034bd306",
+        "bytes": 32976
+      },
+      {
+        "path": "src/research/murrayHillMainRepoAudit.ts",
+        "sha256": "b6537903d57217755e2169a1c3b56a9af05855f53e0219ae39ee8dda2cf3e7fc",
+        "bytes": 2787
+      },
+      {
+        "path": "src/research/nature902Protocol.ts",
+        "sha256": "86af4e3e856acda83d5d4779b0eb93c0ae81fad6c5e10f3367806b7f556f5f21",
+        "bytes": 4328
+      },
+      {
+        "path": "src/research/nature903Protocol.ts",
+        "sha256": "fb2148f46260fff403410172991a392a16ff994d49c0071a7764c6540847ab0e",
+        "bytes": 7085
+      },
+      {
+        "path": "src/research/orientationProtocolRegistry.ts",
+        "sha256": "794063b350c342f1d480032fa5fb1828437b0fdc9cdfab7020b5d604f673b29c",
+        "bytes": 4054
+      },
+      {
+        "path": "src/research/orientationSensitivityAnalyzer.ts",
+        "sha256": "db098e596821342ad4b57afc7ce55989245ee93d644639ddbfe3fe9d1eca72de",
+        "bytes": 9273
+      },
+      {
+        "path": "src/research/orientationSensitivityProtocol.ts",
+        "sha256": "2d13d5faaa8ed8264ed558032022939ff87952458b254c9c7837a77c4ed4b44d",
+        "bytes": 4601
+      },
+      {
+        "path": "src/research/paperVlmInstrument.ts",
+        "sha256": "c69e2cf7bc7c6ac608e1d11ef999b675acb0203d0df49adfa17160f7d4a22025",
+        "bytes": 12449
+      },
+      {
+        "path": "src/research/paperVlmInstrumentSchema.ts",
+        "sha256": "b2e02b9b9b490af9974efb8e5200be22df3688a2ef073e0c9a42bd705006a027",
+        "bytes": 11373
+      },
+      {
+        "path": "src/research/paperVlmQwenBridge.ts",
+        "sha256": "fb9e73ecd054781e5beca9f9f2e90a59673647988548b38daabd450067a729e9",
+        "bytes": 16870
+      },
+      {
+        "path": "src/research/paperVlmQwenCsvImporter.ts",
+        "sha256": "0a445616f1bbd6a17ab33d5a56102131a46a394fdb4424ff136f588d2b9a67ec",
+        "bytes": 16556
+      },
+      {
+        "path": "src/research/researchVariableReadiness.ts",
+        "sha256": "889e7fbbdda6470943b07b72fb0bfdcd70d4f63a1c2b1acd9724112ab34c8dd7",
+        "bytes": 11679
+      },
+      {
+        "path": "src/research/streetViewNodesRegistry.ts",
+        "sha256": "26971d006d261dd255fc62a713469cf515e0bf1a9988f59c8619f45fc6fe7ca4",
+        "bytes": 7710
+      },
+      {
+        "path": "src/research/v33MeasurementOwnership.ts",
+        "sha256": "9bfc66e5c0997dcde40cb888c79f805d68364e2d6c9a01d957a4697407710caf",
+        "bytes": 27528
+      },
+      {
+        "path": "src/research/v33SegmentationTaxonomy.ts",
+        "sha256": "f520fd60f5823dd4ea54ae716cfcde230a3b504024cb4a613eca4fbb408c9180",
+        "bytes": 15592
+      },
+      {
+        "path": "src/types.ts",
+        "sha256": "7fa287425b50455a6f7a42748dcf00f57a4161b72d355b7443bed06c401e073a",
+        "bytes": 20347
+      },
+      {
+        "path": "src/utils/clientPixelEngine.ts",
+        "sha256": "634112e60c7ba6ac8591346508ac22293a2761a7d0c3d31c477d086ad67afe27",
+        "bytes": 15743
+      },
+      {
+        "path": "src/utils/exportUtils.ts",
+        "sha256": "35ca66ad2120f6b4dc14888c6e9cdaa0e0e4e2a63da15ad798e191ef0757070a",
+        "bytes": 32851
+      },
+      {
+        "path": "src/utils/mechanicalAudit.ts",
+        "sha256": "e65f7fdea175adb435cdf8a2d21197a980582a59db77daeec3dfdfecefa2f448",
+        "bytes": 7258
+      },
+      {
+        "path": "src/utils/paperResearchAssembler.ts",
+        "sha256": "72cfce58b20271b4f2248e394ad32c93014b7e16f094c83dc1bc2d582cd01d0e",
+        "bytes": 32818
+      },
+      {
+        "path": "src/utils/presentationMaskRecovery.ts",
+        "sha256": "46361a287d489a29e3fc9dbe9e5ea78a690eda0c8bf3aa5fae9e6ec6604d02ee",
+        "bytes": 3965
+      },
+      {
+        "path": "src/utils/simComputationEngine.ts",
+        "sha256": "645ee93d6efe63e66e76ba1b4a4fb24bc7048d7b19c25ba49181cb4e2c280902",
+        "bytes": 35636
+      },
+      {
+        "path": "src/utils/v33MechanicalAudit.ts",
+        "sha256": "7416963dd69191d929d3eeb2d9b92fe788ecd119cadeeb6d5a90f8c43d794469",
+        "bytes": 32361
+      },
+      {
+        "path": "tool/export_svi_90_orthogonal.py",
+        "sha256": "601f2e220019dea43e3985f6e1937d3e13a9ee46cca9820130ae3a482b538ab1",
+        "bytes": 10957
+      },
+      {
+        "path": "tool/sim_vlm_run_orthogonal.py",
+        "sha256": "33bcf3723938b0df7f33ec1d9a8f6d85ebebe80580e308500ea3aee3fbae5e31",
+        "bytes": 17973
+      },
+      {
+        "path": "tsconfig.json",
+        "sha256": "e93e15c3794e43a117964ea191ae985cbedea70c41d3d82b2e20aa8d07374fe4",
+        "bytes": 508
+      },
+      {
+        "path": "tsconfig.validation.emit.json",
+        "sha256": "5c5a58375ef4f201f94bbec58ea280bcba18163ae280ab65cfb494a09f42926c",
+        "bytes": 678
+      },
+      {
+        "path": "tsconfig.validation.json",
+        "sha256": "923fabcae3d000325e67ed3fe462d006934cdcddc51b5de45afc3243e73425bd",
+        "bytes": 601
+      },
+      {
+        "path": "vite.config.ts",
+        "sha256": "316eeb46489684d16adf838aa1a4d7f1dd3a4f56c7d2594cd6b5a478d2af905d",
+        "bytes": 390
+      }
+    ]
+  },
+  "promotion": {
+    "status": "WORKFLOW_CANDIDATE",
+    "base_verified_release": "v0.7.0 RELEASE VERIFIED",
+    "promotion_scope": "UX_WORKFLOW_ONLY_NO_NEW_SCIENCE",
+    "host_acceptance": "PENDING_USER_HOST_VALIDATION"
+  }
+}

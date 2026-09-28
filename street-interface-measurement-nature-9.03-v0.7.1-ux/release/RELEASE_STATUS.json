@@ -1,0 +1,12 @@
+{
+  "release_label": "v0.7.1-UX1.3 FINAL UI CLEANUP CANDIDATE",
+  "release_status": "WORKFLOW_CANDIDATE",
+  "base_verified_release": "v0.7.0 RELEASE VERIFIED",
+  "scientific_core": "v0.6.3_GOLDEN_FREEZE",
+  "integration_schema": "V0_7_0_MULTI_SOURCE_INTEGRATION_RC1",
+  "deterministic_validation": "66/66 PASS",
+  "host_lint_build_gate": "PENDING_USER_HOST_VALIDATION",
+  "scientific_change": false,
+  "workflow_change": true,
+  "ux_change": "FINAL_UI_REPORT_CLEANUP_NO_SCIENTIFIC_CHANGE"
+}

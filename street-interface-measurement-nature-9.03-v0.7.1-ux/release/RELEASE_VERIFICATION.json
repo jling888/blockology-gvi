@@ -1,0 +1,42 @@
+{
+  "schema": "street_interface_workflow_candidate_verification_v1",
+  "release_label": "v0.7.1-UX1.3 FINAL UI CLEANUP CANDIDATE",
+  "release_status": "WORKFLOW_CANDIDATE",
+  "base_verified_release": "v0.7.0 RELEASE VERIFIED",
+  "scientific_core": "v0.6.3_GOLDEN_FREEZE",
+  "scientific_invariants": {
+    "I": 6.785792291750779,
+    "Y": 4.275239548226926,
+    "D": 6.861271847132807,
+    "a": 0.4,
+    "b": 0.2,
+    "c": 0.4,
+    "M": 6.214327916148292,
+    "no_active_omega": true,
+    "no_active_environmental_A_i": true
+  },
+  "deterministic_validation": {
+    "total_tests": 66,
+    "pass_count": 66,
+    "fail_count": 0,
+    "status": "NATURE_9_03_V0_7_0_MULTI_SOURCE_RESEARCH_INTEGRATION_VERIFIED"
+  },
+  "workflow_changes": [
+    "presentation screenshot recovery enabled by default and hidden",
+    "presentation screenshot recovery hard-enforced in App runtime; stale UI flags cannot disable it",
+    "VLM calculations optional upload removed from primary workflow",
+    "duplicate Team Repository CSV upload removed",
+    "vlm_observations_murrayhill.csv auto-loads matched working data",
+    "eligible matched repository row auto-authorized for paper assembly",
+    "Direct Qwen CSV Import removed from operator UI",
+    "Team Repository and approval details collapsed into Advanced Provenance",
+    "paper export footer/version labels synchronized to v0.7.1-UX1.3",
+    "authorization note distinguishes automatic repository authorization from legacy explicit approval"
+  ],
+  "approval_provenance": "SYSTEM_DEFAULT_AUTO_APPROVAL_ON_VLM_OBSERVATIONS_IMPORT",
+  "host_acceptance": {
+    "status": "PENDING_USER_HOST_VALIDATION",
+    "machine_logs_bundled": false
+  },
+  "scope": "UX_UI_REPORT_CLEANUP_ONLY_NO_NEW_SCIENCE"
+}
