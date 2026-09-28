@@ -1,0 +1,8 @@
+{
+  "name": "Street Interface Measurement — Nature 9.03 v0.7.1-UX1.3 FINAL UI CLEANUP CANDIDATE",
+  "description": "Final UX-only cleanup built on the verified v0.7.0 release and v0.7.1 simplified workflow. Scientific core remains v0.6.3_GOLDEN_FREEZE with unchanged Nature 9.03 No-Omega mathematics. Primary workflow uses semantic mask + original street view + one vlm_observations_murrayhill.csv import; presentation recovery, Team Repository bridge initialization, matched working-data loading, paper authorization, and Street-View sampling provenance run automatically. Direct Qwen advanced import is removed from the operator UI; Team Repository and authorization details are collapsed into an Advanced Provenance disclosure. PDF/report version labels and authorization wording are synchronized with the automated workflow. No scientific computation, Qwen mapping, GWR values, or frozen SIM engine are changed.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
