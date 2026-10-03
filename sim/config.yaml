@@ -22,6 +22,11 @@ paths:
 # City's main streets dropped for sharing a number with a Manhattan viaduct.
 # A second study area sets its own list or leaves it empty.
 excluded_nodes:
+  # Node ids are POSITIONAL to this frame. This fingerprint is
+  # <node count>:<sha1 of the sorted ids>; node_usability refuses to
+  # apply the lists below if it does not match, so copying this file
+  # to another city cannot silently exclude unrelated nodes.
+  frame: 766:025d2c9b5b
   # Eye-checked against the renders 2026-09-03: balustrade both kerbs, no
   # sidewalk, roadway only. n00148/n00149 (east) and n00242/n00244 (west) are
   # on the same deck and were missed by the lateral test because the deck runs
@@ -290,6 +295,12 @@ geometry:
   # (East 40th runs 0.87-7.89 within 120 m) and the mean lands in a gap no
   # node on the street occupies.
   hw_fill_stat: mean        # mean | median
+  # Max nodes the series fallback may walk for a donor. Past this the
+  # donor is a different street section, not this one: uncapped it
+  # crossed whole blocks and inherited ratios wrong by 2x in both
+  # directions. Nodes beyond it keep no H/W and take the global
+  # exponents, which is honest about not knowing.
+  hw_series_max_steps: 3    # 3 nodes = ~60 m at 20 m sampling
   # Fill order, both operating on the street's own ordered series:
   #   1. mean of every measured node on the same street within the radius
   #   2. if none, walk the series outward and take the first measured node
@@ -673,13 +684,20 @@ sim_vlm:
     # relative, normalised by common.weights(); 1/1/1 is exact equal thirds
     dimension:    {imageability: 1, identity: 1, dependence: 1}
     imageability: {nat_built: 1, gvi_eye: 1, gmi: 1}
-    identity:     {signboard: 1, enclosure: 1, sfv: 1}
-    # Section 2.7: D_raw = g1*V_pave + g2*IAS + g3*GFAPI. `ias` was `sfv`
-    # until the resting_affordance field existed -- which put facade
-    # variation in both Y and D and left Dependence with no affordance term,
-    # so the dimension measured walkable ground, an Identity trait, and
-    # ground-floor glazing rather than physical utility.
-    dependence:   {sidewalk_paver: 1, ias: 1, gfapi: 1}
+    identity:     {signboard: 1, enclosure: 1, gfapi: 1}
+    # Nature09.08 sec 2: "street facade variation (SFV) is dropped entirely,
+    # active edge legibility (GFAPI) is assigned exclusively to Place Identity,
+    # and tactile seating ledges (IAS) assigned exclusively to Place
+    # Dependence." So GFAPI moves Y-ward, D loses its third term, and SFV
+    # leaves the model altogether.
+    #
+    # SFV was never defensible anyway: it answers one rung on 83% of frames,
+    # correlates +0.02 with facade change measured between neighbouring nodes
+    # at every spacing from 20 m to 160 m, and +0.49 with vertical_hardscape --
+    # it was re-measuring how much building is in view, which V_built already
+    # does. The facade_variation RATING is still collected; it just no longer
+    # enters any index.
+    dependence:   {sidewalk_paver: 1, ias: 1}
   # P_natural_above / P_built_above is a ratio of two free quantities and is
   # unbounded, while every other term is a share in [0,1]. Summing them under
   # weights that total 1 would let the ratio decide the answer on its own --
@@ -693,7 +711,13 @@ sim_vlm:
   # because greenery and walkability have activation thresholds and
   # legibility does not.
   cobb_douglas:
-    exponents:            {imageability: 0.40, identity: 0.20, dependence: 0.40}
+    # THE GLOBAL IS THE TRANSITIONAL BAND. It applies where H/W cannot be
+    # measured at all, and takes the middle of the schedule rather than either
+    # extreme: enclosure unknown, so neither greenery nor physical utility is
+    # assumed to govern. London has no building heights, so EVERY London row
+    # lands here -- which means section 2.8's spatially varying elasticities
+    # are not in effect there and M reduces to a fixed Cobb-Douglas.
+    exponents:            {imageability: 0.40, identity: 0.25, dependence: 0.35}
     # The GLOBAL calibration -- the thresholds the manuscript states, fixed
     # across cities so two study areas sit on one scale. Nature.8.31 para 129
     # defends tau_I = 0.20 as "the minimum eye-level vegetation exposure
@@ -713,17 +737,57 @@ sim_vlm:
     # Murray Hill they agree on D and differ on I (0.389 against 0.20), and
     # the two rankings correlate rho +0.930.
     imageability_sigmoid: {kappa: 12.0, tau: 0.20}
-    dependence_sigmoid:   {kappa: 15.0, tau: 0.50}
-    omega:                {psi: 0.15, hw_threshold: 2.0}
-    # section 2.8 regimes, classified on H/W
+    # tau_D follows the City-Wide Median Calibration protocol: it IS the
+    # median D_raw. It was 0.50 when D_raw was (V_pave + IAS + GFAPI)/3.
+    # Nature09.08 moved GFAPI into Y, so D_raw is now (V_pave + IAS)/2
+    # and its median moved to 0.422. Leaving tau at 0.50 centred the
+    # sigmoid 0.08 above the data and pushed median D from 0.657 to
+    # 0.238 -- an artefact of the stale threshold, not a finding.
+    dependence_sigmoid:   {kappa: 15.0, tau: 0.422}
+    # Omega is COMPUTED but no longer multiplied into M. Nature09.03 sec 2
+    # states the model 'decouples street aspect ratios and enclosure from
+    # being an unconditional global penalty', folding them in as endogenous
+    # proxies instead -- (1 - SVF) inside Y, GMI inside I. A multiplicative
+    # Omega on top double-counts enclosure and contradicts the manuscript's
+    # own formula, M = I^a Y^b D^c. The column is kept as a diagnostic.
+    # Set apply_to_M: true to reproduce the pre-09.03 scores.
+    omega:                {psi: 0.15, hw_threshold: 2.0, apply_to_M: false}
+    # section 2.8 regimes, classified on H/W. Kept for the legacy path.
     canyon_hw: 3.0
     midblock_hw: [0.8, 1.2]
+    # The schedule actually in use: five bands tiling the whole H/W range, so
+    # nothing falls through to the global by accident. Section 2.8 named three
+    # regimes and left 1.2-3.0 and everything under 0.8 unclaimed -- together
+    # 52.5% of Murray Hill, including its median street at H/W 1.424.
+    #
+    # a falls and c rises monotonically with enclosure, which is the mechanism
+    # the manuscript states: "continuous high-rise walls suppress 180-degree
+    # optical green views ... inducing spatial oppression and accelerating
+    # transit velocities. Conversely, low-rise corridors and porous block
+    # breaks with eye-level greenery ... trigger restorative soft fascination,
+    # lowering walking speeds and extending dwell times." b steps down 0.05 a
+    # band. Every row sums to 1.0; the assert in regime_exponents enforces it.
+    #
+    # 0.8-1.2 reproduces section 2.8's stated mid-block exactly. The canyon row
+    # DEPARTS from the stated 0.10/0.30/0.60: b is 0.15, not 0.30. Flagged
+    # because it is a deliberate revision, not a gap-fill.
+    elasticity_bands:
+      - {max_hw: 0.8,  imageability: 0.55, identity: 0.35, dependence: 0.10}
+      - {max_hw: 1.2,  imageability: 0.50, identity: 0.30, dependence: 0.20}
+      - {max_hw: 2.0,  imageability: 0.40, identity: 0.25, dependence: 0.35}
+      - {max_hw: 3.0,  imageability: 0.30, identity: 0.20, dependence: 0.50}
+      - {max_hw: ~,    imageability: 0.15, identity: 0.15, dependence: 0.70}
     elasticity_by_regime:
-      # canyon: c -> 0.60, b -> 0.10 are stated; a is the remainder
-      avenue_canyon:     {imageability: 0.30, identity: 0.10, dependence: 0.60}
-      # mid-block: only a -> 0.50 is stated. b holds at its global 0.20 and c
-      # takes the remainder. That inference lives here, not in the code.
-      covenant_midblock: {imageability: 0.50, identity: 0.20, dependence: 0.30}
+      # Nature09.03 sec 2.8 states ALL THREE for every regime, so nothing
+      # here is inferred any more. The previous values were read off
+      # Nature.8.31, which stated only some of them, and they had a and b
+      # transposed for the canyon regime and b and c for the mid-block.
+      # canyon: "Place Dependence (c -> 0.60) ... Place Imageability, a ->
+      # 0.10 ... Place Identity, b -> 0.30"
+      avenue_canyon:     {imageability: 0.10, identity: 0.30, dependence: 0.60}
+      # mid-block: "Place Imageability, a -> 0.50 ... Place Identity, b ->
+      # 0.30 ... Place Dependence, c -> 0.20"
+      covenant_midblock: {imageability: 0.50, identity: 0.30, dependence: 0.20}
       # POPS: all three stated
       pops_setback:      {imageability: 0.45, identity: 0.15, dependence: 0.40}
   # t_effective = t_base * (1 + lambda * M_i). The manuscript gives no value

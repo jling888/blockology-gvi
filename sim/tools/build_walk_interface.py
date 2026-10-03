@@ -67,6 +67,7 @@ sys.path.insert(0, str(HERE))
 from common import CFG, PROC, RAW, RES, banner
 from sim_readout import K, interpolated_median, prune_once
 
+WALKFRAMES = {}
 NAME = re.compile(r"^(\d+)_(n\d+)_([NESW])(?:_([LRF]))?\.jpg$")
 FIELDS = ["vertical_greenery", "green_eye_level", "green_softening",
           "vertical_hardscape", "sky_openness", "signage_detail",
@@ -76,8 +77,13 @@ DIM = {"I_raw": "imageability", "Y": "identity", "D_raw": "dependence"}
 QCOLS = ["scene", "greenery", "ground", "frontage"]
 
 # WHICH FIELD FEEDS WHICH TERM, read off sim_compute's formulas rather than
-# guessed: I_raw from nat_built + GVI_eye + GMI, Y from V_sign + (1-SVF) + SFV,
-# D_raw from V_pave + IAS + GFAPI. Two fields do not enter as themselves and
+# guessed: I_raw from nat_built + GVI_eye + GMI, Y from V_sign + (1-SVF) +
+# GFAPI, D_raw from V_pave + IAS.
+#
+# facade_variation IS ABSENT ON PURPOSE. Nature09.08 drops SFV from the model
+# entirely and moves GFAPI into Identity. The field is still rated and still in
+# the exports; it simply feeds no index, so showing it here under a term would
+# say it contributed to a score it does not. Two fields do not enter as themselves and
 # the panel says so, because a reader who sees sky_openness under identity will
 # otherwise assume the panel is wrong: vertical_hardscape enters only through
 # its ratio with vertical_greenery, and sky_openness enters inverted, as
@@ -88,15 +94,23 @@ QCOLS = ["scene", "greenery", "ground", "frontage"]
 # sky_openness enters as (1-SVF), so more sky lowers identity. Both are drawn
 # in red -- a reader scanning the panel needs to know the arrow points the
 # other way, and does not need the algebra.
+# The fourth element is the group's COLOUR, and it is a constant. The dot
+# beside each heading used to take the node's own ramp colour, so it changed
+# at every step and coded the node's score in the same mark that names the
+# term -- two meanings on one swatch, neither readable. Fixed per group, the
+# swatch says only "this is identity", the bar beside it says how much, and
+# the reader can learn the three colours once. The term ramps still carry
+# value, in the sub-index bars and on the maps, where length or position
+# carries it too.
 GROUPS = [
     ("imageability", "I_raw",
      [("vertical_greenery", 0), ("vertical_hardscape", 1),
-      ("green_eye_level", 0), ("green_softening", 0)]),
+      ("green_eye_level", 0), ("green_softening", 0)], "#2f8f3c"),
     ("identity", "Y",
-     [("signage_detail", 0), ("sky_openness", 1), ("facade_variation", 0)]),
+     [("signage_detail", 0), ("sky_openness", 1),
+      ("ground_floor_activity", 0)], "#c2681f"),
     ("dependence", "D_raw",
-     [("walkable_ground", 0), ("resting_affordance", 0),
-      ("ground_floor_activity", 0)]),
+     [("walkable_ground", 0), ("resting_affordance", 0)], "#2a6f9e"),
 ]
 
 
@@ -106,6 +120,18 @@ def load(path, cols=None):
         return None
     d = pd.read_csv(path)
     return d[[c for c in cols if c in d.columns]] if cols else d
+
+
+
+def _json_safe(o):
+    """NaN and +/-Inf to None, recursively. See the note at the meta dump."""
+    if isinstance(o, dict):
+        return {k: _json_safe(v) for k, v in o.items()}
+    if isinstance(o, (list, tuple)):
+        return [_json_safe(v) for v in o]
+    if isinstance(o, float) and (o != o or o in (float("inf"), float("-inf"))):
+        return None
+    return o
 
 
 def main():
@@ -122,6 +148,16 @@ def main():
                     help="a re-run of one question, merged over the "
                          "descriptions table without touching it on disk")
     ap.add_argument("--calc", type=Path, default=None)
+    ap.add_argument("--all", dest="all_table", type=Path, default=None,
+                    help="vlm_all.csv: one row per FRAME carrying ratings, "
+                         "descriptions, sub-indices, M and the usability "
+                         "verdict. Given this, --ratings / --descriptions / "
+                         "--calc are ignored and the page cannot be built "
+                         "from a mismatched set of tables.")
+    ap.add_argument("--walk-frames", type=Path, default=None,
+                    help="london_walk_frames.csv from frame_bearings.py: which "
+                         "of a node's two frames faces the way each walk "
+                         "travels")
     ap.add_argument("--out", type=Path, default=None)
     ap.add_argument("--embed", action="store_true", default=True,
                     help="inline the frames as data URIs so the file works "
@@ -234,18 +270,34 @@ def main():
             walks = walks[:1]
         out_walks = []
         for w in walks:
-            r = _one_walk(w, name)
+            r = _one_walk(w, name, w.name)
             if r is not None:
                 out_walks.append((w.name,) + r)
         return out_walks
 
-    def _one_walk(w, name):
+    def _one_walk(w, name, wname):
         files, seqs = {}, {}
         for q in sorted(w.glob("*.jpg")):
             m = NAME.match(q.name)
             if m:
                 files.setdefault(m.group(2), {})[m.group(4) or "F"] = q
                 seqs[m.group(2)] = int(m.group(1))
+        # THE FRAME A WALK SHOWS AT A NODE IS THE ONE THAT FACES THE WAY IT
+        # TRAVELS, and that is not always the one filed under this walk. Every
+        # node carries two frames about 180 degrees apart; on 51 of the City's
+        # 458 walk folders the filed one looks backwards, so the walk turned
+        # round partway and the frontage swapped sides. frame_bearings.py picks
+        # by angular distance to the travel bearing -- no folder, no cardinal.
+        if WALKFRAMES:
+            swapped = 0
+            for nid in list(files):
+                alt = WALKFRAMES.get((w.parent.name, w.name, nid))
+                if alt is not None and alt.exists() and alt != files[nid].get("F"):
+                    files[nid] = {"F": alt}
+                    swapped += 1
+            if swapped:
+                print(f"    {w.parent.name}/{w.name}: {swapped} frames taken "
+                      f"from the node's other view (filed one faced backwards)")
         if not files:
             return None
         nf = ALLNODES[ALLNODES.node_id.isin(files)].copy()
@@ -263,7 +315,37 @@ def main():
         # east kerb, west kerb, east. Chain-grouping is now reserved for the
         # one case that needs it -- duplicated seq values, where the sequence
         # genuinely restarts per corridor and seq alone would interleave them.
-        if nf.fseq.is_unique:
+        # THE STORED WALK BEATS THE FILENAME, where the frame has one.
+        # The exporter numbers frames by projecting them onto ONE fitted
+        # bearing per street. Manhattan is straight, so that projection IS the
+        # walk. Finsbury Circus is a ring: projected onto a single axis its
+        # nodes come out 586, 585, 584, 587 -- the view hops backwards round
+        # the circle and the arrow points at the hop.
+        #
+        # nodes.csv carries seq_fwd / seq_rev per node, which is the real
+        # traversal. It restarts per RUN and a chain can hold more than one
+        # (Finsbury has a 4-node run and an 18-node run under one name), so
+        # the run has to be identified first: within a run of length L every
+        # node satisfies seq_fwd + seq_rev == L + 1. That separates them with
+        # no geometry at all, and on the City frame 261 of 271 (chain, run)
+        # groups then order as a contiguous 1..n walk. The 10 that do not are
+        # parallel kerbs sharing a position, which the one-node-per-position
+        # rule below already resolves.
+        #
+        # DIRECTION still comes from the filenames -- the folder and the
+        # cardinal letter say which way this walk is meant to run, and only
+        # the ORDER was ever wrong.
+        stored = ({"seq_fwd", "seq_rev", "chain"} <= set(nf.columns)
+                  and nf[["seq_fwd", "seq_rev"]].notna().all().all())
+        # ORDER from the stored traversal; DIRECTION from the folder name.
+        # An earlier version reversed on filename evidence, which fought the
+        # frame selection: frames are chosen to face the way seq_fwd
+        # increases, so reversing the order on the filename turned every view
+        # backwards -- Abchurch Lane walked its own frontage in reverse.
+        if stored:
+            nf["run"] = (nf.seq_fwd + nf.seq_rev).astype(int)
+            nf = nf.sort_values(["segname", "run", "seq_fwd"])
+        elif nf.fseq.is_unique:
             nf = nf.sort_values("fseq")
         else:
             nf = nf.sort_values(["segname", "fseq"])
@@ -286,10 +368,34 @@ def main():
         # auxflag, not _aux: itertuples() renames leading-underscore columns
         # to positional _1, _2, and the flag silently read 0 for every row.
         nf["auxflag"] = 0
-        if nf.cstreet.notna().all():
+        if stored:
+            # NO POSITION STRIDE ON A STORED RUN. The stride keeps one node per
+            # position along the street, which is right for a folder holding
+            # parallel kerbs and wrong for a ring: Finsbury Circus doubles back
+            # on itself, so its 18-node run reads as five positions and the
+            # walk lost thirteen of them. A (chain, run) is already a single
+            # traversal that never revisits a position, so there is nothing to
+            # de-duplicate.
+            pass
+        elif nf.cstreet.notna().all():
             # the cleaning already resolved which street each node is on and
             # where it sits: nothing to reconstruct, nothing to de-duplicate
             nf = nf.sort_values("cseq")
+            # ...but cleaned_id counts one way along the street, and a walk has
+            # two. Sorting both directions by it made them step in the SAME
+            # order: the frames changed when you flipped direction and nothing
+            # else did -- same position, same next node, arrow unable to turn
+            # round. The folder name says which way this walk travels, so the
+            # order is reversed when it disagrees.
+            want = {"north_to_south": ("lat", False),
+                    "south_to_north": ("lat", True),
+                    "east_to_west": ("lon", False),
+                    "west_to_east": ("lon", True)}.get(wname)
+            if want and len(nf) > 1:
+                axis, ascending = want
+                got_ascending = nf[axis].iloc[-1] > nf[axis].iloc[0]
+                if got_ascending != ascending:
+                    nf = nf.iloc[::-1]
         elif nf.segname.nunique() > 1:
             # dedupe within each chain; across disjoint chains "position along
             # the street" has no meaning and grouped unrelated nodes together
@@ -313,6 +419,15 @@ def main():
     # page whose scores averaged both halves -- a view that did not match its
     # own numbers. Both halves are composed into one frame instead, seam down
     # the middle, which is the same pairing tools/walk_gif.py makes.
+    global WALKFRAMES
+    WALKFRAMES = {}
+    if args.walk_frames and args.walk_frames.exists():
+        _wf = pd.read_csv(args.walk_frames)
+        WALKFRAMES = {(r.street, r.walk, r.node_id): (args.src or (RAW / "svi_180")) / r.file
+                      for r in _wf.itertuples()}
+        print(f"walk frames: {len(WALKFRAMES)} choices from "
+              f"{args.walk_frames}")
+
     ALLNODES = pd.read_csv(PROC / "nodes.csv")
     # usable: False never reaches the page -- not as a step, not as a map dot.
     # The tag (tools/node_usability.py) marks tunnel interiors, the viaduct
@@ -324,6 +439,19 @@ def main():
         print(f"  {len(UNUSABLE)} nodes tagged unusable: excluded from the "
               f"walk and the map")
         ALLNODES = ALLNODES[ALLNODES.usable.astype(bool)].copy()
+    # IN-STUDY ONLY, like every other tool. This one never filtered, so the
+    # Murray Hill walk carried 33 Park_Ave_West nodes and 57 on the chain
+    # named Park_Ave_Tunnel_Segment -- which sits at easting 919, on 1st
+    # Avenue, 750 m from Park. Walking "Park Avenue" therefore jumped between
+    # the west roadway, the east roadway and a stretch of a different avenue
+    # entirely. sim_block_map, field_maps and the block counts all filter on
+    # in_study; the page that people actually look at did not.
+    if "in_study" in ALLNODES.columns:
+        before = len(ALLNODES)
+        ALLNODES = ALLNODES[ALLNODES.in_study.astype(bool)].copy()
+        if before - len(ALLNODES):
+            print(f"  outside the study area: {before - len(ALLNODES)} nodes "
+                  f"dropped, {len(ALLNODES)} kept")
     # NO LEADING UNDERSCORES ON COLUMNS READ BACK THROUGH itertuples(): it
     # renames them to positional _1, _2 and every getattr silently returns the
     # default. It cost this file a broken chain split and a broken street
@@ -349,16 +477,50 @@ def main():
         if "source_id" in ALLNODES.columns and ALLNODES.source_id.notna().any()
         else ALLNODES.get("chain", "all"))
 
-    rt = load(args.ratings or (RES / "tables" / "sim_vlm_180_placeless.csv"))
-    if rt is None:
-        rt = load(RES / "tables" / "sim_vlm_v3.csv")
-    de = load(args.descriptions or (RES / "tables" / "vlm_descriptions_180.csv"))
+    # DEFAULTS ARE MURRAY HILL FILENAMES. Under SIM_CONFIG=config_london.yaml
+    # RES moves to the City's own results root but the STEMS do not, and
+    # London's tables are named differently -- so a London build that does not
+    # pass --ratings / --descriptions silently loads neither and ships a page
+    # with an empty ratings panel and "not described yet" on every node. It has
+    # now done that twice. Glob for the city's actual tables instead, and refuse
+    # to build if nothing matches.
+    def _first(patterns, what):
+        for pat in patterns:
+            hits = sorted((RES / "tables").glob(pat))
+            if hits:
+                return load(max(hits, key=lambda q: q.stat().st_mtime))
+        raise SystemExit(
+            f"no {what} table under {RES / 'tables'} matching {patterns}. "
+            f"Pass --{what} explicitly; building without it produces a page "
+            f"with no {what} and no error.")
+
+    # ONE INPUT WHERE THERE IS ONE. Three tables meant three chances to pair
+    # the wrong ones -- and the joins between them were where the last bug
+    # lived: descriptions keyed on node_id beside a frame chosen by bearing.
+    # vlm_all is already one row per frame with everything on it, so the
+    # interface reads that and does no joining at all.
+    ALLTAB = None
+    if args.all_table and args.all_table.exists():
+        ALLTAB = pd.read_csv(args.all_table, low_memory=False)
+        ALLTAB["file"] = ALLTAB.file.astype(str).str.replace("\\", "/",
+                                                             regex=False)
+        print(f"one table: {args.all_table.name}  {len(ALLTAB)} frames x "
+              f"{len(ALLTAB.columns)} columns")
+
+    rt = ALLTAB if ALLTAB is not None else (load(args.ratings) if args.ratings else
+          _first(["sim_vlm_180_placeless.csv", "sim_vlm_*180*.csv",
+                  "sim_vlm_v3.csv"], "ratings"))
+    de = ALLTAB if ALLTAB is not None else (
+        load(args.descriptions) if args.descriptions else
+        _first(["vlm_descriptions_180.csv", "vlm_descriptions_180_v*.csv",
+                "vlm_descriptions*.csv"], "descriptions"))
     if args.greenery and args.greenery.exists() and de is not None:
         g = pd.read_csv(args.greenery)[["file", "greenery"]]
         de = de.drop(columns=[c for c in ["greenery"] if c in de.columns])                .merge(g, on="file", how="left")
         print(f"  greenery from {args.greenery.name}: "
               f"{int(de.greenery.notna().sum())} frames")
-    ca = load(args.calc or (RES / "tables" / "vlm_calculations.csv"))
+    ca = ALLTAB if ALLTAB is not None else load(
+        args.calc or (RES / "tables" / "vlm_calculations.csv"))
 
     def with_node_id(d):
         """node_id from the frame path when the table does not carry one.
@@ -417,9 +579,41 @@ def main():
             out[nid] = rec
         return out
 
+    def per_file(d, cols):
+        """The same lookup keyed on the FRAME, not the node.
+
+        A node has two half-views facing opposite ways, and the walk now shows
+        whichever of them faces the direction of travel. per_node averages the
+        numbers across both and takes the FIRST non-null string, so the text
+        beside a swapped frame described the other view -- "trees on the right"
+        against a frame with the trees on the left. The frame's own row is the
+        only correct source for a reading of that frame.
+        """
+        if d is None or "file" not in d.columns:
+            return {}
+        have = [c for c in cols if c in d.columns]
+        if not have:
+            return {}
+        out = {}
+        for rec in d[["file"] + have].to_dict("records"):
+            k = str(rec.pop("file")).replace("\\", "/")
+            out[k] = {c: (float(v) if isinstance(v, (int, float))
+                          and not isinstance(v, bool) else
+                          (None if v is None or (isinstance(v, float)
+                                                 and v != v) else str(v)))
+                      for c, v in rec.items()}
+        return out
+
     R = per_node(rt, FIELDS)
     D = per_node(de, QCOLS)
-    C = per_node(ca, list(DIM) + ["M", "M_noA", "Omega"])
+    RF = per_file(rt, FIELDS)
+    DF = per_file(de, QCOLS)
+    CF = None
+    # a, b, c travel with the score so the caption can print THIS node's
+    # exponents. They vary by H/W band now, so one hardcoded formula would
+    # be wrong on 79% of nodes.
+    C = per_node(ca, list(DIM) + ["M", "M_noA", "Omega", "a", "b", "c"])
+    CF = per_file(ca, list(DIM) + ["M", "M_noA", "Omega", "a", "b", "c"])
 
     out = args.out or (RES / "figures" / f"walk_{args.street}.html")
     out.parent.mkdir(parents=True, exist_ok=True)
@@ -564,11 +758,21 @@ def main():
         else:
             rel = os.path.relpath(next(iter(sides.values())),
                                   out.parent).replace("\\", "/")
+        # KEY ON THE FRAME BEING SHOWN. Fall back to the node only when this
+        # frame is absent from a table -- which is the pre-swap behaviour and
+        # is still right for a node with one view.
+        key = None
+        try:
+            src_path = next(iter(sides.values()))
+            key = "/".join(Path(src_path).parts[-3:]).replace("\\", "/")
+        except Exception:                                   # noqa: BLE001
+            key = None
         return {"node": r.node_id, "img": rel,
                 "street": str(getattr(r, "osm_name", None)
                               or getattr(r, "street_name", "")),
-                "r": R.get(r.node_id, {}), "d": D.get(r.node_id, {}),
-                "c": C.get(r.node_id, {})}
+                "r": (RF.get(key) or R.get(r.node_id, {})),
+                "d": (DF.get(key) or D.get(r.node_id, {})),
+                "c": (CF.get(key) or C.get(r.node_id, {}))}
 
     SEAM = 3
     steps = []
@@ -738,7 +942,7 @@ def main():
             mx = pad + (X - x0) * sc
             my = 1000.0 - pad - (Y - y0) * sc
             v = None if mser is None or nid not in mser.index else float(mser[nid])
-            col = "#3a3f46" if v is None or not np.isfinite(v) else                 to_hex(ramp(norm(v)))
+            col = "#b8bec7" if v is None or not np.isfinite(v) else                 to_hex(ramp(norm(v)))
             MAP["nodes"].append([nid, round(mx, 1), round(my, 1), col])
             pos[nid] = (round(mx, 1), round(my, 1))
         # EVERY NODE CARRIES ITS SCORES, not only the ones whose frames are in
@@ -755,7 +959,7 @@ def main():
             if nid in D: rec["d"] = D[nid]
             if rec:
                 v = (C.get(nid) or {}).get(mcol)
-                rec["k"] = "#3a3f46" if v is None else to_hex(ramp(norm(float(v))))
+                rec["k"] = "#b8bec7" if v is None else to_hex(ramp(norm(float(v))))
                 rec["kf"] = rec["k"]
                 rec["kc"] = {k: to_hex(TERM_CMAP[k](tnorm[k](float(dv))))
                              for k, dv in (C.get(nid) or {}).items()
@@ -786,7 +990,7 @@ def main():
     ticks = [t for t in ticks if lo <= t <= hi]
     for st in steps:
         v = st["c"].get(mcol, st["c"].get("M"))
-        st["k"] = "#3a3f46" if v is None else to_hex(ramp(norm(float(v))))
+        st["k"] = "#b8bec7" if v is None else to_hex(ramp(norm(float(v))))
         # THE FACE IS THE COMPOSITE'S OWN COLOUR, exactly the one the profile
         # strip, the scale bar and the M map give this node -- no lift. The
         # term bars are lifted for legibility and the face is not, because the
@@ -819,8 +1023,16 @@ def main():
               f"walk, kept on the map only: {', '.join(sorted(thin))}")
 
     have_q = sum(1 for s in steps if s["d"])
-    print(f"  ratings on {sum(1 for s in steps if s['r'])} nodes, "
+    have_r = sum(1 for s in steps if s["r"])
+    print(f"  ratings on {have_r} nodes, "
           f"descriptions on {have_q}, M on {sum(1 for s in steps if s['c'])}")
+    # a page with zero ratings or zero descriptions is not a degraded page, it
+    # is the wrong table silently loaded. Stop rather than write it.
+    if have_r == 0 or have_q == 0:
+        raise SystemExit(
+            f"ratings matched {have_r} frames and descriptions {have_q}. "
+            f"That means the tables loaded do not key to these frames -- "
+            f"check --ratings / --descriptions.")
 
     # EACH FRAME IS ITS OWN ELEMENT, not one JSON blob. A viewer that
     # truncates a large file cuts the blob mid-array, the parse throws, and the
@@ -829,7 +1041,20 @@ def main():
     # truncated file simply ends early: every frame before the cut still works.
     frag = []
     for st in steps:
-        meta = json.dumps({k: st[k] for k in ("node", "street", "r", "d", "c", "k", "kc", "pc", "sf", "kf", "mx", "my", "wk", "aux")})
+        # NaN IS NOT JSON. json.dumps writes a bare NaN and Python reads it
+        # back happily (allow_nan defaults True), so every check on this file
+        # passes -- but JSON.parse REJECTS it, the browser gets {} for that
+        # frame, and the frame ends up with sf="" and wk="". Those orphans then
+        # form a phantom 24th street that sorts first, so the page opens on it:
+        # empty picker, no ratings, no description, "1 / 94".
+        #
+        # It only started biting when Omega stopped multiplying into M. Omega is
+        # NaN wherever H/W is unmeasurable; it used to take M down with it and
+        # the row was dropped, and now it rides along into the payload.
+        meta = json.dumps(_json_safe({k: st[k] for k in
+                                      ("node", "street", "r", "d", "c", "k",
+                                       "kc", "pc", "sf", "kf", "mx", "my",
+                                       "wk", "aux")}))
         frag.append('<i class="f" data-meta="'
                     + html.escape(meta, quote=True)
                     + '" data-src="' + html.escape(st["img"], quote=True)
@@ -865,7 +1090,7 @@ TEMPLATE = r"""<!doctype html>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>__TITLE__</title>
 <style>
-:root{--bg:#0e0f12;--fg:#e8e6e1;--mut:#9a9aa2;--line:#23262b;--acc:#5fbf6a}
+:root{--bg:#ffffff;--fg:#16181c;--mut:#5c626b;--line:#dfe2e7;--acc:#2f8f3c;--surf:#f2f4f7}
 *{box-sizing:border-box}
 /* ONE SCREEN, whatever the screen is. The page is a fixed-height column and
    the frame takes whatever is left after the controls and the composite, so
@@ -884,11 +1109,11 @@ header{display:flex;align-items:baseline;gap:14px;padding:12px 18px;
 #pick{font:600 17px/1.2 "Segoe UI",system-ui,sans-serif;color:var(--fg);
       background:transparent;border:1px solid transparent;border-radius:4px;
       padding:3px 6px;margin-left:-6px;cursor:pointer;max-width:44vw}
-#pick:hover{border-color:var(--line);background:#171a1f}
+#pick:hover{border-color:var(--line);background:var(--surf)}
 #pick:focus-visible{outline:2px solid var(--acc)}
-#pick option{background:#171a1f;color:var(--fg);font-size:14px}
+#pick option{background:var(--surf);color:var(--fg);font-size:14px}
 header .a{color:var(--mut);font-size:13px}
-main{display:grid;grid-template-columns:1fr 380px;gap:18px;padding:14px 18px;
+main{display:grid;grid-template-columns:1fr minmax(560px,34vw);gap:18px;padding:14px 18px;
      align-items:stretch;flex:1;min-height:0}
 #left{display:flex;flex-direction:column;min-height:0}
 /* The sidebar is a column: tabs and the shared box are fixed, and the
@@ -898,7 +1123,7 @@ main{display:grid;grid-template-columns:1fr 380px;gap:18px;padding:14px 18px;
 aside{min-height:0;overflow:hidden;padding-right:4px;
       display:flex;flex-direction:column}
 aside>#tabs,aside>#pane,aside>h2{flex:none}
-#qual{flex:1;min-height:0;overflow-y:auto;margin:0}
+#qual{flex:1 1 auto;min-height:0;overflow-y:auto;margin:0;font-size:14.5px;line-height:1.45}
 /* stack on anything narrow -- a side-by-side grid at phone width squeezes the
    image into a sliver and the panel off the screen */
 @media (max-width:900px){
@@ -915,17 +1140,25 @@ aside>#tabs,aside>#pane,aside>h2{flex:none}
    width:100% notwithstanding. min-width:0 lets the track shrink. */
 main>*{min-width:0}
 #view{width:100%;max-width:100%;border:1px solid var(--line);border-radius:3px;
-      display:block;background:#171a1f;flex:1;min-height:0;object-fit:contain}
+      display:block;background:var(--surf);flex:1;min-height:0;object-fit:contain}
 #warn{display:none;padding:10px 12px;margin:8px 0;border:1px solid #7a3b3b;
       border-radius:3px;background:#241a1a;color:#e8b4b4;font-size:13px}
-.bar{height:20px;background:#171a1f;border-radius:2px;position:relative;
+.bar{height:23px;background:var(--surf);border-radius:3px;position:relative;
      overflow:hidden}
 .bar i{position:absolute;inset:0 auto 0 0;background:var(--acc);opacity:.75}
-.row{display:grid;grid-template-columns:142px 1fr 30px;gap:8px;
-     align-items:center;margin:3px 0}
-.row span{color:var(--mut);font-size:12px;overflow-wrap:anywhere}
-.row b{font-weight:600;text-align:right;font-variant-numeric:tabular-nums}
-h2{font-size:11px;text-transform:uppercase;letter-spacing:.08em;
+/* THE LABEL COLUMN MUST BE ABLE TO GIVE WAY. It was a flat 200px, which with
+   the two 13px gaps and the 46px number is 272px of fixed width -- inside
+   #foot's middle column, whose floor is 260px, the 1fr bar resolved to ZERO
+   and the three sub-index bars vanished, track and all, on any window narrow
+   enough to hit that floor. The same class in the sidebar kept its bars,
+   because that column is minmax(560px,34vw), which is why the panel looked
+   fine and the strip did not. Both ends now have a floor: the label shrinks
+   before the bar does, and the bar never reaches zero. */
+.row{display:grid;grid-template-columns:minmax(64px,200px) minmax(44px,1fr) 46px;
+     gap:13px;align-items:center;margin:6px 0}
+.row span{color:var(--mut);font-size:15px;overflow-wrap:anywhere}
+.row b{font-weight:600;text-align:right;font-size:15px;font-variant-numeric:tabular-nums}
+h2{font-size:12px;text-transform:uppercase;letter-spacing:.08em;
    color:var(--mut);margin:11px 0 5px;font-weight:600}
 /* Two modes over one panel: the ratings say what this view is like, the map
    says where it is. They answer different questions about the same node and
@@ -935,7 +1168,7 @@ h2{font-size:11px;text-transform:uppercase;letter-spacing:.08em;
    color:var(--mut);background:transparent;border:1px solid transparent;
    padding:4px 8px;border-radius:3px;font-weight:600}
 #tabs button:hover{color:var(--fg)}
-#tabs button.on{color:var(--fg);border-color:var(--line);background:#171a1f}
+#tabs button.on{color:var(--fg);border-color:var(--line);background:var(--surf)}
 /* BOTH TABS OCCUPY ONE BOX. The ratings stay in flow and set the height --
    hidden with visibility, not display, so the box does not collapse -- and the
    map is laid over them. Switching tabs then moves nothing below: the
@@ -946,9 +1179,9 @@ h2{font-size:11px;text-transform:uppercase;letter-spacing:.08em;
    space below them and the map is not happy without it. The box is square to
    the sidebar's width, capped against the viewport so the description under it
    still fits on a short screen without scrolling. */
-#pane{position:relative;min-height:180px}
+#pane{position:relative;min-height:390px;flex:0 1 auto}
 #fields{height:100%;overflow-y:auto}
-.grp{display:flex;align-items:center;gap:6px;font-size:10px;font-weight:600;
+.grp{display:flex;align-items:center;gap:7px;font-size:11.5px;font-weight:600;
      text-transform:uppercase;letter-spacing:.07em;color:var(--mut);
      margin:9px 0 3px}
 .grp:first-child{margin-top:0}
@@ -963,9 +1196,12 @@ h2{font-size:11px;text-transform:uppercase;letter-spacing:.08em;
 #map circle.n:hover{stroke:var(--fg);stroke-width:14}
 #maphint{margin-top:6px}
 .q{margin:0 0 12px}
-.q dt{color:var(--mut);font-size:9.5px;text-transform:uppercase;
-      letter-spacing:.07em;margin-bottom:1px}
-.q dd{margin:0 0 6px;font-size:11.5px;line-height:1.36}
+/* The descriptions are the reason the sidebar is wide, so they are sized to
+   be read rather than squinted at: the column is now min 560px / 34vw and the
+   longest description wraps to about two lines in it. */
+.q dt{color:var(--mut);font-size:10.5px;text-transform:uppercase;
+      letter-spacing:.07em;margin-bottom:2px}
+.q dd{margin:0 0 9px;font-size:14.5px;line-height:1.45}
 /* two rows, three columns: the legend sits in the middle column so its scale
    lines up with the profile it explains rather than with the page. */
 #ctl{display:grid;grid-template-columns:auto 1fr auto;gap:6px 10px;
@@ -994,9 +1230,9 @@ h2{font-size:11px;text-transform:uppercase;letter-spacing:.08em;
 #mark{position:absolute;top:0;width:3px;height:18px;background:var(--fg);
       border-radius:1px;box-shadow:0 0 0 1px rgba(0,0,0,.7);
       transform:translateX(-1.5px);pointer-events:none}
-button{background:#171a1f;color:var(--fg);border:1px solid var(--line);
+button{background:var(--surf);color:var(--fg);border:1px solid var(--line);
        border-radius:3px;padding:6px 12px;font-size:13px;cursor:pointer}
-button:hover{border-color:#3a3f46}
+button:hover{border-color:#b8bec7}
 /* NEVER WRAPS, AND NEVER CHANGES WIDTH. "9 / 16" fits on one line and
    "10 / 16" did not, so the counter wrapped, the control row grew a line, and
    every node with a two-digit index pushed the page down a step. */
@@ -1007,8 +1243,14 @@ input[type=range]{display:block}
 /* The composite sits under the view, not in the sidebar: three numbers and a
    distribution take a strip of width far better than a column, and the space
    they were using is what the descriptions needed. */
-#foot{display:grid;grid-template-columns:auto minmax(230px,1fr) 260px;
-      gap:20px;align-items:start;margin-top:10px;padding-top:10px;
+/* The middle column carries the three sub-index bars and it was the one
+   starved: 260px floor against a 300px fixed distribution and a 200px M box
+   left it about 286px, and the bars inside it 14px. The distribution is a
+   shape, not a reading, and loses nothing at 220px; the M box holds a number
+   and a face. Both give way to the column where length IS the measurement. */
+#foot{display:grid;
+      grid-template-columns:minmax(130px,160px) minmax(360px,1fr) minmax(190px,220px);
+      gap:16px;align-items:start;margin-top:10px;padding-top:10px;
       border-top:1px solid var(--line);flex:none}
 #mbox{min-width:150px}
 /* The composite as a face: the same number the panel already gives, in the
@@ -1021,6 +1263,14 @@ input[type=range]{display:block}
 #smiley{width:52px;height:52px;display:block}
 #foot h2{margin:0 0 4px}
 #dims{padding-top:2px}
+/* The strip's three rows carry only "imageability", "identity" and
+   "dependence" -- none needs the 200px the sidebar's "ground floor activity"
+   does, and at 200px the label ate the column: #dims resolves to roughly
+   286px, so a 200px label plus the 46px number plus two gaps left the bar
+   about 14px even at full screen. Scoped here so the sidebar keeps its wider
+   label and only the strip tightens. */
+#dims .row{grid-template-columns:minmax(64px,112px) minmax(120px,1fr) 44px;
+           gap:12px}
 #dist svg{width:100%;height:46px;display:block;margin-top:3px}
 #dist .note{min-height:15px}
 @media (max-width:900px){#foot{grid-template-columns:1fr;gap:12px}}
@@ -1199,8 +1449,8 @@ function paint(s, scoresOnly){
       g.setAttribute("transform",`translate(${s.mx},${s.my}) rotate(0)`); }
   } else markMap();
   $("Mnote").textContent = full
-    ? "I⁰·⁴ · Y⁰·² · D⁰·⁴ · Ω"
-    : "I⁰·⁴ · Y⁰·² · D⁰·⁴ — Ω = 1: no facade heights for this study area, so no H/W";
+    ? `I^${(s.c.a??0).toFixed(2)} · Y^${(s.c.b??0).toFixed(2)} · D^${(s.c.c??0).toFixed(2)}`
+    : "I^a · Y^b · D^c — exponents vary with H/W; none measurable here";
   $("M").textContent = m==null ? "--" : m.toFixed(3);
   $("dims").innerHTML = Object.entries(DIMS).map(([k,label])=>{
     const v=s.c[k];
@@ -1221,7 +1471,7 @@ function paint(s, scoresOnly){
         <b>${v.toFixed(2)}</b></div>`;
   }).join("");
 
-  $("fields").innerHTML = GROUPS.map(([label, term, members])=>{
+  $("fields").innerHTML = GROUPS.map(([label, term, members, col])=>{
     const rows = members.map(([f, inv])=>{
       const v=s.r[f];
       if(v==null) return "";
@@ -1234,12 +1484,12 @@ function paint(s, scoresOnly){
       return `<div class="row"><span
         title="${inv?"enters its term inverted: a higher rung lowers it":""}"
         >${f.replace(/_/g," ")}</span>
-        <div class="bar"><i style="width:${(r-1)/6*100}%"></i></div>
+        <div class="bar"><i style="width:${(r-1)/6*100}%;background:${col}"></i></div>
         <b>${r}</b></div>`;
     }).join("");
     if(!rows) return "";
     return `<div class="grp"><span class="gdot"
-      style="background:${s.kc[term]||"var(--acc)"}"></span>${label}</div>${rows}`;
+      style="background:${col}"></span>${label}</div>${rows}`;
   }).join("") || '<div class="none">no ratings for this node</div>';
 
   const q=QCOLS.filter(c=>s.d[c]).map(c=>
@@ -1369,7 +1619,7 @@ function showScoresOnly(id){
   const rec = MAP.data && MAP.data[id];
   if(!rec) return;
   const st = Object.assign({node:id, street:"", img:null, r:{}, d:{}, c:{},
-                            kc:{}, k:"#3a3f46", kf:"#6b7078"}, rec);
+                            kc:{}, k:"#b8bec7", kf:"#6b7078"}, rec);
   st.mx = (MAP.nodes.find(n=>n[0]===id)||[])[1];
   st.my = (MAP.nodes.find(n=>n[0]===id)||[])[2];
   paint(st, true);
@@ -1466,7 +1716,7 @@ function start(){
   ALL=[...document.querySelectorAll("#frames .f")].map(el=>{
     let m={}; try{ m=JSON.parse(el.dataset.meta||"{}"); }catch(e){}
     return {img:el.dataset.src, node:m.node||"", street:m.street||"",
-            r:m.r||{}, d:m.d||{}, c:m.c||{}, k:m.k||"#3a3f46", kc:m.kc||{}, pc:m.pc, sf:m.sf||"", kf:m.kf||"#6b7078",
+            r:m.r||{}, d:m.d||{}, c:m.c||{}, k:m.k||"#b8bec7", kc:m.kc||{}, pc:m.pc, sf:m.sf||"", kf:m.kf||"#6b7078",
           mx:m.mx, my:m.my, wk:m.wk||"", aux:m.aux||0};
   });
   // one <option> per street, in the order the build wrote them
@@ -1609,7 +1859,7 @@ function pickStreet(name, wk){
     $("strip").style.background="linear-gradient(to right,"+STEPS.map(
       (s,j)=>s.k+" "+(j/(n-1)*100).toFixed(2)+"%").join(",")+")";
   } else {
-    $("strip").style.background=STEPS.length?STEPS[0].k:"#171a1f";
+    $("strip").style.background=STEPS.length?STEPS[0].k:"var(--surf)";
   }
   draw();
 }

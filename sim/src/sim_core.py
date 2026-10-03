@@ -2,13 +2,14 @@
 
 Section 2.7 of morphology_streetinterfacematrix (24 Aug 2026):
 
-    M_i = I_i^a * Y_i^b * D_i^c * Omega_i
+    M_i = I_i^a * Y_i^b * D_i^c          (Omega_i is reported, not applied;
+                                          see omega.apply_to_M in config)
 
     I_i = sigmoid(kappa_I * (I_raw - tau_I))
           I_raw = a1*(V_nat/V_built) + a2*GVI_eye + a3*GMI
-    Y_i = b1*V_sign + b2*(1 - SVF) + b3*SFV          <- no sigmoid
+    Y_i = b1*V_sign + b2*(1 - SVF) + b3*GFAPI        <- no sigmoid
     D_i = sigmoid(kappa_D * (D_raw - tau_D))
-          D_raw = c1*V_pave + c2*SFV + c3*GFAPI
+          D_raw = c1*V_pave + c2*IAS
     Omega_i = exp(-psi * max(0, H/W - Omega_th))
 
 Three things here are easy to get wrong, so they are stated once:
@@ -28,9 +29,18 @@ OMEGA IS A DISCOUNT, NOT A DIMENSION. It is 1.0 everywhere H/W <= 2.0 and
 decays only in deep canyons. Without a measured H/W it cannot be computed,
 and this module refuses to invent one -- see omega().
 
-SFV enters Y and D_raw both, as the manuscript specifies. That is not a
-double-count to be corrected; it is why facade variation carries more
-influence than any other single input.
+SFV IS NOT IN THE MODEL AT ALL. Nature09.08 sec 2 states the assignment
+plainly: "street facade variation (SFV) is dropped entirely, active edge
+legibility (GFAPI) is assigned exclusively to Place Identity, and tactile
+seating ledges (IAS) assigned exclusively to Place Dependence." So Y takes
+GFAPI as its third term and D is left with two.
+
+The field is still RATED and still exported; it simply feeds nothing. That is
+the right outcome on the evidence as well as the specification: facade_variation
+answers one rung on 83% of frames, correlates +0.02 with facade change measured
+between neighbouring nodes at every spacing from 20 m to 160 m, and +0.49 with
+vertical_hardscape -- it was re-measuring how much building is in view, which
+V_built already supplies as I_raw's denominator.
 """
 import numpy as np
 
@@ -97,10 +107,18 @@ def dependence(v_pave, sfv, gfapi, w, kappa, tau):
 def regime_exponents(hw, cfg, porous=None):
     """Section 2.8: elasticities shift with the local morphological regime.
 
-    Mid-block is the one case the manuscript leaves partly open -- it states
-    a -> 0.50 and nothing about b or c, so b holds at its global value and c
-    takes the remainder. That inference is recorded in config, not buried
-    here, so it can be overridden without touching code.
+    Nature09.03 states all three exponents for all three regimes, so nothing
+    is inferred any more; the values live in config. (The 8.31 draft stated
+    only some of them, and the inference that filled the gaps had a and b
+    transposed for the canyon and b and c for the mid-block.)
+
+    THE THREE REGIMES DO NOT PARTITION H/W. Nothing claims the band
+    1.2 < H/W < 3.0, nor anything below 0.8, and those two gaps hold 52.5% of
+    Murray Hill -- including its median street at H/W 1.424. Those rows keep
+    the global exponents, so the elasticities are spatially varying on
+    slightly under half the area and fixed on the rest. That is what the
+    manuscript's bands specify, not a bug here, but it is not what "spatially
+    varying" implies to a reader.
 
     `porous` selects the third regime, POPS and setback plazas. It is the one
     the manuscript gives no H/W band for, and deliberately so: it describes
@@ -114,14 +132,29 @@ def regime_exponents(hw, cfg, porous=None):
     g = cfg["exponents"]
     out = {k: np.full(hw.shape, v, float) for k, v in g.items()}
     R = cfg.get("elasticity_by_regime") or {}
+    bands = cfg.get("elasticity_bands")
 
-    canyon = hw >= cfg.get("canyon_hw", 3.0)
-    lo, hi = cfg.get("midblock_hw", [0.8, 1.2])
-    midblock = (hw >= lo) & (hw <= hi)
-    for mask, key in ((canyon, "avenue_canyon"), (midblock, "covenant_midblock")):
-        if key in R:
-            for k, v in R[key].items():
-                out[k] = np.where(mask, v, out[k])
+    if bands:
+        # Ordered bands tiling the whole range, so nothing reaches the global
+        # by falling between two named regimes. `max_hw: ~` is the open top.
+        lo = -np.inf
+        for bnd in bands:
+            top = bnd.get("max_hw")
+            hi = np.inf if top is None else float(top)
+            m = (hw >= lo) & (hw < hi)
+            for k in out:
+                if k in bnd:
+                    out[k] = np.where(m, bnd[k], out[k])
+            lo = hi
+    else:
+        canyon = hw >= cfg.get("canyon_hw", 3.0)
+        lo, hi = cfg.get("midblock_hw", [0.8, 1.2])
+        midblock = (hw >= lo) & (hw <= hi)
+        for mask, key in ((canyon, "avenue_canyon"),
+                          (midblock, "covenant_midblock")):
+            if key in R:
+                for k, v in R[key].items():
+                    out[k] = np.where(mask, v, out[k])
     for k in out:
         out[k] = np.where(np.isnan(hw), g[k], out[k])
 
@@ -140,7 +173,11 @@ def regime_exponents(hw, cfg, porous=None):
 
 
 def matrix_score(I, Y, D, Om, a, b, c):
-    """M = I^a * Y^b * D^c * Omega, with 0^positive = 0 kept, not clipped.
+    """M = I^a * Y^b * D^c * Om, with 0^positive = 0 kept, not clipped.
+
+    Callers pass Om = 1.0 for the manuscript's formula. The parameter is kept
+    so the discounted variant stays reproducible, not because it is the
+    default -- sim_compute decides from config.
 
     A zero dimension collapsing the score is the behaviour the manuscript
     asks for, so it is not floored. Negative or NaN inputs propagate as NaN

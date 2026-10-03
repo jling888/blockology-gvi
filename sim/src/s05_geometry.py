@@ -327,6 +327,16 @@ def main():
 
     R = G["hw_fill_radius_m"]
     fill_stat = G.get("hw_fill_stat", "mean")
+    # How far the series walk may reach for a donor, in nodes. Unbounded, it
+    # will cross a whole block: East 36th has runs of eleven consecutive
+    # failures, so its middle nodes inherited from >100 m away and came out at
+    # 0.578 against a measured 1.032 for the same street; the Park Avenue
+    # tunnel segment inherited 3.392 against a measured 1.422, wrong by the
+    # same margin in the other direction. Beyond the cap the node keeps no
+    # H/W and takes the global exponents -- which only became a safe thing to
+    # do once Omega stopped multiplying into M, because a missing ratio no
+    # longer voids the score.
+    max_steps = G.get("hw_series_max_steps")
     todo = ~np.isfinite(hw) & ~openish
     seg = metrics._street.to_numpy()
 
@@ -382,6 +392,8 @@ def main():
                 break
             if lo < 0 and hi >= len(k):
                 break
+            if max_steps is not None and step >= int(max_steps):
+                break                      # donor too far to be this section
             step += 1
 
     metrics["HW_effective"], metrics["HW_source"] = filled, source

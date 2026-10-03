@@ -248,6 +248,12 @@ geometry:
   # (East 40th runs 0.87-7.89 within 120 m) and the mean lands in a gap no
   # node on the street occupies.
   hw_fill_stat: mean        # mean | median
+  # Max nodes the series fallback may walk for a donor. Past this the
+  # donor is a different street section, not this one: uncapped it
+  # crossed whole blocks and inherited ratios wrong by 2x in both
+  # directions. Nodes beyond it keep no H/W and take the global
+  # exponents, which is honest about not knowing.
+  hw_series_max_steps: 3    # 3 nodes = ~60 m at 20 m sampling
   # Fill order, both operating on the street's own ordered series:
   #   1. mean of every measured node on the same street within the radius
   #   2. if none, walk the series outward and take the first measured node
@@ -631,13 +637,20 @@ sim_vlm:
     # relative, normalised by common.weights(); 1/1/1 is exact equal thirds
     dimension:    {imageability: 1, identity: 1, dependence: 1}
     imageability: {nat_built: 1, gvi_eye: 1, gmi: 1}
-    identity:     {signboard: 1, enclosure: 1, sfv: 1}
-    # Section 2.7: D_raw = g1*V_pave + g2*IAS + g3*GFAPI. `ias` was `sfv`
-    # until the resting_affordance field existed -- which put facade
-    # variation in both Y and D and left Dependence with no affordance term,
-    # so the dimension measured walkable ground, an Identity trait, and
-    # ground-floor glazing rather than physical utility.
-    dependence:   {sidewalk_paver: 1, ias: 1, gfapi: 1}
+    identity:     {signboard: 1, enclosure: 1, gfapi: 1}
+    # Nature09.08 sec 2: "street facade variation (SFV) is dropped entirely,
+    # active edge legibility (GFAPI) is assigned exclusively to Place Identity,
+    # and tactile seating ledges (IAS) assigned exclusively to Place
+    # Dependence." So GFAPI moves Y-ward, D loses its third term, and SFV
+    # leaves the model altogether.
+    #
+    # SFV was never defensible anyway: it answers one rung on 83% of frames,
+    # correlates +0.02 with facade change measured between neighbouring nodes
+    # at every spacing from 20 m to 160 m, and +0.49 with vertical_hardscape --
+    # it was re-measuring how much building is in view, which V_built already
+    # does. The facade_variation RATING is still collected; it just no longer
+    # enters any index.
+    dependence:   {sidewalk_paver: 1, ias: 1}
   # P_natural_above / P_built_above is a ratio of two free quantities and is
   # unbounded, while every other term is a share in [0,1]. Summing them under
   # weights that total 1 would let the ratio decide the answer on its own --
@@ -651,7 +664,13 @@ sim_vlm:
   # because greenery and walkability have activation thresholds and
   # legibility does not.
   cobb_douglas:
-    exponents:            {imageability: 0.40, identity: 0.20, dependence: 0.40}
+    # THE GLOBAL IS THE TRANSITIONAL BAND. It applies where H/W cannot be
+    # measured at all, and takes the middle of the schedule rather than either
+    # extreme: enclosure unknown, so neither greenery nor physical utility is
+    # assumed to govern. London has no building heights, so EVERY London row
+    # lands here -- which means section 2.8's spatially varying elasticities
+    # are not in effect there and M reduces to a fixed Cobb-Douglas.
+    exponents:            {imageability: 0.40, identity: 0.25, dependence: 0.35}
     # The GLOBAL calibration -- the thresholds the manuscript states, fixed
     # across cities so two study areas sit on one scale. Nature.8.31 para 129
     # defends tau_I = 0.20 as "the minimum eye-level vegetation exposure
@@ -671,11 +690,39 @@ sim_vlm:
     # Murray Hill they agree on D and differ on I (0.389 against 0.20), and
     # the two rankings correlate rho +0.930.
     imageability_sigmoid: {kappa: 12.0, tau: 0.20}
-    dependence_sigmoid:   {kappa: 15.0, tau: 0.50}
+    # tau_D follows the City-Wide Median Calibration protocol: it IS the
+    # median D_raw. It was 0.50 when D_raw was (V_pave + IAS + GFAPI)/3.
+    # Nature09.08 moved GFAPI into Y, so D_raw is now (V_pave + IAS)/2
+    # and its median moved to 0.422. Leaving tau at 0.50 centred the
+    # sigmoid 0.08 above the data and pushed median D from 0.657 to
+    # 0.238 -- an artefact of the stale threshold, not a finding.
+    dependence_sigmoid:   {kappa: 15.0, tau: 0.422}
     omega:                {psi: 0.15, hw_threshold: 2.0}
-    # section 2.8 regimes, classified on H/W
+    # section 2.8 regimes, classified on H/W. Kept for the legacy path.
     canyon_hw: 3.0
     midblock_hw: [0.8, 1.2]
+    # The schedule in use: five bands tiling the whole H/W range, so nothing
+    # falls through to the global by accident. Section 2.8 named three regimes
+    # and left 1.2-3.0 and everything under 0.8 unclaimed -- together 52.5% of
+    # Murray Hill, including its median street at H/W 1.424.
+    #
+    # a falls and c rises monotonically with enclosure, the mechanism the
+    # manuscript states: "continuous high-rise walls suppress 180-degree
+    # optical green views ... inducing spatial oppression and accelerating
+    # transit velocities. Conversely, low-rise corridors and porous block
+    # breaks with eye-level greenery ... trigger restorative soft fascination,
+    # lowering walking speeds and extending dwell times." b steps down 0.05 a
+    # band. Every row sums to 1.0; regime_exponents asserts it.
+    #
+    # 0.8-1.2 reproduces section 2.8's stated mid-block exactly. The canyon row
+    # DEPARTS from the stated 0.10/0.30/0.60 -- b is 0.15, not 0.30. That is a
+    # deliberate revision, not a gap-fill.
+    elasticity_bands:
+      - {max_hw: 0.8,  imageability: 0.55, identity: 0.35, dependence: 0.10}
+      - {max_hw: 1.2,  imageability: 0.50, identity: 0.30, dependence: 0.20}
+      - {max_hw: 2.0,  imageability: 0.40, identity: 0.25, dependence: 0.35}
+      - {max_hw: 3.0,  imageability: 0.30, identity: 0.20, dependence: 0.50}
+      - {max_hw: ~,    imageability: 0.15, identity: 0.15, dependence: 0.70}
     elasticity_by_regime:
       # canyon: c -> 0.60, b -> 0.10 are stated; a is the remainder
       avenue_canyon:     {imageability: 0.30, identity: 0.10, dependence: 0.60}
@@ -710,8 +757,65 @@ projected_crs: 27700
 # four Park Avenue IDs; those same IDs here are Bishopsgate, and inheriting
 # them dropped four nodes on a main street.
 excluded_nodes:
+  # Node ids are POSITIONAL to this frame. This fingerprint is
+  # <node count>:<sha1 of the sorted ids>; node_usability refuses to
+  # apply the lists below if it does not match, so copying this file
+  # to another city cannot silently exclude unrelated nodes.
+  frame: 1806:9c3467b784
   viaduct: []
+  # Eye-checked against the renders 2026-09-08, from a contact sheet of
+  # every City node the segmentation puts at 0% sky. Half of those are
+  # genuine narrow alleys and covered markets and are KEPT -- Angel Court
+  # is the highest-M node in the study, and Leadenhall Market, Clerks'
+  # Place, Fen Court and Ship Tavern Passage are the pedestrian interface
+  # this study is about. A sky threshold would have deleted them, so this
+  # is a list, not a rule. Listed here are the ones that are genuinely
+  # indoors: Google's own captures inside Tube concourses and lobbies,
+  # which the pano-id test cannot catch because they are not user
+  # photospheres.
+  interior:
+    - n00004    # Bank station concourse
+    - n00005    # Bank station concourse
+    - n00176    # Liverpool Street concourse
+    - n00257    # building lobby
+    - n00393    # Bank station
+    - n00513    # Tube station
+    - n00581    # Moorgate Elizabeth line platform
+    - n00709    # building corridor
+    - n00845    # Bank station
+    - n00847    # Bank station
+    - n00848    # Bank station
+    - n00849    # Bank station
+    - n00850    # Bank station
+    - n00851    # Bank station
+    - n00951    # Liverpool Street station
+    - n00952    # Liverpool Street station
+    - n00973    # Tube passage
+    - n01134    # Mansion House station
+    - n01135    # Mansion House station
+    - n01154    # Tube passage
+    - n01244    # shopping centre interior
+    - n01261    # gym interior
+    - n01354    # arcade interior
+    - n01355    # arcade interior
+    - n01356    # Tube passage
+    - n01434    # Tube station
+    - n01450    # building lobby
+    - n01588    # building interior
+    - n01667    # Upper Thames Street road tunnel
+    - n01761    # building interior
+    - n01762    # building interior
 
 # No place name, matching config.yaml. The instrument has to be the same in
 # both cities for a comparison between them to mean anything.
 prompt_place: null
+
+# Forced usable, overriding every automatic check. Same frame pin as
+# excluded_nodes above: these ids are positional.
+#
+# n00659 is the one fully enclosed stretch of the Globe View riverside
+# walkway -- a covered arcade midway along a genuine public route whose other
+# nodes are open to the Thames (n00660 8.5% sky / 5.2% sidewalk, n00661
+# 11.6/7.7, n00663 2.9/29.7). The interior test reads it as indoors on sky and
+# sidewalk alone, which is right about the frame and wrong about the place.
+kept_nodes: ["n00659"]

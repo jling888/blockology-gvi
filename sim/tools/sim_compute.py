@@ -4,6 +4,10 @@ Every term in I, Y and D comes from the VLM. That is the point of the study --
 how the model sees the street -- so the pixel measurements are not inputs here.
 They stay a separate arm for comparison against segmentation masking later.
 
+Omega is COMPUTED but no longer multiplied into M -- see omega.apply_to_M in
+config, and the note at the M column below. What follows describes the term
+itself, which is still reported per row.
+
 Omega is the one exception and it is deliberate: it discounts on H/W, a plan
 geometry measured from footprints and facade width in s05, and a single
 eye-level view cannot see the street width in the denominator. Where H/W is
@@ -149,9 +153,9 @@ def main():
     d["I_raw"] = (a_w["nat_built"] * d.nat_built + a_w["gvi_eye"] * d.GVI_eye
                   + a_w["gmi"] * d.GMI)
     d["Y"] = (b_w["signboard"] * d.V_sign + b_w["enclosure"] * (1 - d.SVF)
-              + b_w["sfv"] * d.SFV)
-    d["D_raw"] = (g_w["sidewalk_paver"] * d.V_pave + g_w["ias"] * d.IAS
-                  + g_w["gfapi"] * d.GFAPI)
+              + b_w["gfapi"] * d.GFAPI)
+    # Nature09.08: SFV dropped, GFAPI exclusively in Y, IAS exclusively in D.
+    d["D_raw"] = g_w["sidewalk_paver"] * d.V_pave + g_w["ias"] * d.IAS
     porous = (d.HW_source.eq("open_one_side") if "HW_source" in d.columns
               else None)
 
@@ -199,7 +203,15 @@ def main():
         d["I" + suf], d["D" + suf], d["Omega" + suf] = I, D, om
         d["a" + suf], d["b" + suf], d["c" + suf] = (
             e["imageability"], e["identity"], e["dependence"])
-        d["M" + suf] = S.matrix_score(I, d.Y, D, om, e["imageability"],
+        # Omega is computed and reported, but multiplying it into M is now
+        # OFF by default. Nature09.03 sec 2 states the model "decouples street
+        # aspect ratios and enclosure from being an unconditional global
+        # penalty", carrying them as endogenous proxies -- (1 - SVF) in Y and
+        # GMI in I -- and its formula is M = I^a Y^b D^c with no Omega term.
+        # Applying one on top double-counted enclosure. config's
+        # omega.apply_to_M restores the old behaviour for comparison.
+        om_M = om if C["omega"].get("apply_to_M", False) else 1.0
+        d["M" + suf] = S.matrix_score(I, d.Y, D, om_M, e["imageability"],
                                       e["identity"], e["dependence"])
         # ...and the same score with the canyon penalty switched off. A study
         # area without building heights cannot compute A_i at all, so its M is

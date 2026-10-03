@@ -220,7 +220,12 @@ def main():
         to_write &= set(args.nodes)
         print(f"--nodes: restricted to {len(to_write)} node(s)")
 
-    tunnels = {} if args.keep_tunnels else _tunnel_nodes(info.node_id)
+    tunnels = ({} if args.keep_tunnels
+               else _tunnel_nodes(info.node_id, required=False))
+    if tunnels is None:
+        print("  no sim_profiles.npz: the tunnel test did NOT run, "
+              "no node is excluded on that ground")
+        tunnels = {}
     viaduct = set() if args.keep_tunnels else (VIADUCT_NODES & set(info.node_id))
     if tunnels or viaduct:
         info = info[~info.node_id.isin(set(tunnels) | viaduct)]

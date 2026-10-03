@@ -112,11 +112,25 @@ VIADUCT_NODES = set().union(*(v for v in
     CFG.get("excluded_nodes", {}).values())) if CFG.get("excluded_nodes")     else set()
 
 
-def _tunnel_nodes(node_ids) -> dict[str, tuple[float, float]]:
-    """Nodes whose panorama is a tunnel interior rather than a street."""
+def _tunnel_nodes(node_ids, required: bool = True):
+    """Nodes whose panorama is a tunnel interior rather than a street.
+
+    RETURNS None WHEN THE TEST COULD NOT RUN, which is a different thing from
+    an empty dict. It used to return {} for a missing sim_profiles.npz, and
+    that is indistinguishable from "ran, found nothing" -- so the City of
+    London was exported and rated with the interior test silently disabled,
+    node_usability printing a confident "0 tunnel", and Bank station
+    concourses sitting in the walk-through as street frontage.
+    """
     path = PROC / "sim_profiles.npz"
     if not path.exists():
-        return {}
+        if required:
+            raise FileNotFoundError(
+                f"{path} not found, so the tunnel/interior test cannot run. "
+                f"Pass required=False to proceed deliberately without it -- "
+                f"but then NOTHING is excluded on that ground and this frame "
+                f"gets no interior filtering at all.")
+        return None
     z = np.load(path, allow_pickle=True)
     rows = [str(r) for r in z["__rows__"]]
     sky_row = rows.index("sky")
@@ -132,6 +146,14 @@ def _tunnel_nodes(node_ids) -> dict[str, tuple[float, float]]:
         if sky < TUNNEL_MAX_SKY and mass < TUNNEL_MAX_MASS:
             found[nid] = (sky, mass)
     return found
+
+
+def _spread(h) -> float:
+    """Angular spread of a set of headings, in degrees, wrap-aware."""
+    r = np.radians(np.asarray(h, float))
+    m = np.degrees(np.arctan2(np.sin(r).mean(), np.cos(r).mean()))
+    d = np.abs((np.degrees(r) - m + 180) % 360 - 180)
+    return float(d.max() * 2)
 
 
 def _walks(axis: float) -> list[tuple[float, str]]:
@@ -238,7 +260,12 @@ def main():
 
     info = nodes[nodes.node_id.isin(set(manifest.node_id))].copy()
 
-    tunnels = {} if args.keep_tunnels else _tunnel_nodes(info.node_id)
+    tunnels = ({} if args.keep_tunnels
+               else _tunnel_nodes(info.node_id, required=False))
+    if tunnels is None:
+        print("  no sim_profiles.npz: the tunnel test did NOT run, "
+              "no node is excluded on that ground")
+        tunnels = {}
     viaduct = set() if args.keep_tunnels else (VIADUCT_NODES & set(info.node_id))
     if tunnels or viaduct:
         info = info[~info.node_id.isin(set(tunnels) | viaduct)]
@@ -289,6 +316,46 @@ def main():
                       f"({axis:.1f}, pooled was {pooled:.1f})")
         else:
             axis = _street_axis(g._e.to_numpy(), g._n.to_numpy())
+
+        # PER-NODE HEADINGS WHERE THE NODE TABLE HAS THEM. The fitted axis
+        # below assumes a folder is one straight street. Manhattan's are, to
+        # within 0.2 degrees. The City of London's are not: Finsbury Circus is
+        # a ring whose own heading_fwd_deg sweeps 17 to 348 degrees over 18
+        # nodes, and fitting one axis to it rendered every node facing west
+        # and walked them along the compass instead of round the circus.
+        #
+        # nodes.csv already carries heading_fwd_deg / heading_rev_deg and
+        # seq_fwd / seq_rev per node, joined on node_id. Where those columns
+        # exist they ARE the answer and no fit is needed; where they do not,
+        # nothing changes.
+        per_node = all(c in g.columns for c in
+                       ("heading_fwd_deg", "heading_rev_deg",
+                        "seq_fwd", "seq_rev")) and             g[["heading_fwd_deg", "seq_fwd"]].notna().all().all()
+        if per_node:
+            spread = _spread(g.heading_fwd_deg.to_numpy())
+            walks = [("heading_fwd_deg", "seq_fwd"),
+                     ("heading_rev_deg", "seq_rev")]
+            if spread > 20:
+                print(f"  {street}: curved ({spread:.0f} deg of heading) -- "
+                      f"per-node bearings")
+            for hcol, scol in walks:
+                ordered = g.sort_values(scol)
+                walk = _walks(float(ordered[hcol].iloc[0]))[0][1]
+                folder = args.out / street / walk
+                folder.mkdir(parents=True, exist_ok=True)
+                for seq, row in enumerate(ordered.itertuples(), start=1):
+                    frames = _load(by_node[row.node_id])
+                    if frames is None:
+                        missing.append(row.node_id)
+                        continue
+                    b = float(getattr(row, hcol))
+                    img = panorama(frames, b, args.width)
+                    n = str(seq) if args.no_pad else str(seq).zfill(SEQ_WIDTH)
+                    Image.fromarray(img).save(
+                        folder / f"{n}_{row.node_id}_{_cardinal(b)}.jpg",
+                        quality=args.quality, optimize=True)
+                    written += 1
+            continue
 
         for bearing, walk in _walks(axis):
             # Along-street distance measured in the direction of travel,
