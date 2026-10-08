@@ -1,0 +1,34 @@
+{
+    "score_name": "Facade Mask Score",
+    "version": "v1",
+    "calibration": "pilot_20_svi",
+    "normalization": "fixed_minmax",
+    "weighting": "equal",
+    "features": {
+        "upper_facade_pct": {
+            "min": 12.02389617,
+            "max": 35.4968007,
+            "weight": 0.2
+        },
+        "upper_glazing_pct": {
+            "min": 2.567700752,
+            "max": 13.32211305,
+            "weight": 0.2
+        },
+        "ground_glazing_pct": {
+            "min": 0.0,
+            "max": 3.843552887,
+            "weight": 0.2
+        },
+        "stoop_pct": {
+            "min": 0.0,
+            "max": 5.27307739,
+            "weight": 0.2
+        },
+        "awning_pct": {
+            "min": 0.0,
+            "max": 1.206331878,
+            "weight": 0.2
+        }
+    }
+}
